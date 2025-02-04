@@ -4,7 +4,7 @@ import Image from "next/image"
 export function Hero() {
   return (
     <section className="relative px-4 py-12 md:py-24">
-      {/* Decorative Stars */}
+      {/* Decorative Stars TODO FIX*/}
       <div className="absolute top-12 right-12">
         <Star className="w-8 h-8 text-red-500 fill-red-500" />
       </div>
@@ -33,11 +33,10 @@ export function Hero() {
         {/* Image */}
         <div className="relative">
             <Image
-                src="/example.jpeg"
-                alt="Bikini Grad School"
-                width={500}
+                src="/landing-page.jpg"
                 height={500}
-                style={{objectFit: "cover"}}
+                width={500}
+                alt="Bikini Grad School"
             >
 
             </Image>
