@@ -1,5 +1,12 @@
+
+import { WhoWeAre, WhatWeDo, StaffSection } from "@/components/About"
+
 export default function About() {
     return (
-        <h1>Hello!</h1>
+        <main className="overflow-auto">
+            <WhoWeAre />
+            <WhatWeDo />
+            <StaffSection />
+        </main>
     )
 }

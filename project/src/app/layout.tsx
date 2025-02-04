@@ -19,12 +19,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.className} ${inter.className} antialiased`}
+        className={`${inter.className} ${inter.className} antialiased bg-pink-100`}
       >
-        <main className="min-h-screen bg-pink-100">
           <Navbar />
           {children}
-        </main>
       </body>
     </html>
   );
