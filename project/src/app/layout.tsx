@@ -1,0 +1,31 @@
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import Navbar from "@/components/Navbar";
+import "./globals.css";
+
+const inter = Inter({ subsets: ["latin"] })
+
+
+export const metadata: Metadata = {
+  title: "Bikini Grad School",
+  description: "A magazine for women and queer people",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body
+        className={`${inter.className} ${inter.className} antialiased`}
+      >
+        <main className="min-h-screen bg-pink-100">
+          <Navbar />
+          {children}
+        </main>
+      </body>
+    </html>
+  );
+}
