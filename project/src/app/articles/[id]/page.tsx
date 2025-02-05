@@ -3,7 +3,7 @@ import { getArticleById } from "@/lib/supabase/model"
 import { redirect } from "next/navigation"
 
 
-export default async function ArticlePage({ params }: { params: { id: string } }) {
+export default async function ArticlePage({ params }: { params: Promise<{ id: string }> }) {
   const articleId = (await params).id
   const { data, error } = await getArticleById(articleId)
 

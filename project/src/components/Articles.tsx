@@ -41,7 +41,7 @@ export function ArticlePreview({ article }: ArticleProps) {
 
 
 export function Article({ article }: ArticleProps) {
-    const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL!}/storage/v1/object/public/${article.img_path}`
+    const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL!}/storage/v1/object/public/images/${article.img_path}`
 
     return (
         <article className="max-w-3xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
