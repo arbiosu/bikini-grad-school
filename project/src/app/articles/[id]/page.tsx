@@ -1,16 +1,19 @@
-import { Article, mockArticles } from "@/components/Articles"
+import { Article } from "@/components/Articles"
+import { getArticleById } from "@/lib/supabase/model"
+import { redirect } from "next/navigation"
 
-export default function ArticlePage({ params }: { params: { id: string } }) {
-  const article = mockArticles.find((a) => a.id === params.id)
 
-  if (!article) {
-    return <div>Article not found</div>
+export default async function ArticlePage({ params }: { params: { id: string } }) {
+  const articleId = (await params).id
+  const { data, error } = await getArticleById(articleId)
+
+  if (error || !data) {
+    redirect('/articles')
   }
 
   return (
     <main className="container mx-auto px-4 py-8">
-        <Article article={article} />
+        <Article article={data[0]} />
     </main>
   )
 }
-

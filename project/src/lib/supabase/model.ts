@@ -7,3 +7,11 @@ export async function getArticles() {
     .select()
     .order('created_at', { ascending: false })
 }
+
+export async function getArticleById(id: string) {
+    const supabase = await createServiceClient()
+    return await supabase
+    .from("articles")
+    .select()
+    .eq('id', id)
+}
