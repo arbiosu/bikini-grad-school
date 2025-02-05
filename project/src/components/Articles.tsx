@@ -1,5 +1,6 @@
 import Image from "next/image"
 import Link from "next/link"
+import { Button } from "@/components/Buttons"
 import type { Tables } from "@/lib/supabase/database"
 
 
@@ -28,11 +29,8 @@ export function ArticlePreview({ article }: ArticleProps) {
             By {article.author} | {new Date(article.created_at).toLocaleDateString()}
           </p>
           <p className="text-gray-700 mb-4">{article.excerpt}</p>
-          <Link
-            href={`/articles/${article.id}`}
-            className="inline-block bg-pink-500 text-white py-2 px-4 rounded hover:bg-pink-600 transition-colors"
-          >
-            Read More
+          <Link href={`/articles/${article.id}`}>
+            <Button label={"Read More"} />
           </Link>
         </div>
       </div>
@@ -45,23 +43,23 @@ export function Article({ article }: ArticleProps) {
 
     return (
         <article className="max-w-3xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
-        <Image
-            src={url || "/placeholder.svg"}
-            alt={article.title}
-            width={800}
-            height={400}
-        />
-        <div className="p-8">
-            <h1 className="text-4xl font-bold mb-4 text-pink-600">{article.title}</h1>
-            <p className="text-gray-600 mb-6">
-            By {article.author} | {new Date(article.created_at).toLocaleDateString()}
-            </p>
-            <div className="prose prose-pink max-w-none">
-              {article.content.split('\n').map((line, index) => 
-                <p key={index} className="mb-4 text-black">{line}</p>
-              )}
-            </div>
-        </div>
+          <Image
+              src={url || "/placeholder.svg"}
+              alt={article.title}
+              width={800}
+              height={400}
+          />
+          <div className="p-8">
+              <h1 className="text-4xl font-bold mb-4 text-pink-600">{article.title}</h1>
+              <p className="text-gray-600 mb-6">
+              By {article.author} | {new Date(article.created_at).toLocaleDateString()}
+              </p>
+              <div className="prose prose-pink max-w-none">
+                {article.content.split('\n').map((line, index) => 
+                  <p key={index} className="mb-4 text-black">{line}</p>
+                )}
+              </div>
+          </div>
         </article>
     )
 }

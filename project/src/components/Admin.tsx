@@ -4,10 +4,10 @@ import { useState, useRef } from 'react'
 import { Pencil, Trash2 } from "lucide-react"
 import type { Tables } from "@/lib/supabase/database"
 import { login } from "@/app/admin/login/actions"
-import { createArticle } from '@/lib/supabase/model';
+import { createArticle } from '@/lib/supabase/model'
+import { Button } from "@/components/Buttons"
 import Link from 'next/link'
 import Image from 'next/image';
-
 
 
 interface ArticleItemProps {
@@ -26,6 +26,7 @@ export default function LoginForm() {
     return (
         <div className="py-20">
             <form action={handleSubmit} className="space-y-4">
+                <div className="py-8 lg:py-16 px-4 mx-auto max-w-screen-md">
                 <label className="block mb-2 text-sm font-medium text-pink-600" htmlFor="email">Email:</label>
                 <input 
                     id="email"
@@ -36,19 +37,23 @@ export default function LoginForm() {
 
                 <label className="block mb-2 text-sm font-medium text-pink-600" htmlFor="password">Password:</label>
                 <input 
-                id="password" 
-                name="password" 
-                type="password" 
-                className="shadow-sm bg-gray-50 border border-gray-300 text-pink-600 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
-                required />
-
-                <button type="submit" disabled={loading} className="w-full">
-                    {loading ? 'Logging in...' : 'Log in'}
-                </button>
+                    id="password" 
+                    name="password" 
+                    type="password" 
+                    className="shadow-sm bg-gray-50 border border-gray-300 text-pink-600 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
+                    required />
+                <Button label={loading ? 'Logging in...' : 'Log in'} />
+                </div>
             </form>
-
         </div>
+    )
+}
 
+export function SignOutForm() {
+    return (
+        <form action="/admin/signout" method="post">
+            <Button label={"Sign Out"} />
+        </form>
     )
 }
 

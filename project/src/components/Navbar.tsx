@@ -10,11 +10,11 @@ const navLinks = [
 
 export default function Navbar() {
     return (
-      <nav className="sticky top-0 z-50 bg-pink-100 p-4">
-        <ul className="flex gap-8 text-pink-500 text-lg">
+      <nav className="sticky top-0 z-50 bg-custom-pink-bg p-4">
+        <ul className="flex gap-8 text-custom-pink-text text-2xl">
           {navLinks.map((link) => (
             <li key={link.href}>
-              <Link href={link.href} className="hover:text-pink-700 transition-colors">
+              <Link href={link.href} className="hover:text-pink-900 transition-colors">
                 {link.label}
               </Link>
             </li>

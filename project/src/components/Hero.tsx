@@ -5,10 +5,10 @@ export function Hero() {
   return (
     <section className="relative px-4 py-12 md:py-24">
       {/* Decorative Stars TODO FIX*/}
-      <div className="absolute top-12 right-12">
+      <div className="relative top-12 right-12">
         <Star className="w-8 h-8 text-red-500 fill-red-500" />
       </div>
-      <div className="absolute bottom-12 left-24">
+      <div className="relative bottom-12 left-24">
         <Star className="w-8 h-8 text-red-500 fill-red-500" />
       </div>
         {/* */}
@@ -20,7 +20,15 @@ export function Hero() {
             <span className="block relative">
                 <span
                     className="absolute inset-0 text-white"
-                    style={{ textShadow: "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000" }}
+                    style={{
+                      textShadow: `
+                        -2px -2px 0 #000,
+                        2px -2px 0 #000,
+                        -2px 2px 0 #000,
+                        2px 2px 0 #000,
+                        4px 4px 0px #000
+                      `,
+                    }}
                 >
                     BIKINI GRAD SCHOOL
                 </span>
@@ -28,21 +36,18 @@ export function Hero() {
             </span>
           </h1>
           <p className="text-pink-600 text-xl">Bikini Grad School is a magazine for women and queer people.</p>
-          <p className="text-pink-500">January edition available now.</p>
+          <p className="text-pink-500">Our January edition: Glam is available now.</p>
         </div>
         {/* Image */}
-        <div className="relative">
-            <Image
-                src="/landing-page.jpg"
-                height={500}
-                width={500}
-                alt="Bikini Grad School"
-            >
-
-            </Image>
-          <div className="absolute -bottom-4 -right-4">
-            <Star className="w-12 h-12 text-red-500 fill-red-500" />
-          </div>
+        <div className="absolute -top-20 -right-1/4 w-[80%] h-screen ml-auto">
+          <Image
+            src="/kelly-transparent.png"
+            alt="Bikini Grad School"
+            fill
+            className="object-contain object-right-bottom md:object-right-top"
+            priority
+            sizes="(max-width: 768px) 100vw, 80vw"
+          />
         </div>
       </div>
     </section>
