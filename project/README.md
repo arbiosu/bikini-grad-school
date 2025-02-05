@@ -4,3 +4,4 @@
 3. fix images
 4. create article admin
 5. contact page server action
+6. optimize queries

@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Pencil, Trash2 } from "lucide-react"
 import type { Tables } from "@/lib/supabase/database"
 import { login } from "@/app/admin/login/actions"
+import { createArticle } from '@/lib/supabase/model';
 import Link from 'next/link'
 import Image from 'next/image';
+
 
 
 interface ArticleItemProps {
@@ -55,7 +57,7 @@ export function ArticleItem({ article }: ArticleItemProps) {
         // Implement delete functionality
         console.log(`Delete post with id: ${article.id}`)
     }
-    const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL!}/storage/v1/object/public/${article.img_path}`
+    const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL!}/storage/v1/object/public/images/${article.img_path}`
 
     return (
         <div className="bg-white shadow-md rounded-lg overflow-hidden">
@@ -94,4 +96,113 @@ export function ArticleItem({ article }: ArticleItemProps) {
           </div>
         </div>
       )
+}
+
+
+export function UploadArticle() {
+    const [article, setArticle] = useState({
+        title: '',
+        author: '',
+        excerpt: '',
+        content: ''
+    })
+    const [file, setFile] = useState<File | null>(null)
+    const [loading, setLoading] = useState(false)
+    const fileInputRef = useRef<HTMLInputElement>(null)
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setArticle({ ...article, [e.target.name]: e.target.value })
     }
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files?.[0]) {
+            setFile(e.target.files[0])
+        }
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!file) {
+            alert('Please upload an image')
+            return
+        }
+
+        setLoading(true)
+
+        try {
+            const newArticle = await createArticle(article, file)
+
+            if (newArticle) {
+                alert('Article created successfully!')
+                setArticle({ title: '', author: '', excerpt: '', content: '' })
+                setFile(null)
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = ''
+                }
+            }
+        } catch (error) {
+            console.error('Error submitting article:', error)
+            alert('Failed to create article')
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    return (
+        <div className="max-w-2xl mx-auto p-6 bg-white shadow-md rounded-lg">
+            <h2 className="text-2xl font-semibold mb-4 text-pink-600">Upload an Article</h2>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <input
+                    type="text"
+                    name="title"
+                    placeholder="Title"
+                    value={article.title}
+                    onChange={handleChange}
+                    className="w-full border p-2 rounded text-black"
+                    required
+                />
+                <input
+                    type="text"
+                    name="author"
+                    placeholder="Author"
+                    value={article.author}
+                    onChange={handleChange}
+                    className="w-full border p-2 rounded text-black"
+                    required
+                />
+                <textarea
+                    name="excerpt"
+                    placeholder="Excerpt"
+                    value={article.excerpt}
+                    onChange={handleChange}
+                    className="w-full border p-2 rounded text-black"
+                    required
+                />
+                <textarea
+                    name="content"
+                    placeholder="Content"
+                    value={article.content}
+                    onChange={handleChange}
+                    className="w-full border p-2 rounded h-32 text-black"
+                    required
+                />
+                <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    ref={fileInputRef}
+                    className="w-full border p-2 rounded text-black"
+                    required
+                />
+                <button
+                    type="submit"
+                    className="w-full bg-blue-500 text-white p-2 rounded"
+                    disabled={loading}
+                >
+                    {loading ? 'Uploading...' : 'Submit Article'}
+                </button>
+            </form>
+        </div>
+    )
+}
