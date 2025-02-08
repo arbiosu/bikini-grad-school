@@ -12,7 +12,7 @@ export default async function Page() {
 
     return (
         <main className="container mx-auto px-4 py-8">
-            <h1 className="text-4xl font-bold mb-8 text-pink-600">Articles</h1>
+            <h1 className="text-5xl font-bold mb-8 text-custom-pink-text">Articles</h1>
             <div className="grid md:grid-cols-2 gap-8">
                 {data.map((article) => (
                     <ArticlePreview key={article.id} article={article} />

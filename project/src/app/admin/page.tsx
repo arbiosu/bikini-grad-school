@@ -18,18 +18,20 @@ export default async function AdminDashboard() {
 
     return (
         <div className="container mx-auto p-4">
-            <h1 className="text-3xl font-bold text-pink-600 mb-6 py-20">Admin Dashboard</h1>
+            <h1 className="text-5xl mx-3 font-bold text-custom-pink-text mb-6">Admin Dashboard</h1>
+            <div className="">
+                <ArticleList />
+            </div>
+            <div className="flex gap-10 mx-3">
             <Link href="/admin/create">
                 <Button label={
                     <div>
-                        <PlusCircle className="mr-2 h-4 w-4"/>{"Create New Article"}
+                        <PlusCircle />{"Create New Article"}
                     </div>
                 } />
             </Link>
-            <div className="flex items-center mb-4 py-4">
-                <ArticleList />
-            </div>
             <SignOutForm />
+            </div>
         </div>
 
     )
