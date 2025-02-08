@@ -37,7 +37,7 @@ export function StaffSection() {
   return (
     <section className="py-12">
       <div className="container mx-auto px-4">
-        <h2 className="text-4xl font-bold mb-10 text-pink-600 text-center">Our Staff</h2>
+        <h2 className="text-5xl font-bold mb-10 text-custom-pink-text text-center">Our Staff</h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {staffMembers.map((member, index) => (
             <div key={index} className="bg-white p-6 rounded-lg shadow-md text-center">
@@ -62,7 +62,7 @@ export function WhatWeDo() {
   return (
     <section className="py-12">
       <div className="container mx-auto px-4">
-        <h2 className="text-4xl font-bold mb-10 text-pink-600 text-center">What We Do</h2>
+        <h2 className="text-5xl font-bold mb-10 text-custom-pink-text text-center">What We Do</h2>
         <div className="grid md:grid-cols-3 gap-8">
           {activities.map((activity, index) => (
             <div key={index} className="bg-pink-50 p-6 rounded-lg shadow-md">
@@ -79,9 +79,9 @@ export function WhatWeDo() {
 
 export function WhoWeAre() {
     return (
-      <section className="py-12">
+      <section className="py-10">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold mb-6 text-pink-600 text-center">Who We Are</h2>
+          <h2 className="text-5xl font-bold mb-6 text-custom-pink-text text-center">Who We Are</h2>
           <p className="text-lg text-gray-700 mb-4">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc pulvinar
             mauris et eleifend tincidunt. Maecenas eget ipsum porttitor ante 

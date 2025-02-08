@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from 'react'
-import { Pencil, Trash2 } from "lucide-react"
+import { Pencil, Trash2, LogOut } from "lucide-react"
 import type { Tables } from "@/lib/supabase/database"
 import { login } from "@/app/admin/login/actions"
 import { createArticle } from '@/lib/supabase/model'
@@ -27,22 +27,34 @@ export default function LoginForm() {
         <div className="py-20">
             <form action={handleSubmit} className="space-y-4">
                 <div className="py-8 lg:py-16 px-4 mx-auto max-w-screen-md">
-                <label className="block mb-2 text-sm font-medium text-pink-600" htmlFor="email">Email:</label>
-                <input 
-                    id="email"
-                    name="email"
-                    type="email" 
-                    className="shadow-sm bg-gray-50 border border-gray-300 text-pink-600 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
-                    required />
+                    <label 
+                        className="block mb-2 text-lg text-custom-pink-text font-bold" 
+                        htmlFor="email">Email:
+                    </label>
+                    <input 
+                        id="email"
+                        name="email"
+                        type="email" 
+                        className="shadow-sm bg-gray-50 border border-gray-300
+                        text-custom-pink-text text-2xl rounded-lg focus:ring-primary-500
+                        focus:border-primary-500 block w-full p-2.5"
+                        required />
 
-                <label className="block mb-2 text-sm font-medium text-pink-600" htmlFor="password">Password:</label>
-                <input 
-                    id="password" 
-                    name="password" 
-                    type="password" 
-                    className="shadow-sm bg-gray-50 border border-gray-300 text-pink-600 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
-                    required />
-                <Button label={loading ? 'Logging in...' : 'Log in'} />
+                    <label 
+                        className="block mb-2 text-lg font-bold text-custom-pink-text"
+                        htmlFor="password">Password:
+                    </label>
+                    <input 
+                        id="password" 
+                        name="password" 
+                        type="password" 
+                        className="shadow-sm bg-gray-50 border border-gray-300
+                        text-custom-pink-text text-2xl rounded-lg focus:ring-primary-500
+                        focus:border-primary-500 block w-full p-2.5"
+                        required />
+                    <div className="py-4">
+                        <Button label={loading ? 'Logging in...' : 'Log in'} />
+                    </div>
                 </div>
             </form>
         </div>
@@ -52,7 +64,12 @@ export default function LoginForm() {
 export function SignOutForm() {
     return (
         <form action="/admin/signout" method="post">
-            <Button label={"Sign Out"} />
+            <Button label={
+                <div>
+                    <LogOut />{"Log Out"}
+                </div>
+            } 
+            />
         </form>
     )
 }
@@ -154,10 +171,14 @@ export function UploadArticle() {
     }
 
     return (
-        <div className="max-w-2xl mx-auto p-6 bg-white shadow-md rounded-lg">
-            <h2 className="text-2xl font-semibold mb-4 text-pink-600">Upload an Article</h2>
-
+        <div className="max-w-2xl mx-auto p-8 bg-white shadow-md rounded-lg">
+            <h2 className="text-2xl font-semibold mb-4 text-custom-pink-text">
+                Upload an Article - all fields are required
+            </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
+                <label className="block mb-2 text-lg font-bold text-black">
+                Title of the Article*
+                </label>
                 <input
                     type="text"
                     name="title"
@@ -167,6 +188,9 @@ export function UploadArticle() {
                     className="w-full border p-2 rounded text-black"
                     required
                 />
+                <label className="block mb-2 text-lg font-bold text-black">
+                Author of the Article*
+                </label>
                 <input
                     type="text"
                     name="author"
@@ -176,6 +200,9 @@ export function UploadArticle() {
                     className="w-full border p-2 rounded text-black"
                     required
                 />
+                <label className="block mb-2 text-lg font-bold text-black">
+                Excerpt* - a brief description of the article for article previews
+                </label>
                 <textarea
                     name="excerpt"
                     placeholder="Excerpt"
@@ -184,6 +211,9 @@ export function UploadArticle() {
                     className="w-full border p-2 rounded text-black"
                     required
                 />
+                <label className="block mb-2 text-lg font-bold text-black">
+                Content* - please use 2 line breaks when separating paragraphs
+                </label>
                 <textarea
                     name="content"
                     placeholder="Content"
@@ -192,6 +222,9 @@ export function UploadArticle() {
                     className="w-full border p-2 rounded h-32 text-black"
                     required
                 />
+                <label className="block mb-2 text-lg font-bold text-black">
+                Image upload* - keep filenames unique
+                </label>
                 <input
                     type="file"
                     accept="image/*"
@@ -202,12 +235,11 @@ export function UploadArticle() {
                 />
                 <button
                     type="submit"
-                    className="w-full bg-blue-500 text-white p-2 rounded"
+                    className="w-full bg-blue-500 text-white p-2 rounded font-bold"
                     disabled={loading}
                 >
                     {loading ? 'Uploading...' : 'Submit Article'}
                 </button>
-                
             </form>
         </div>
     )

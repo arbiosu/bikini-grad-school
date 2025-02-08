@@ -2,8 +2,8 @@ export default function ThisMonth() {
     return (
         <section>
             <div className="py-8 px-4 mx-auto max-w-screen-xl text-center lg:py-16">
-                <h1 className="mb-4 text-4xl font-extrabold tracking-tight leading-none text-pink-600 md:text-5xl lg:text-6xl">This Month</h1>
-                <p className="mb-8 text-lg font-normal text-pink-500 lg:text-xl sm:px-16 lg:px-48">Theme of the month: (THEME)</p>
+                <h1 className="mb-4 text-4xl font-extrabold tracking-tight leading-none text-custom-pink-text md:text-5xl lg:text-6xl">This Month</h1>
+                <p className="mb-8 text-lg font-normal text-custom-pink-text lg:text-xl sm:px-16 lg:px-48">Under construction </p>
                 <div className="flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-y-0">
                     <a href="#" className="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-pink-700 hover:bg-pink-950 focus:ring-4 focus:ring-blue-300">
                         Get zine

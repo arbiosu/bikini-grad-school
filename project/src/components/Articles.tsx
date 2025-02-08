@@ -24,11 +24,11 @@ export function ArticlePreview({ article }: ArticleProps) {
         </div>
 
         <div className="p-6">
-          <h2 className="text-2xl font-bold mb-2 text-pink-600">{article.title}</h2>
-          <p className="text-black mb-4">
+          <h2 className="text-4xl font-bold mb-2 text-custom-pink-text">{article.title}</h2>
+          <p className="text-black text-xl mb-4">
             By {article.author} | {new Date(article.created_at).toLocaleDateString()}
           </p>
-          <p className="text-gray-700 mb-4">{article.excerpt}</p>
+          <p className="text-gray-900 text-lg mb-4">{article.excerpt}</p>
           <Link href={`/articles/${article.id}`}>
             <Button label={"Read More"} />
           </Link>
