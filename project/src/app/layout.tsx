@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Open_Sans } from "next/font/google";
+import localFont from 'next/font/local'
 import Navbar from "@/components/Navbar";
 import "./globals.css";
 
-const openSans = Open_Sans({ subsets: ["latin"] })
+const font = localFont({ src: '/../../public/fonts/HelveticaNeueLight.otf'})
 
 
 export const metadata: Metadata = {
@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${openSans.className} ${openSans.className} antialiased bg-custom-pink-bg`}
+        className={`${font.className} ${font.className} antialiased bg-custom-pink-bg`}
       >
           <Navbar />
           {children}
