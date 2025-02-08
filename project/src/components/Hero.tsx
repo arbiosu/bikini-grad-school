@@ -8,19 +8,16 @@ export function Hero() {
     <section className="container mx-auto px-4 py-12 overflow-hidden">
       <div className="grid grid-cols-1 md:grid-cols-2 items-center">
         <div className="space-y-8">
-          <h1 
-          className="text-6xl md:text-8xl font-black text-transparent
-          bg-clip-text drop-shadow-lg"
-          >
+          <h1 className="text-6xl md:text-8xl">
               <span
                   className={`${chonk.className} text-white block`}
                   style={{
                     textShadow: `
-                      1px -1px 0 #000,
-                      -1px -1px 0 #000,
-                      4px 4px 0 #000,
-                      -8px 8px 0 #000,
-                      -10px 10px 0px #000
+                      -2px -2px 0 #000,
+                      2px -2px 0 #000,
+                      -2px 2px 0 #000,
+                      2px 2px 0 #000,
+                      -12px 12px 0 #000
                     `,
                     lineHeight: "1.0"
                   }}

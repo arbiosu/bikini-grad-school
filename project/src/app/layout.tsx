@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Open_Sans } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] })
+const openSans = Open_Sans({ subsets: ["latin"] })
 
 
 export const metadata: Metadata = {
@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.className} ${inter.className} antialiased bg-custom-pink-bg`}
+        className={`${openSans.className} ${openSans.className} antialiased bg-custom-pink-bg`}
       >
           <Navbar />
           {children}
