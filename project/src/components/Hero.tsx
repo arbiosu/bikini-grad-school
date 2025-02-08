@@ -1,5 +1,6 @@
 import Image from "next/image"
 import localFont from 'next/font/local'
+import landingPageImage from "./../../public/kelly-transparent.png"
 
 const chonk = localFont({ src: '/../../public/fonts/3602-chonk-web.woff2'})
 
@@ -31,11 +32,12 @@ export function Hero() {
         {/* Image */}
         <div className="relative aspect-square w-full">
           <Image
-            src="/kelly-transparent.png"
+            src={landingPageImage}
             alt="Bikini Grad School"
             fill
             className="object-cover rounded-lg"
             priority
+            placeholder="blur"
           />
         </div>
       </div>
