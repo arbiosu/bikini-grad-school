@@ -207,6 +207,7 @@ export function UploadArticle() {
                 >
                     {loading ? 'Uploading...' : 'Submit Article'}
                 </button>
+                
             </form>
         </div>
     )
