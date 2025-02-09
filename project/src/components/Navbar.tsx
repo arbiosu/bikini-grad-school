@@ -5,7 +5,7 @@ const navLinks = [
   { href: "/articles", label: "articles" },
   { href: "/this-month", label: "this month" },
   { href: "/about", label: "about" },
-  { href: "/contact", label: "contact" },
+  { href: "/contribute", label: "contribute" },
 ]
 
 export default function Navbar() {

@@ -50,7 +50,7 @@ export function Article({ article }: ArticleProps) {
               height={400}
           />
           <div className="p-8">
-              <h1 className="text-4xl font-bold mb-4 text-pink-600">{article.title}</h1>
+              <h1 className="text-4xl font-bold mb-4 text-custom-pink-text">{article.title}</h1>
               <p className="text-gray-600 mb-6">
               By {article.author} | {new Date(article.created_at).toLocaleDateString()}
               </p>
