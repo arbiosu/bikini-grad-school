@@ -2,6 +2,23 @@
 
 import { createServiceClient } from "@/lib/supabase/service"
 
+
+interface Article {
+    title: string,
+    author: string,
+    excerpt: string,
+    content: string,
+    img_path: string
+}
+
+
+interface ContributionMessage {
+    email: string
+    subject: string
+    message: string
+}
+
+
 export async function getArticles() {
     const supabase = await createServiceClient()
     return await supabase
@@ -17,14 +34,6 @@ export async function getArticleById(id: string) {
     .from("articles")
     .select()
     .eq('id', id)
-}
-
-interface Article {
-    title: string,
-    author: string,
-    excerpt: string,
-    content: string,
-    img_path: string
 }
 
 
@@ -54,4 +63,21 @@ export async function uploadImage(file: File) {
     }
 
     return data?.path
+}
+
+
+export async function getContributeMessages() {
+    const supabase = await createServiceClient()
+    return await supabase
+    .from("contribute")
+    .select()
+    .order('created_at', { ascending: false })
+}
+
+
+export async function saveContributeMessage(content: ContributionMessage) {
+    const supabase = await createServiceClient()
+    return await supabase
+    .from("contribute")
+    .insert(content)
 }
