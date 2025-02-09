@@ -14,6 +14,11 @@ interface ArticleItemProps {
     article: Tables<'articles'>
 }
 
+
+interface ContributeMessageProps {
+    message: Tables<'contribute'>
+  }
+
 export default function LoginForm() {
     const [loading, setLoading] = useState(false)
 
@@ -242,5 +247,31 @@ export function UploadArticle() {
                 </button>
             </form>
         </div>
+    )
+}
+
+export function ContributeMessage({ message }: ContributeMessageProps) {
+    return (
+        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="p-6">
+                <h2 className="text-4xl font-bold mb-2 text-custom-pink-text">SUBJECT: {message.subject}</h2>
+                <p className="text-gray-600 mb-6">
+                    From {message.email}
+                </p>
+                <p className="text-gray-600 mb-6">
+                    {message.message}
+                </p>
+                <p className="text-gray-600 mb-6">
+                    Message sent on {new Date(message.created_at).toLocaleDateString()}
+                </p>
+            </div>
+        </div>
+    )
+}
+
+
+export function ContributeMessageItem({ message }: ContributeMessageProps) {
+    return (
+        <ContributeMessage message={message} />
     )
 }

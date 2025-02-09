@@ -4,8 +4,7 @@ import { PlusCircle } from "lucide-react"
 import { SignOutForm } from '@/components/Admin'
 import { Button } from "@/components/Buttons"
 import Link from "next/link"
-import ArticleList from '@/components/AdminArticleList'
-
+import { ArticleList, ContributeMessageList } from '@/components/AdminLists'
 
 export default async function AdminDashboard() {
     const supabase = await createClient()
@@ -18,9 +17,17 @@ export default async function AdminDashboard() {
 
     return (
         <div className="container mx-auto p-4">
-            <h1 className="text-5xl mx-3 font-bold text-custom-pink-text mb-6">Admin Dashboard</h1>
-            <div className="">
+            <div>
+                <h1 className="text-5xl mx-4 font-bold text-custom-pink-text">
+                    Admin Dashboard
+                </h1>
                 <ArticleList />
+            </div>
+            <div>
+                <h2 className="text-5xl mx-4 font-bold text-custom-pink-text">
+                    Contribute Messages
+                </h2>
+                <ContributeMessageList />
             </div>
             <div className="flex gap-10 mx-3">
             <Link href="/admin/create">
