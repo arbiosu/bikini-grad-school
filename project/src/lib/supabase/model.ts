@@ -1,15 +1,7 @@
 "use server";
 
 import { createServiceClient } from "@/lib/supabase/service"
-
-
-interface Article {
-    title: string,
-    author: string,
-    excerpt: string,
-    content: string,
-    img_path: string
-}
+import type { Tables } from "@/lib/supabase/database"
 
 
 interface ContributionMessage {
@@ -37,7 +29,8 @@ export async function getArticleById(id: string) {
 }
 
 
-export async function createArticle(article: Omit<Article, "img_path">, file: File) {
+export async function createArticle(article: Omit<Tables<'articles'>, 
+    "img_path" | "id" | "created_at">, file: File) {
     const img_path = await uploadImage(file)
     if (!img_path) {
         throw new Error('Image upload failed. Article was not created.')
@@ -49,6 +42,7 @@ export async function createArticle(article: Omit<Article, "img_path">, file: Fi
     .from('articles')
     .insert([{...article, img_path}])
 }
+
 
 export async function uploadImage(file: File) {
     const fileName = `articles/${file.name}`
@@ -65,6 +59,14 @@ export async function uploadImage(file: File) {
     return data?.path
 }
 
+
+export async function editArticle(article: Tables<'articles'>) {
+    const supabase = await createServiceClient()
+    return await supabase
+    .from('articles')
+    .update(article)
+    .eq('id', article.id)
+}
 
 export async function getContributeMessages() {
     const supabase = await createServiceClient()
