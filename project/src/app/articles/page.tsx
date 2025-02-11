@@ -3,7 +3,6 @@ import { getArticles } from "@/lib/supabase/model"
 import { redirect } from 'next/navigation'
 
 
-
 export default async function Page() {
     const { data, error } = await getArticles()
     if (error) {

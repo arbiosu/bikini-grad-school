@@ -13,7 +13,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
 
   return (
     <main className="container mx-auto px-4 py-8">
-        <Article article={data[0]} />
+        <Article article={data} />
     </main>
   )
 }
