@@ -4,7 +4,7 @@ import { useState, useRef } from 'react'
 import { Pencil, Trash2, LogOut } from "lucide-react"
 import type { Tables } from "@/lib/supabase/database"
 import { login } from "@/app/admin/login/actions"
-import { createArticle } from '@/lib/supabase/model'
+import { createArticle, editArticle, deleteArticle } from '@/lib/supabase/model'
 import { Button } from "@/components/Buttons"
 import Link from 'next/link'
 import Image from 'next/image';
@@ -80,9 +80,14 @@ export function SignOutForm() {
 }
 
 export function ArticleItem({ article }: ArticleItemProps) {
-    const handleDelete = () => {
+    const handleDelete = async () => {
         // Implement delete functionality
+        const { error } = await deleteArticle(article.id)
+        if (error) {
+            console.error('Error deleting article:', error)
+        }
         console.log(`Delete post with id: ${article.id}`)
+        alert('Article deleted successfully! Refresh the page (TODO: implement revalidation)')
     }
     const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL!}/storage/v1/object/public/images/${article.img_path}`
 
@@ -249,6 +254,80 @@ export function UploadArticle() {
         </div>
     )
 }
+
+
+export function EditArticleForm({ article }: ArticleItemProps) {
+    const [data, setData] = useState({
+        id: article.id,
+        title: article.title,
+        author: article.author,
+        excerpt: article.excerpt,
+        content: article.content
+    })
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setData({ ...data, [e.target.name]: e.target.value })
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        try {
+            const updatedArticle = await editArticle(data)
+            if (updatedArticle) {
+                alert('Article updated successfully!')
+            }
+        } catch (error) {
+            console.error('Error updating article:', error)
+            alert('Failed to update article')
+        }
+    }
+    
+    return (
+        <div className="max-w-2xl mx-auto p-8 bg-white shadow-md rounded-lg">
+            <h1 className="text-2xl font-semibold mb-4 text-custom-pink-text">Edit Article</h1>
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <label className="block mb-2 text-lg font-bold text-black">
+                    Title
+                </label>
+                <input className="w-full border p-2 rounded text-black"
+                    type="text"
+                    name="title"
+                    value={data.title}
+                    onChange={handleChange}
+                />
+                <label className="block mb-2 text-lg font-bold text-black">
+                    Author
+                </label>
+                <input className="w-full border p-2 rounded text-black"
+                    type="text"
+                    name="author"
+                    value={data.author}
+                    onChange={handleChange}
+                />
+                <label className="block mb-2 text-lg font-bold text-black">
+                    Excerpt
+                </label>
+                <textarea className="w-full border p-2 rounded text-black"
+                    name="excerpt"
+                    value={data.excerpt}
+                    onChange={handleChange}
+                />
+                <label className="block mb-2 text-lg font-bold text-black">
+                    Content
+                </label>
+                <textarea className="w-full border p-2 rounded text-black"
+                    name="content"
+                    value={data.content}
+                    onChange={handleChange}
+                />
+                <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded font-bold">
+                    Submit
+                </button>
+            </form>
+        </div>
+    )
+}
+
 
 export function ContributeMessage({ message }: ContributeMessageProps) {
     return (
