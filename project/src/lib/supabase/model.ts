@@ -4,13 +4,6 @@ import { createServiceClient } from "@/lib/supabase/service"
 import type { Tables } from "@/lib/supabase/database"
 
 
-interface ContributionMessage {
-    email: string
-    subject: string
-    message: string
-}
-
-
 export async function getArticles() {
     const supabase = await createServiceClient()
     return await supabase
@@ -26,6 +19,7 @@ export async function getArticleById(id: string) {
     .from("articles")
     .select()
     .eq('id', id)
+    .single()
 }
 
 
@@ -60,13 +54,23 @@ export async function uploadImage(file: File) {
 }
 
 
-export async function editArticle(article: Tables<'articles'>) {
+export async function editArticle(article: Omit<Tables<'articles'>, "img_path" | "created_at">) {
     const supabase = await createServiceClient()
     return await supabase
     .from('articles')
     .update(article)
     .eq('id', article.id)
 }
+
+
+export async function deleteArticle(id: string) {
+    const supabase = await createServiceClient()
+    return await supabase
+    .from('articles')
+    .delete()
+    .eq('id', id)
+}
+
 
 export async function getContributeMessages() {
     const supabase = await createServiceClient()
@@ -77,7 +81,8 @@ export async function getContributeMessages() {
 }
 
 
-export async function saveContributeMessage(content: ContributionMessage) {
+export async function saveContributeMessage(content: Omit<Tables<'contribute'>, 
+    "id" | "created_at">) {
     const supabase = await createServiceClient()
     return await supabase
     .from("contribute")
