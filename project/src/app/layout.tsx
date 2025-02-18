@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import localFont from 'next/font/local'
-import Navbar from "@/components/Navbar";
+import { NewNavbar } from "@/components/Navbar";
 import "./globals.css";
 
 const font = localFont({ src: '/../../public/fonts/HelveticaNeueLight.otf'})
@@ -19,9 +19,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${font.className} ${font.className} antialiased bg-custom-pink-bg`}
+        className={`${font.className} ${font.className} antialiased bg-bgs-pink`}
       >
-          <Navbar />
+          <NewNavbar />
           {children}
       </body>
     </html>

@@ -8,10 +8,10 @@ const playfair = Playfair_Display({ subsets: ['latin']})
 
 export function Hero() {
   return (
-    <section className="container mx-auto px-4 overflow-hidden">
+    <section className="container mx-auto overflow-hidden">
       <div className="grid grid-cols-1 md:grid-cols-2 items-center">
         <div className="space-y-8">
-          <h1 className="text-6xl lg:text-8xl">
+          <h1 className="text-6xl lg:text-8xl px-4">
               <span
                   className={`${chonk.className} text-white block`}
                   style={{

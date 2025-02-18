@@ -8,6 +8,7 @@ interface ArticleProps {
   article: Tables<'articles'>
 }
 
+
 export function ArticlePreview({ article }: ArticleProps) {
     const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL!}/storage/v1/object/public/images/${article.img_path}`
 
@@ -63,3 +64,4 @@ export function Article({ article }: ArticleProps) {
         </article>
     )
 }
+
