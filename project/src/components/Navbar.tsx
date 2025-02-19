@@ -109,7 +109,7 @@ export function MobileNavbar() {
       </div>
 
       {/* Mobile menu overlay */}
-      <div className={`fixed inset-0 bg-white transform transition-transform duration-300 ease-in-out ${
+      <div className={`fixed inset-0 z-[100] bg-white transform transition-transform duration-300 ease-in-out ${
         isOpen ? 'translate-x-0' : 'translate-x-full'
       }`}>
         <div className="flex flex-col p-8 space-y-4">

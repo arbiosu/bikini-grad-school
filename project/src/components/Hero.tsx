@@ -9,9 +9,9 @@ const playfair = Playfair_Display({ subsets: ['latin']})
 export function Hero() {
   return (
     <section className="container mx-auto overflow-hidden">
-      <div className="grid grid-cols-1 md:grid-cols-2 items-center">
+      <div className="md:grid md:grid-cols-2 items-center">
         <div className="space-y-8">
-          <h1 className="text-6xl lg:text-8xl px-4">
+          <h1 className="text-6xl lg:text-8xl px-4 md:py-20 lg:px-40">
               <span
                   className={`${chonk.className} text-white block`}
                   style={{
@@ -56,8 +56,12 @@ export function Hero() {
                 SCHOOL
               </span>
           </h1>
-          <p className={`${playfair.className} text-custom-pink-text text-xl py-4 px-2`}>A magazine for women and queer people.</p>
-          <p className="text-custom-pink-text text-lg px-2">Our January Edition: Glam is available now.</p>
+          <p className={`${playfair.className} text-custom-pink-text text-xl py-4 px-2 lg:px-40`}>
+            A magazine for women and queer people.
+          </p>
+          <p className="text-custom-pink-text text-lg px-2 lg:px-40">
+            Our January Edition: Glam is available now.
+          </p>
         </div>
         {/* Image */}
         <div className="relative aspect-square w-full">
