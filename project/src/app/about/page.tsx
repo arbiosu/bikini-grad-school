@@ -1,10 +1,10 @@
 
-import { WhoWeAre, WhatWeDo, StaffSection } from "@/components/About"
+import { WhatWeDo, StaffSection, AboutUsBook } from "@/components/About"
 
 export default function About() {
     return (
-        <main className="overflow-auto">
-            <WhoWeAre />
+        <main className="">
+            <AboutUsBook />
             <WhatWeDo />
             <StaffSection />
         </main>
