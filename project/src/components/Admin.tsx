@@ -9,7 +9,7 @@ import {
   editArticle,
   deleteArticle,
 } from '@/lib/supabase/model';
-import { Button } from '@/components/Buttons';
+import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -62,7 +62,7 @@ export default function LoginForm() {
             required
           />
           <div className='py-4'>
-            <Button label={loading ? 'Logging in...' : 'Log in'} />
+            <Button>{loading ? 'Logging in...' : 'Log in'}</Button>
           </div>
         </div>
       </form>
@@ -73,14 +73,10 @@ export default function LoginForm() {
 export function SignOutForm() {
   return (
     <form action='/admin/signout' method='post'>
-      <Button
-        label={
-          <div>
-            <LogOut />
-            {'Log Out'}
-          </div>
-        }
-      />
+      <Button>
+        <LogOut />
+        {'Log Out'}
+      </Button>
     </form>
   );
 }
