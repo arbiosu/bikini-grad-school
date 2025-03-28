@@ -4,7 +4,7 @@ import { chonk } from '../../public/fonts/fonts';
 export function PictureDivider(props: { imgUrl: string; text: string }) {
   const { imgUrl, text } = props;
   return (
-    <div className='relative py-40 mb-10'>
+    <div className='relative mb-10 py-40'>
       <Image
         src={imgUrl || '/placeholder.svg'}
         alt='Staff Page'

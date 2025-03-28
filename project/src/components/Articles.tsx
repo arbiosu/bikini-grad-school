@@ -32,7 +32,7 @@ export function ArticlePreview({ article }: ArticleProps) {
         </p>
         <p className='mb-4 text-lg text-gray-900'>{article.excerpt}</p>
         <Link href={`/articles/${article.id}`}>
-          <Button>{"Read More"}</Button>
+          <Button>{'Read More'}</Button>
         </Link>
       </div>
     </div>
