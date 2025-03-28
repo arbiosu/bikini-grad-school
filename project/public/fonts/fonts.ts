@@ -1,16 +1,16 @@
-import localFont from "next/font/local";
-import { Special_Elite, Playfair_Display } from "next/font/google";
+import localFont from 'next/font/local';
+import { Courier_Prime, Playfair_Display } from 'next/font/google';
 
-export const chonk = localFont({ src: './3602-chonk-web.woff2'});
+export const chonk = localFont({ src: './3602-chonk-web.woff2' });
 
 export const helveticaNeueLight = localFont({
-    src: '/../../public/fonts/HelveticaNeueLight.otf'
+  src: '/../../public/fonts/HelveticaNeueLight.otf',
 });
 
-export const playfair = Playfair_Display({ subsets: ['latin']});
+export const playfair = Playfair_Display({ subsets: ['latin'] });
 
-export const specialElite = Special_Elite({
-    weight: "400",
-    subsets: ["latin"],
-    display: "swap"
+export const specialElite = Courier_Prime({
+  weight: '400',
+  subsets: ['latin'],
+  display: 'swap',
 });

@@ -1,7 +1,5 @@
-import ThisMonth from "@/components/ThisMonth"
+import ThisMonth from '@/components/ThisMonth';
 
 export default function Page() {
-    return (
-        <ThisMonth />
-    )
+  return <ThisMonth />;
 }

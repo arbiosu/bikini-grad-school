@@ -1,4 +1,5 @@
 ## TODO:
+
 1. Fix navbar for mobile
 2. componentize!!!!
 3. fix images
