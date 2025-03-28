@@ -97,17 +97,7 @@ export function NewHero() {
               </h1>
               <h2 className="text-5xl font-medium tracking-tight lg:text-8xl">
                 <span
-                      className={`${chonk.className} text-white block`}
-                      style={{
-                        textShadow: `
-                          -2px -2px 0 #000,
-                          2px -2px 0 #000,
-                          -2px 2px 0 #000,
-                          2px 2px 0 #000,
-                          -12px 12px 0 #000
-                        `,
-                        lineHeight: "0.91"
-                      }}
+                      className={`${chonk.className} text-white block text-shadow-chonk leading-chonk`}
                   >
                       BIKINI
                   </span>

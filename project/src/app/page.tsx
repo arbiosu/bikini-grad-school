@@ -1,8 +1,11 @@
-import { NewHero } from "@/components/Hero";
+import LandingPage, { ComingSoon} from "@/components/LandingPage";
 
 
 export default function Home() {
   return (
-    <NewHero />
+    <>
+      <LandingPage />
+      <ComingSoon />
+    </>
   );
 }
