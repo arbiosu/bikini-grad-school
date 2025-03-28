@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/Buttons';
+import { Button } from '@/components/ui/button';
 import { addContributeMessage } from '@/app/contribute/actions';
 
 export default function ContactForm() {
@@ -89,7 +89,7 @@ export default function ContactForm() {
           required
         ></textarea>
       </div>
-      <Button label={'Send Message'} />
+      <Button>{"Send Message"}</Button>
     </form>
   );
 }

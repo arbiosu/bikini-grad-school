@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Button } from '@/components/Buttons';
+import { Button } from '@/components/ui/button';
 import type { Tables } from '@/lib/supabase/database';
 
 interface ArticleProps {
@@ -32,7 +32,7 @@ export function ArticlePreview({ article }: ArticleProps) {
         </p>
         <p className='mb-4 text-lg text-gray-900'>{article.excerpt}</p>
         <Link href={`/articles/${article.id}`}>
-          <Button label={'Read More'} />
+          <Button>{"Read More"}</Button>
         </Link>
       </div>
     </div>
