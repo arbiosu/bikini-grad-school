@@ -1,51 +1,38 @@
-import Image from "next/image"
-import book from "@/../public/bigger-text.png"
+import Image from '@/components/Image';
+import { specialElite } from '../../public/fonts/fonts';
 
-const staffMembers = [
-  { name: "Jayne Baran", role: "Editor-in-Chief", image: "/next.svg" },
-  { name: "Aiden Saul", role: "Chief Chemist", image: "/next.svg"},
-  { name: "Macy Baran", role: "Director", image: "/next.svg"},
-  { name: "Drew Baran", role: "Chef", image: "/next.svg"},
-  { name: "Coop Baran", role: "Creative Director", image: "/next.svg" },
-  { name: "Scrambled Eggs", role: "Senior Writer", image: "/next.svg" },
-  { name: "Rice Aroni", role: "Community Manager", image: "/next.svg" },
-  { name: "Winn Dixie", role: "Dog", image: "/next.svg"},
-]
-
-export function StaffSection() {
+export default function About() {
   return (
-    <section className="py-12">
-      <div className="container mx-auto px-4">
-        <h2 className="text-6xl mb-10 text-black text-center">Staff</h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {staffMembers.map((member, index) => (
-            <div key={index} className="bg-white p-6 rounded-lg shadow-md text-center">
-              <Image
-                src={member.image}
-                alt={member.name}
-                width={150}
-                height={150}
-                className="rounded-full mx-auto mb-4"
-              />
-              <h3 className="text-xl font-semibold mb-2 text-pink-600">{member.name}</h3>
-              <p className="text-gray-700">{member.role}</p>
-            </div>
-          ))}
+    <section className='mx-auto px-12 pt-16'>
+      <div className='grid items-center gap-2 md:grid-cols-2'>
+        <div className='container relative mx-auto'>
+          <Image
+            baseUrl='/content/bgs-jk'
+            alt='Kelly Slater (right) and Jayne Breakfast (left)'
+            className=''
+          />
+        </div>
+        <div className=''>
+          <div className={`${specialElite.className} space-y-6`}>
+            <h1 className='border-b-2 border-bgs-pink text-center text-4xl tracking-wider md:text-left md:text-5xl'>
+              about
+            </h1>
+            <p className='text-left text-2xl leading-relaxed'>
+              Bikini Grad School is a magazine and art community.
+            </p>
+            <p className='text-xl font-medium leading-relaxed'>
+              Bikini Grad School was born out of a want for connection in adult
+              life and the mag works to build community through creative
+              conversations, in-person events and a monthly newsletter, someday
+              to be a physical publication.
+            </p>
+            <p className='text-lg leading-relaxed'>
+              The big gorgeous brains behind BGS are Kelly Slater and Jayne
+              Breakfast. They are to your left.
+            </p>
+          </div>
         </div>
       </div>
     </section>
-  )
-}
-
-export function AboutUsBook() {
-  return (
-    <div>
-      <Image 
-        src={book} 
-        alt="Bikini Grad School About Us Book"
-        priority
-      />
-    </div>
   );
 }
-

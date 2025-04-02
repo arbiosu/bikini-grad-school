@@ -81,7 +81,7 @@ export default function Navbar() {
 
       {/* Mobile Navigation Overlay - Always in DOM with transition */}
       <div
-        className={`fixed inset-0 bg-white transition-all duration-300 ease-in-out md:hidden ${
+        className={`fixed inset-0 bg-background transition-all duration-300 ease-in-out md:hidden ${
           isMenuOpen ? 'visible opacity-100' : 'invisible opacity-0'
         }`}
       >

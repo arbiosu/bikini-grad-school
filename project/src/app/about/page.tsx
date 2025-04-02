@@ -1,39 +1,45 @@
-import { AboutUsBook } from '@/components/About';
-import { PictureDivider } from '@/components/PictureDivider';
+import ImageOverlay from '@/components/ImageOverlay';
 import StaffGrid from '@/components/Staff';
+import About from '@/components/About';
 
 const staff = [
   {
-    imgUrl: '/jayne-bgs.png',
+    imgUrl: '/content/jayne-bgs',
     name: 'Jayne Breakfast',
     pronouns: 'she/her',
     title: 'Co-founder, Design and Media Editor',
   },
   {
-    imgUrl: '/kelly-bgs.png',
+    imgUrl: '/content/kelly-bgs',
     name: 'Kelly Slater',
     pronouns: 'she/her',
     title: 'Co-founder, Editorial Producer',
   },
   {
-    imgUrl: '/jayne-bgs.png',
+    imgUrl: '/content/jayne-bgs',
     name: 'Yasemin Tingleff',
     pronouns: 'she/they',
     title: 'Engagement and Outreach Coordinator',
   },
   {
-    imgUrl: '/kelly-bgs.png',
+    imgUrl: '/content/kelly-bgs',
     name: 'Billie Raposa',
     pronouns: 'they/them',
     title: 'Site and Editorial Manager',
   },
 ];
 
-export default function About() {
+export default function Page() {
   return (
-    <main className=''>
-      <AboutUsBook />
-      <PictureDivider imgUrl='/bgs-staff.png' text='Staff' />
+    <main className='container mx-auto'>
+      <About />
+      <ImageOverlay
+        imgUrl='/content/bgs-staff'
+        altText='Bikini Grad School Staff'
+        overlayText={['STAFF']}
+        className='mb-6 mt-10 aspect-video w-full'
+        textPosition='inset-0 flex items-center justify-center'
+      />
       <StaffGrid staffMembers={staff} />
     </main>
   );

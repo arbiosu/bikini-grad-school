@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Image from '@/components/Image';
 import { specialElite } from '../../public/fonts/fonts';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import Grid from '@/components/Grid';
@@ -12,15 +12,13 @@ interface StaffCardProps {
 
 export function StaffCard({ imgUrl, name, pronouns, title }: StaffCardProps) {
   return (
-    <Card className='flex flex-col'>
+    <Card className='flex flex-col border-none shadow-none'>
       <CardHeader className='relative max-h-[300px] p-0 pt-[100%]'>
-        <div className='absolute inset-0 h-full w-full'>
+        <div className='absolute inset-0 flex h-full w-full items-center justify-center'>
           <Image
-            src={imgUrl}
+            baseUrl={imgUrl}
             alt={name}
-            fill
-            className='rounded-t-lg object-cover'
-            sizes='(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 300px'
+            className='h-full w-full object-cover object-center'
           />
         </div>
       </CardHeader>
