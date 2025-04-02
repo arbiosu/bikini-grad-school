@@ -1,4 +1,5 @@
 import { ReactNode, Fragment } from 'react';
+import { cn } from '@/lib/utils';
 
 interface GridProps<T> {
   items: T[];
@@ -17,14 +18,17 @@ export default function Grid<T>({
   columns = { base: 1, md: 3, lg: 4 },
   gap = 4,
 }: GridProps<T>) {
-  const gridClass = `grid gap-${gap} grid-cols-${columns.base} md:grid-cols-${columns.md} lg:grid-cols-${columns.lg}`;
   return (
-    <div className='container mx-auto'>
-      <div className={gridClass}>
-        {items.map((item, index) => (
-          <Fragment key={index}>{renderItem(item)}</Fragment>
-        ))}
+      <div className={cn(
+        'grid',
+        `gap-${gap}`,
+        `grid-cols-${columns.base}`,
+        `md:grid-cols-${columns.md}`,
+        `lg:grid-cols-${columns.lg}`
+      )}>
+          {items.map((item, index) => (
+            <Fragment key={index}>{renderItem(item)}</Fragment>
+          ))}
       </div>
-    </div>
   );
 }

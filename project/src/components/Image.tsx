@@ -6,6 +6,7 @@ interface ImageProps {
   alt: string;
   widths?: string[];
   className?: string;
+  sizes?: string;
 }
 
 /**
@@ -22,6 +23,7 @@ export default function Image({
   alt,
   widths = IMG_WIDTHS,
   className,
+  sizes = '(max-width: 640px) 320px, (max-width: 960px) 640px, (max-width: 1280px) 960px, (max-width: 1920px) 1280px, 1920px'
 }: ImageProps) {
   const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/images${baseUrl}`;
   const source = `${url}-320w.webp`;
@@ -30,9 +32,7 @@ export default function Image({
       return `${url}-${width}w.webp ${width}w`;
     })
     .join(', ');
-  const sizes =
-    '(max-width: 640px) 320px, (max-width: 960px) 640px, (max-width: 1280px) 960px, (max-width: 1920px) 1280px, 1920px';
-
+  
   return (
     <img
       loading='lazy'
