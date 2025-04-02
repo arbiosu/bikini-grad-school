@@ -13,7 +13,7 @@ export function IssuesCard({ imgUrl, issue }: IssuesCardProps) {
       <Image 
         baseUrl={imgUrl}
         alt={issue} 
-        className='mb-4 mx-auto'
+        className='mb-4'
         sizes="(max-width: 1920px) 320px"
       />
       <p className='text-xl'>{issue}</p>
