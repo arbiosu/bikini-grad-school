@@ -55,10 +55,12 @@ export function ImageOverlayGrid({
   images: ImageOverlayCardProps[];
 }) {
   return (
-    <Grid
-      items={images}
-      renderItem={(image) => <ImageOverlayCard {...image} />}
-      columns={{ base: 1, md: 2, lg: 2 }}
-    />
+    <div className="container mx-auto">
+      <Grid
+        items={images}
+        renderItem={(image) => <ImageOverlayCard {...image} />}
+        variant={"small"}
+      />
+    </div>
   );
 }
