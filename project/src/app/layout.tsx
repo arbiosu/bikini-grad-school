@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { playfair } from '../../public/fonts/fonts';
+import { courierPrime } from '../../public/fonts/fonts';
 import Navbar from '@/components/Navbar';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import './globals.css';
@@ -16,7 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en' suppressHydrationWarning>
-      <body className={`${playfair.className} antialiased`}>
+      <body className={`${courierPrime.className} antialiased`}>
         <ThemeProvider
           attribute='class'
           defaultTheme='system'
