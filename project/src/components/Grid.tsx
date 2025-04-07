@@ -22,16 +22,18 @@ const gridVariants = cva(
 interface GridProps<T> extends VariantProps<typeof gridVariants> {
   items: T[];
   renderItem: (item: T) => ReactNode;  
+  className?: string;
 }
 
 export default function Grid<T>({
   items,
   renderItem,
   variant,
+  className = ""
 }: GridProps<T>) {
 
   return (
-      <div className={cn(gridVariants({ variant }))}>
+      <div className={cn(gridVariants({ variant }), className)}>
           {items.map((item, index) => (
             <Fragment key={index}>{renderItem(item)}</Fragment>
           ))}

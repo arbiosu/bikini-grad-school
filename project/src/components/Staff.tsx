@@ -1,5 +1,5 @@
 import Image from '@/components/Image';
-import { specialElite } from '../../public/fonts/fonts';
+import { courierPrime } from '../../public/fonts/fonts';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import Grid from '@/components/Grid'; // Assuming Grid component handles layout
 
@@ -29,7 +29,7 @@ export function StaffCard({ imgUrl, name, pronouns, title }: StaffCardProps) {
           <p className='text-center text-xl text-muted-foreground'>
             {pronouns}
           </p>
-          <p className={`${specialElite.className} text-center text-lg`}>
+          <p className={`${courierPrime.className} text-center text-lg`}>
             {title}
           </p>
         </div>
