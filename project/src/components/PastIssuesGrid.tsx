@@ -1,5 +1,4 @@
 import Image from '@/components/Image';
-import { specialElite } from '../../public/fonts/fonts';
 import Grid from './Grid';
 
 interface IssuesCardProps {
@@ -9,7 +8,7 @@ interface IssuesCardProps {
 
 export function IssuesCard({ imgUrl, issue }: IssuesCardProps) {
   return (
-    <div className={`${specialElite.className} text-center mx-auto`}>
+    <div className={`text-center mx-auto`}>
       <Image 
         baseUrl={imgUrl}
         alt={issue} 
