@@ -1,5 +1,4 @@
 import Image from '@/components/Image';
-import { specialElite } from '../../public/fonts/fonts';
 
 export default function About() {
   return (
@@ -13,7 +12,7 @@ export default function About() {
           />
         </div>
         <div className=''>
-          <div className={`${specialElite.className} space-y-6`}>
+          <div className={`space-y-6`}>
             <h1 className='border-b-2 border-bgs-pink text-center text-4xl tracking-wider md:text-left md:text-5xl'>
               about
             </h1>

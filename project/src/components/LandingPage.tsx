@@ -26,7 +26,7 @@ export default function LandingPage() {
     <div className='relative h-screen w-full'>
       <LandinPageVideo />
       <div className='absolute inset-0 mx-8 flex flex-col items-center justify-center'>
-        <h1 className='px-4 text-6xl text-white md:py-20 lg:px-40 lg:text-8xl'>
+        <h1 className='text-5xl md:text-8xl text-white md:py-20 lg:px-40'>
           <div className='mx-auto'>
             <span
               className={`${chonk.className} block text-center leading-chonk text-shadow-chonk`}
@@ -45,9 +45,6 @@ export default function LandingPage() {
             </span>
           </div>
         </h1>
-        <h2 className='text-xl font-medium text-white drop-shadow-lg'>
-          a magazine for women and queer people
-        </h2>
       </div>
     </div>
   );

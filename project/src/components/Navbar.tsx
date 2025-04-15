@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ShoppingCart, Menu, X } from 'lucide-react';
-import { specialElite } from '@/../public/fonts/fonts';
 import { ModeToggle } from './ThemeToggle';
 
 const navLinks = [
@@ -48,7 +47,7 @@ export default function Navbar() {
 
   return (
     <header
-      className={`${specialElite.className} fixed left-0 right-0 top-0 z-50 flex h-20 items-center px-4 transition-all duration-300 ${
+      className={`fixed left-0 right-0 top-0 z-50 flex h-20 items-center px-4 transition-all duration-300 ${
         hasScrolled ? 'bg-background shadow-sm' : 'bg-transparent'
       }`}
     >
