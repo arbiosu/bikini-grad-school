@@ -31,9 +31,11 @@ export default function Page() {
         imgUrl='/content/bgs-macey'
         overlayText={['PAST', 'ISSUES']}
         altText='Bikini Grad School: Past Issues'
-        className='mb-40 mt-10 aspect-video w-full'
-        textPosition='left-0 top-0'
+        aspectRatio={'aspectVideo'}
+        textPosition={'left'}
+        textSize={'large'}
       />
+      <div className='py-10'></div>
       <IssuesGrid issues={issues} />
     </div>
   );
