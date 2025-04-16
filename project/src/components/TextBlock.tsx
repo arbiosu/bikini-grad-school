@@ -45,7 +45,7 @@ export default function TextBlock({
   subheadingSize,
 }: TextBlockProps) {
   return (
-    <div className='h-full w-full p-10 md:p-14'>
+    <div className='h-full w-full p-10'>
       <div className='mx-auto flex max-w-xl flex-col items-center justify-center gap-2'>
         <h2 className={cn(headingVariants({ headingSize }))}>{heading}</h2>
         <p className={cn(subheadingVariants({ subheadingSize }))}>
