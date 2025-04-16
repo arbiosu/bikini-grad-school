@@ -6,8 +6,8 @@ import { chonk } from '../../public/fonts/fonts';
 const imageOverlayVariants = cva('relative overflow-hidden text-white', {
   variants: {
     aspectRatio: {
-      aspectVideo: 'aspect-video w-full',
-      aspectSquare: 'aspect-square w-full',
+      aspectVideo: 'aspect-video',
+      aspectSquare: 'aspect-square',
     },
   },
   defaultVariants: {
@@ -28,7 +28,7 @@ const textPositionVariants = cva('absolute z-10 flex items-center p-4', {
 });
 
 const textStyleVariants = cva(
-  'max-w-full text-center text-white text-shadow-chonk',
+  'max-w-full text-center text-white text-shadow-chonk-small md:text-shadow-chonk',
   {
     variants: {
       textSize: {

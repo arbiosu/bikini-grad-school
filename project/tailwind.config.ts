@@ -57,7 +57,7 @@ export default {
       },
       textShadow: {
         chonk: `-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, -12px 12px 0 #000`,
-        'chonk-dark': `-2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff, -12px 12px 0 #fff`,
+        'chonk-small': `-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, -6px 6px 0 #000`,
       },
       lineHeight: {
         chonk: '0.91',
