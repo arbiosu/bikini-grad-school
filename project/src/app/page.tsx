@@ -25,19 +25,21 @@ const imgs = [
 
 export default function Home() {
   return (
-    <>
+    <main>
       <LandingPage />
-      <div className='py-8'></div>
-      <ChonkText strings={['SHOW', 'ME']} />
+      <div className='py-8'>
+        <ChonkText strings={['SHOW', 'ME']} variant={'large'} />
+      </div>
       <ShowMeGrid cards={imgs} />
-      <div className='py-8'></div>
-      <ChonkText strings={['GET', 'UPDATES']} />
+      <div className='py-8'>
+        <ChonkText strings={['GET', 'UPDATES']} />
+      </div>
       <div className='container mx-auto'>
         <div className='mx-auto grid max-w-3xl md:grid-cols-2'>
           <SubscribeCard />
           <SocialMediaCard />
         </div>
       </div>
-    </>
+    </main>
   );
 }
