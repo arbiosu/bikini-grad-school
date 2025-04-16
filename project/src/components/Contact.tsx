@@ -79,9 +79,8 @@ export default function ContactForm() {
   };
 
   return (
-    <div className='mx-auto max-w-6xl p-6 py-20'>
-      <h1 className='mb-2 text-3xl'>Get Involved</h1>
-      <h2 className='mb-6 text-lg'>Contact us</h2>
+    <div className='mx-auto max-w-6xl p-2'>
+      <h3 className='mb-6 text-lg'>all fields required</h3>
       {submitted ? (
         <div className='rounded-md bg-green-50 px-6 py-4 text-center'>
           <p className='font-medium text-green-600'>thanks for reaching out!</p>
@@ -96,7 +95,7 @@ export default function ContactForm() {
             <form onSubmit={handleSubmit} className='space-y-6'>
               <div>
                 <Label htmlFor='topic' className='text-xl'>
-                  topic
+                  topic*
                 </Label>
                 <Input
                   type='text'
@@ -110,7 +109,7 @@ export default function ContactForm() {
               </div>
               <div>
                 <Label htmlFor='name' className='text-xl'>
-                  name
+                  name + pronouns*
                 </Label>
                 <Input
                   type='text'
@@ -125,7 +124,7 @@ export default function ContactForm() {
 
               <div>
                 <Label htmlFor='email' className='text-xl'>
-                  email
+                  email*
                 </Label>
                 <Input
                   type='email'
@@ -139,7 +138,7 @@ export default function ContactForm() {
               </div>
               <div>
                 <Label htmlFor='message' className='text-xl'>
-                  message
+                  message*
                 </Label>
                 <Textarea
                   id='message'
@@ -154,7 +153,7 @@ export default function ContactForm() {
 
               <div>
                 <Label htmlFor='source' className='text-xl'>
-                  where did you hear about Bikini Grad School?
+                  where did you hear about Bikini Grad School?*
                 </Label>
                 <Select onValueChange={(e) => (sourceRef.current = e)}>
                   <SelectTrigger className='w-[180px]'>
@@ -163,10 +162,12 @@ export default function ContactForm() {
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel>Sources</SelectLabel>
-                      <SelectItem value='apple'>TikTok</SelectItem>
-                      <SelectItem value='banana'>Instagram</SelectItem>
-                      <SelectItem value='blueberry'>Family/Friends</SelectItem>
-                      <SelectItem value='grapes'>Other</SelectItem>
+                      <SelectItem value='tiktok'>TikTok</SelectItem>
+                      <SelectItem value='instagram'>Instagram</SelectItem>
+                      <SelectItem value='family-friends'>
+                        Family/Friends
+                      </SelectItem>
+                      <SelectItem value='other'>Other</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>

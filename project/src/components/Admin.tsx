@@ -34,10 +34,7 @@ export default function LoginForm() {
     <div className='py-20'>
       <form action={handleSubmit} className='space-y-4'>
         <div className='mx-auto max-w-screen-md px-4 py-8 lg:py-16'>
-          <label
-            className='mb-2 block text-lg font-bold text-custom-pink-text'
-            htmlFor='email'
-          >
+          <label className='mb-2 block text-lg font-bold' htmlFor='email'>
             Email:
           </label>
           <input
@@ -48,10 +45,7 @@ export default function LoginForm() {
             required
           />
 
-          <label
-            className='mb-2 block text-lg font-bold text-custom-pink-text'
-            htmlFor='password'
-          >
+          <label className='mb-2 block text-lg font-bold' htmlFor='password'>
             Password:
           </label>
           <input

@@ -1,32 +1,38 @@
-import IssuesGrid from '@/components/PastIssuesGrid';
+import IssuesGrid from '@/components/Issues';
 import ImageOverlayCard from '@/components/ImageOverlay';
 
 const issues = [
   {
     imgUrl: '/content/issue-5',
-    issue: 'issue .05 coquette',
+    issue: 'coquette',
+    index: 5,
   },
   {
     imgUrl: '/content/issue-4',
-    issue: 'issue .04 obsession',
+    issue: 'obsession',
+    index: 4,
   },
   {
     imgUrl: '/content/issue-3',
-    issue: 'issue .03 glam',
+    issue: 'glam',
+    index: 3,
   },
   {
     imgUrl: '/content/issue-2',
-    issue: 'issue .02 tis the season',
+    issue: 'tis the season',
+    index: 2,
   },
   {
     imgUrl: '/content/issue-1',
-    issue: 'issue .01 manifesto',
+    issue: 'manifesto',
+    index: 1,
   },
 ];
 
 export default function Page() {
   return (
-    <div className='container mx-auto py-20'>
+    <main className='container mx-auto'>
+      <div className='py-10'></div>
       <ImageOverlayCard
         imgUrl='/content/bgs-macey'
         overlayText={['PAST', 'ISSUES']}
@@ -37,6 +43,6 @@ export default function Page() {
       />
       <div className='py-10'></div>
       <IssuesGrid issues={issues} />
-    </div>
+    </main>
   );
 }

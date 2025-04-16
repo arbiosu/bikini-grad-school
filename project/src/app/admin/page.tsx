@@ -18,9 +18,7 @@ export default async function AdminDashboard() {
   return (
     <div className='container mx-auto p-4'>
       <div>
-        <h1 className='mx-4 text-5xl font-bold text-custom-pink-text'>
-          Admin Dashboard
-        </h1>
+        <h1 className='mx-4 text-5xl font-bold'>Admin Dashboard</h1>
         <ArticleList />
       </div>
       <div>
