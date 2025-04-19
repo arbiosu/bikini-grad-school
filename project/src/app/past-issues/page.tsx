@@ -1,35 +1,14 @@
+import { getAllIssues } from '@/lib/supabase/model';
 import IssuesGrid from '@/components/Issues';
 import ImageOverlayCard from '@/components/ImageOverlay';
 
-const issues = [
-  {
-    imgUrl: '/content/issue-5',
-    issue: 'coquette',
-    index: 5,
-  },
-  {
-    imgUrl: '/content/issue-4',
-    issue: 'obsession',
-    index: 4,
-  },
-  {
-    imgUrl: '/content/issue-3',
-    issue: 'glam',
-    index: 3,
-  },
-  {
-    imgUrl: '/content/issue-2',
-    issue: 'tis the season',
-    index: 2,
-  },
-  {
-    imgUrl: '/content/issue-1',
-    issue: 'manifesto',
-    index: 1,
-  },
-];
+export default async function Page() {
+  const { data, error } = await getAllIssues();
 
-export default function Page() {
+  if (error) {
+    return <h1>Unable to retrieve Issues</h1>;
+  }
+
   return (
     <main className='container mx-auto'>
       <div className='py-10'></div>
@@ -42,7 +21,7 @@ export default function Page() {
         textSize={'large'}
       />
       <div className='py-10'></div>
-      <IssuesGrid issues={issues} />
+      <IssuesGrid issues={data} />
     </main>
   );
 }

@@ -1,7 +1,9 @@
 import { getArticleById } from '@/lib/supabase/model';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { EditArticleForm } from '@/components/Admin';
+import EditArticleForm from '@/components/admin/EditArticleForm';
+import LinkButton from '@/components/admin/LinkButton';
+import { ArrowLeft } from 'lucide-react';
 
 export default async function EditArticlePage({
   params,
@@ -23,11 +25,14 @@ export default async function EditArticlePage({
   }
 
   return (
-    <main className='container mx-auto px-4 py-8'>
-      <h1 className='mb-8 text-5xl font-bold text-custom-pink-text'>
-        Edit Article {data.title}
-      </h1>
+    <div className='container mx-auto p-20'>
+      <h1 className='text-3xl font-bold'>Edit Article: {data.title}</h1>
+      <LinkButton
+        href={'/admin/articles'}
+        label='Back to Articles Dashboard'
+        Icon={ArrowLeft}
+      />
       <EditArticleForm article={data} />
-    </main>
+    </div>
   );
 }

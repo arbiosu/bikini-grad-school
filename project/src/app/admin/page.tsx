@@ -1,10 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { PlusCircle } from 'lucide-react';
-import { SignOutForm } from '@/components/Admin';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { ArticleList, ContributeMessageList } from '@/components/AdminLists';
+import SignOutButton from '@/components/admin/SignOut';
+import LinkButton from '@/components/admin/LinkButton';
+import { Newspaper, ScrollText, PlusCircle } from 'lucide-react';
 
 export default async function AdminDashboard() {
   const supabase = await createClient();
@@ -16,25 +14,31 @@ export default async function AdminDashboard() {
   }
 
   return (
-    <div className='container mx-auto p-4'>
-      <div>
-        <h1 className='mx-4 text-5xl font-bold'>Admin Dashboard</h1>
-        <ArticleList />
-      </div>
-      <div>
-        <h2 className='mx-4 text-5xl font-bold text-custom-pink-text'>
-          Contribute Messages
-        </h2>
-        <ContributeMessageList />
-      </div>
-      <div className='mx-3 flex gap-10'>
-        <Link href='/admin/create'>
-          <Button>
-            <PlusCircle />
-            {'Create New Article'}
-          </Button>
-        </Link>
-        <SignOutForm />
+    <div className='container mx-auto p-20'>
+      <h1 className='mx-4 text-center text-5xl font-bold'>Admin Dashboard</h1>
+      <div className='flex flex-col gap-10 p-10'>
+        <LinkButton
+          href={'/admin/issues'}
+          label={'View/Edit Issues'}
+          Icon={ScrollText}
+        />
+        <LinkButton
+          href={'/admin/articles'}
+          label={'View/Edit Articles'}
+          Icon={Newspaper}
+        />
+        <LinkButton
+          href={'/admin/issues/create'}
+          label={'Create New Issue'}
+          Icon={PlusCircle}
+        />
+        <LinkButton
+          href={'/admin/articles/create'}
+          label={'Create New Article'}
+          Icon={PlusCircle}
+        />
+
+        <SignOutButton />
       </div>
     </div>
   );
