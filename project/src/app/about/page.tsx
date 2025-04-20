@@ -31,7 +31,7 @@ const staff = [
 
 export default function Page() {
   return (
-    <main className='container mx-auto'>
+    <section>
       <About />
       <div className='py-10'></div>
       <ImageOverlay
@@ -44,6 +44,6 @@ export default function Page() {
       />
       <div className='py-10'></div>
       <StaffGrid staffMembers={staff} />
-    </main>
+    </section>
   );
 }

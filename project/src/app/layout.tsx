@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { courierPrime } from '../../public/fonts/fonts';
 import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import './globals.css';
 
@@ -25,6 +26,7 @@ export default function RootLayout({
         >
           <Navbar />
           {children}
+          <Footer />
         </ThemeProvider>
       </body>
     </html>

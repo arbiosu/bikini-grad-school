@@ -26,7 +26,17 @@ export async function getAllIssues() {
   return await supabase
     .from('issues')
     .select()
-    .order('created_at', { ascending: true });
+    .order('publication_date', { ascending: false });
+}
+
+export async function getCurrentIssue() {
+  const supabase = await createClient();
+  return await supabase
+    .from('issues')
+    .select()
+    .eq('is_published', true)
+    .order('publication_date', { ascending: false })
+    .limit(1);
 }
 
 export async function getIssueById(id: number) {
