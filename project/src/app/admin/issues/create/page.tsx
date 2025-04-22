@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import CreateNewIssueForm from '@/components/admin/CreateNewIssue';
+import CreateNewIssueForm from '@/components/admin/CreateIssueForm';
 import LinkButton from '@/components/admin/LinkButton';
 import { ArrowLeft } from 'lucide-react';
 
