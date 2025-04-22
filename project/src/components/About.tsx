@@ -1,18 +1,23 @@
 import Image from '@/components/Image';
+import BGSstar from './BGSstar';
 
 export default function About() {
   return (
-    <section className='mx-auto px-12 pt-16'>
-      <div className='grid items-center gap-2 md:grid-cols-2'>
+    <section className='mx-auto p-36 pt-12'>
+      <div className='absolute right-8'>
+        <BGSstar />
+      </div>
+      <div className='grid items-center lg:grid-cols-2'>
         <div className='container relative mx-auto'>
           <Image
             baseUrl='/content/bgs-jk'
             alt='Kelly Slater (right) and Jayne Breakfast (left)'
-            className=''
+            sizes='960px'
+            className='object-contain'
           />
         </div>
-        <div className=''>
-          <div className={`space-y-6`}>
+        <div>
+          <div className='space-y-6'>
             <h1 className='border-b-2 border-bgs-pink text-center text-4xl tracking-wider md:text-left md:text-5xl'>
               about
             </h1>
@@ -27,7 +32,7 @@ export default function About() {
             </p>
             <p className='text-lg leading-relaxed'>
               The big gorgeous brains behind BGS are Kelly Slater and Jayne
-              Breakfast. They are to your left.
+              Breakfast.
             </p>
           </div>
         </div>

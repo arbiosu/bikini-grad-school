@@ -33,7 +33,6 @@ export default function Page() {
   return (
     <section>
       <About />
-      <div className='py-10'></div>
       <ImageOverlay
         imgUrl='/content/bgs-staff'
         altText='Bikini Grad School Staff'

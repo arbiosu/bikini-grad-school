@@ -131,3 +131,13 @@ export async function deleteArticle(id: string) {
   const supabase = await createServiceClient();
   return await supabase.from('articles').delete().eq('id', id);
 }
+
+export async function getArticlesSitemap() {
+  const supabase = await createClient();
+  return await supabase.from('articles').select('id, created_at');
+}
+
+export async function getIssuesSitemap() {
+  const supabase = await createClient();
+  return await supabase.from('issues').select('id, updated_at, created_at');
+}
