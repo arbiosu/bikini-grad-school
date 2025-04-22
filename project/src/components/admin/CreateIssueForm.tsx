@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -11,14 +11,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { editIssue } from '@/lib/supabase/model';
-import { type Tables } from '@/lib/supabase/database';
+import { createIssue } from '@/lib/supabase/model';
 
-interface EditIssueFormData {
+interface IssueFormData {
   title: string;
   description: string;
   isPublished: boolean;
-  publicationDate: string | null;
+  publicationDate: string;
 }
 
 interface FormStatus {
@@ -32,24 +31,24 @@ const PUBLISH_STATUS = {
   DRAFT: 'false',
 };
 
+const INITIAL_FORM_DATA: IssueFormData = {
+  title: '',
+  description: '',
+  isPublished: false,
+  publicationDate: new Date().toLocaleDateString(),
+};
+
 const INITIAL_STATUS: FormStatus = {
   isLoading: false,
   error: null,
   success: null,
 };
 
-interface IssueProps {
-  issue: Tables<'issues'>;
-}
-
-export default function EditIssueForm({ issue }: IssueProps) {
-  const [formData, setFormData] = useState<EditIssueFormData>({
-    title: issue.title,
-    description: issue.description,
-    isPublished: issue.is_published,
-    publicationDate: issue.publication_date,
-  });
+export default function CreateNewIssueForm() {
+  const [formData, setFormData] = useState<IssueFormData>(INITIAL_FORM_DATA);
   const [status, setStatus] = useState<FormStatus>(INITIAL_STATUS);
+  const [file, setFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,6 +77,25 @@ export default function EditIssueForm({ issue }: IssueProps) {
     [status.error, status.success]
   );
 
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const currentFile = e.target.files?.[0] || null;
+      setFile(currentFile);
+      if (status.error || status.success) {
+        setStatus(INITIAL_STATUS);
+      }
+    },
+    [status.error, status.success]
+  );
+
+  const resetForm = useCallback(() => {
+    setFormData(INITIAL_FORM_DATA);
+    setFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus({ isLoading: true, error: null, success: null });
@@ -91,22 +109,24 @@ export default function EditIssueForm({ issue }: IssueProps) {
       });
       return;
     }
+    if (!file) {
+      setStatus({
+        isLoading: false,
+        error: 'Please upload a cover image',
+        success: null,
+      });
+      return;
+    }
+    // todo add file size validation (10mb)
 
     try {
-      const editedIssue = await editIssue({
-        title: formData.title,
-        description: formData.description,
+      const issueData = {
+        title: trimmedTitle,
+        description: formData.description.trim(),
         is_published: formData.isPublished,
         publication_date: formData.publicationDate,
-        id: issue.id,
-      });
-      if (editedIssue) {
-        setStatus({
-          isLoading: false,
-          error: null,
-          success: 'Issue updated successfully!',
-        });
-      }
+      };
+      await createIssue(issueData, file);
       const res = await fetch('/api/revalidate?path=/', {
         method: 'POST',
       });
@@ -116,18 +136,32 @@ export default function EditIssueForm({ issue }: IssueProps) {
       } else {
         console.warn('Revalidated failed: ', resData.message);
       }
+      resetForm();
+      setStatus({
+        isLoading: false,
+        error: null,
+        success: 'Issue created successfully!',
+      });
     } catch (error) {
-      console.error(error);
-      let errorMessage = 'Could not edit issue. Contact an admin.';
+      console.error('Failed to create issue:', error);
+      let errorMessage =
+        'Could not create issue. Please try again or contact support.';
       if (error instanceof Error) {
-        errorMessage = `Failed to edit issue: ${error.message}`;
+        errorMessage = `Failed to create issue: ${error.message}`;
       }
       setStatus({ isLoading: false, error: errorMessage, success: null });
     }
   };
+  const isSubmitDisabled = status.isLoading || !file || !formData.title.trim();
+
   return (
     <div className='mx-auto max-w-6xl p-2'>
-      <h2 className='mb-6 text-2xl font-semibold'>Edit Article</h2>
+      <h2 className='mb-6 text-2xl font-semibold'>Create New Issue</h2>
+      <p className='mb-6 text-sm text-gray-600'>
+        Fill in the details for the new magazine issue. Fields marked with * are
+        required.
+      </p>
+
       <div className='flex flex-col gap-24 md:flex-row'>
         <div className='flex-1'>
           <form onSubmit={handleSubmit} className='space-y-6'>
@@ -141,10 +175,14 @@ export default function EditIssueForm({ issue }: IssueProps) {
                 name='title'
                 value={formData.title}
                 onChange={handleInputChange}
+                placeholder='Enter the issue title (e.g., obsession, coquette)'
                 disabled={status.isLoading}
                 required
                 className='mt-1'
               />
+              <p className='mt-1 text-sm text-gray-500'>
+                Note: Title is case sensitive
+              </p>
             </div>
             <div>
               <Label htmlFor='description' className='text-xl'>
@@ -156,6 +194,7 @@ export default function EditIssueForm({ issue }: IssueProps) {
                 name='description'
                 value={formData.description}
                 onChange={handleInputChange}
+                placeholder='Optionally enter the issue description'
                 disabled={status.isLoading}
                 className='mt-1'
               />
@@ -185,25 +224,46 @@ export default function EditIssueForm({ issue }: IssueProps) {
                   <SelectItem value={PUBLISH_STATUS.DRAFT}>Draft</SelectItem>
                 </SelectContent>
               </Select>
+              <p className='mt-1 text-sm text-gray-500'>
+                {
+                  "'Published' issues are live immediately. 'Draft' issues are hidden."
+                }
+              </p>
             </div>
             <div>
               <Label htmlFor='publication_date' className='text-xl'>
-                Current Publication Date:{' '}
-                {issue.publication_date
-                  ? new Date(issue.publication_date).toLocaleDateString()
-                  : 'none'}
+                Publication Date: {formData.publicationDate}
               </Label>
               <Input
                 id='publicationDate'
                 type='date'
                 name='publicationDate'
-                value={
-                  formData.publicationDate
-                    ? formData.publicationDate
-                    : new Date().toLocaleDateString()
-                }
+                value={formData.publicationDate}
                 onChange={handleInputChange}
               />
+            </div>
+            <div>
+              <Label
+                htmlFor='coverImage'
+                className='mb-2 block text-lg font-bold text-black'
+              >
+                Cover Image*
+              </Label>
+              <Input
+                id='coverImage'
+                name='coverImage'
+                type='file'
+                accept='image/png'
+                onChange={handleFileChange}
+                ref={fileInputRef}
+                disabled={status.isLoading}
+                required
+              />
+              <p className='mt-1 text-sm text-gray-500'>
+                10Mb file size limit. We optimize the image by converting it to
+                WebP format and generating 5 cropped versions. Keep filenames
+                unique (e.g., issue-101.jpg).
+              </p>
             </div>
             <div className='mt-4 min-h-[20px]'>
               {' '}
@@ -213,15 +273,8 @@ export default function EditIssueForm({ issue }: IssueProps) {
                 <p className='text-green-600'>{status.success}</p>
               )}
             </div>
-            <p className='mt-2 text-blue-600'>
-              Contact an admin if you need to change the following:{' '}
-            </p>
-            <p className='mx-1 mt-2 text-blue-600'>
-              Cover Image: {issue.cover_image_path}
-            </p>
-
-            <Button type='submit' size='lg' disabled={status.isLoading}>
-              {status.isLoading ? 'processing...' : 'submit'}
+            <Button type='submit' size='lg' disabled={isSubmitDisabled}>
+              {status.isLoading ? 'Processing...' : 'Submit Issue'}
             </Button>
           </form>
         </div>

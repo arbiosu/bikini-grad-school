@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -15,50 +15,140 @@ import {
 import { editArticle } from '@/lib/supabase/model';
 import { type Tables } from '@/lib/supabase/database';
 
+interface EditArticleFormData {
+  title: string;
+  subtitle: string;
+  author: string;
+  content: string;
+  isPublished: boolean;
+}
+
+interface FormStatus {
+  isLoading: boolean;
+  error: string | null;
+  success: string | null;
+}
+
+const PUBLISH_STATUS = {
+  PUBLISHED: 'true',
+  DRAFT: 'false',
+};
+
+const INITIAL_STATUS: FormStatus = {
+  isLoading: false,
+  error: null,
+  success: null,
+};
+
 interface ArticleProps {
   article: Tables<'articles'>;
 }
 
 export default function EditArticleForm({ article }: ArticleProps) {
-  const [title, setTitle] = useState<string>(article.title);
-  const [subtitle, setSubtitle] = useState<string>(article.subtitle);
-  const [author, setAuthor] = useState<string>(article.author);
-  const [content, setContent] = useState<string>(article.content);
+  const [formData, setFormData] = useState<EditArticleFormData>({
+    title: article.title,
+    subtitle: article.subtitle,
+    author: article.author,
+    content: article.content,
+    isPublished: article.is_published,
+  });
+  const [status, setStatus] = useState<FormStatus>(INITIAL_STATUS);
 
-  const [isPublished, setIsPublished] = useState<boolean>(article.is_published);
-  const [isLoading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
-  const [success, setSuccess] = useState<string>('');
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { name, value } = e.target;
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+      if (status.error || status.success) {
+        setStatus(INITIAL_STATUS);
+      }
+    },
+    [status.error, status.success]
+  );
 
-  const handlePublishedChange = (value: string) => {
-    setIsPublished(value === 'true');
-  };
+  const handlePublishedChange = useCallback(
+    (value: string) => {
+      setFormData((prevData) => ({
+        ...prevData,
+        isPublished: value === PUBLISH_STATUS.PUBLISHED,
+      }));
+      if (status.error || status.success) {
+        setStatus(INITIAL_STATUS);
+      }
+    },
+    [status.error, status.success]
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setStatus({ isLoading: true, error: null, success: null });
+
+    const trimmedTitle = formData.title.trim();
+    if (!trimmedTitle) {
+      setStatus({
+        isLoading: false,
+        error: 'Title is required',
+        success: null,
+      });
+      return;
+    }
+    const trimmedSubtitle = formData.subtitle.trim();
+    if (!trimmedSubtitle) {
+      setStatus({
+        isLoading: false,
+        error: 'Subtitle is required',
+        success: null,
+      });
+      return;
+    }
+    const trimmedAuthor = formData.author.trim();
+    if (!trimmedAuthor) {
+      setStatus({
+        isLoading: false,
+        error: 'Author is required',
+        success: null,
+      });
+      return;
+    }
 
     try {
       const newArticle = await editArticle({
-        title: title,
-        subtitle: subtitle,
-        author: author,
-        content: content,
-        is_published: isPublished,
+        title: trimmedTitle,
+        subtitle: trimmedSubtitle,
+        author: trimmedAuthor,
+        content: formData.content,
+        is_published: formData.isPublished,
         issue_id: article.issue_id,
         id: article.id,
       });
       if (newArticle) {
-        setSuccess('Article edited successfully!');
-        setError('');
+        setStatus({
+          isLoading: false,
+          error: null,
+          success: 'Article updated successfully!',
+        });
+      }
+      const res = await fetch('/api/revalidate?path=/', {
+        method: 'POST',
+      });
+      const resData = await res.json();
+      if (res.ok) {
+        console.log(`Revalidated path at ${resData.now}`);
+      } else {
+        console.warn('Revalidated failed: ', resData.message);
       }
     } catch (error) {
-      console.log(error);
-      alert('Could not edit article. Contact an admin.');
-    } finally {
-      setLoading(false);
+      console.error(error);
+      let errorMessage = 'Could not edit article. Contact an admin.';
+      if (error instanceof Error) {
+        errorMessage = `Failed to edit article: ${error.message}`;
+      }
+      setStatus({ isLoading: false, error: errorMessage, success: null });
     }
   };
+
   return (
     <div className='mx-auto max-w-6xl p-2'>
       <div className='flex flex-col gap-24 md:flex-row'>
@@ -66,77 +156,96 @@ export default function EditArticleForm({ article }: ArticleProps) {
           <form onSubmit={handleSubmit} className='space-y-6'>
             <div>
               <Label htmlFor='title' className='text-xl'>
-                title of the article
+                Title*
               </Label>
               <Input
+                id='title'
                 type='text'
                 name='title'
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                disabled={isLoading}
+                value={formData.title}
+                onChange={handleInputChange}
+                disabled={status.isLoading}
                 required
+                className='mt-1'
               />
             </div>
             <div>
               <Label htmlFor='subtitle' className='text-xl'>
-                subtitle of the article
+                Subtitle*
               </Label>
               <Input
+                id='subtitle'
                 type='text'
                 name='subtitle'
-                value={subtitle}
-                onChange={(e) => setSubtitle(e.target.value)}
-                disabled={isLoading}
+                value={formData.subtitle}
+                onChange={handleInputChange}
+                disabled={status.isLoading}
                 required
+                className='mt-1'
               />
             </div>
             <div>
               <Label htmlFor='author' className='text-xl'>
-                author of the article
+                Author*
               </Label>
               <Input
+                id='author'
                 type='text'
                 name='author'
-                value={author}
-                onChange={(e) => setAuthor(e.target.value)}
-                disabled={isLoading}
+                value={formData.author}
+                onChange={handleInputChange}
+                disabled={status.isLoading}
                 required
               />
             </div>
             <div>
               <Label htmlFor='content' className='text-xl'>
-                content of the article
+                Content*
               </Label>
               <Textarea
                 id='content'
-                name='title'
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                disabled={isLoading}
+                name='content'
+                value={formData.content}
+                onChange={handleInputChange}
+                disabled={status.isLoading}
                 required
                 rows={40}
               />
             </div>
             <div>
               <Label htmlFor='is_published' className='text-xl'>
-                Set whether the article should be immediately published or not.
+                Status*
               </Label>
               <Select
                 onValueChange={handlePublishedChange}
-                value={isPublished ? 'true' : 'false'}
-                disabled={isLoading}
+                value={
+                  formData.isPublished
+                    ? PUBLISH_STATUS.PUBLISHED
+                    : PUBLISH_STATUS.DRAFT
+                }
+                disabled={status.isLoading}
                 name='is_published'
+                required
               >
                 <SelectTrigger id='is_published'>
                   <SelectValue placeholder='Select status...' />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='true'>Published</SelectItem>
-                  <SelectItem value='false'>Draft</SelectItem>
+                  <SelectItem value={PUBLISH_STATUS.PUBLISHED}>
+                    Published
+                  </SelectItem>
+                  <SelectItem value={PUBLISH_STATUS.DRAFT}>Draft</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-
+            <div className='mt-4 min-h-[20px]'>
+              {' '}
+              {/* Reserve space to prevent layout shifts */}
+              {status.error && <p className='text-red-600'>{status.error}</p>}
+              {status.success && (
+                <p className='text-green-600'>{status.success}</p>
+              )}
+            </div>
             <p className='mt-2 text-blue-600'>
               Contact an admin if you need to change the following
             </p>
@@ -151,10 +260,8 @@ export default function EditArticleForm({ article }: ArticleProps) {
             <p className='mx-1 mt-2 text-blue-600'>
               - Image: {article.img_path}
             </p>
-            {error && <p className='mt-2 text-red-600'>{error}</p>}
-            {success && <p className='mt-2 text-green-600'>{success}</p>}
-            <Button type='submit' size='lg' disabled={isLoading}>
-              {isLoading ? 'processing...' : 'submit'}
+            <Button type='submit' size='lg' disabled={status.isLoading}>
+              {status.isLoading ? 'processing...' : 'submit'}
             </Button>
           </form>
         </div>

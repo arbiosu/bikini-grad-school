@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -16,173 +16,328 @@ import { createArticle } from '@/lib/supabase/model';
 import IssueSelector from './IssueSelector';
 import { type Tables } from '@/lib/supabase/database';
 
+interface ArticleFormData {
+  title: string;
+  subtitle: string;
+  author: string;
+  content: string;
+  issueId: number;
+  isPublished: boolean;
+}
+
+interface FormStatus {
+  isLoading: boolean;
+  error: string | null;
+  success: string | null;
+}
+
+const PUBLISH_STATUS = {
+  PUBLISHED: 'true',
+  DRAFT: 'false',
+};
+
+const INITIAL_FORM_DATA: ArticleFormData = {
+  title: '',
+  subtitle: '',
+  author: '',
+  content: '',
+  issueId: 1,
+  isPublished: false,
+};
+
+const INITIAL_STATUS: FormStatus = {
+  isLoading: false,
+  error: null,
+  success: null,
+};
+
 interface IssuesProps {
   issues: Tables<'issues'>[];
 }
 
 export default function CreateNewArticleForm({ issues }: IssuesProps) {
-  const titleRef = useRef('');
-  const subtitleRef = useRef('');
-  const authorRef = useRef('');
-  const contentRef = useRef('');
-  const issueIdRef = useRef('');
+  const [formData, setFormData] = useState<ArticleFormData>(INITIAL_FORM_DATA);
+  const [status, setStatus] = useState<FormStatus>(INITIAL_STATUS);
+  const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [file, setFile] = useState<File | null>(null);
-  const [isPublished, setIsPublished] = useState<boolean>(false);
-  const [isLoading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { name, value } = e.target;
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+      if (status.error || status.success) {
+        setStatus(INITIAL_STATUS);
+      }
+    },
+    [status.error, status.success]
+  );
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) {
-      setFile(e.target.files[0]);
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const currentFile = e.target.files?.[0] || null;
+      setFile(currentFile);
+      if (status.error || status.success) {
+        setStatus(INITIAL_STATUS);
+      }
+    },
+    [status.error, status.success]
+  );
+
+  const handlePublishedChange = useCallback(
+    (value: string) => {
+      setFormData((prevData) => ({
+        ...prevData,
+        isPublished: value === PUBLISH_STATUS.PUBLISHED,
+      }));
+      if (status.error || status.success) {
+        setStatus(INITIAL_STATUS);
+      }
+    },
+    [status.error, status.success]
+  );
+  const handleIssueIdChange = useCallback(
+    (id: string) => {
+      setFormData((prevData) => ({
+        ...prevData,
+        issueId: parseInt(id),
+      }));
+      if (status.error || status.success) {
+        setStatus(INITIAL_STATUS);
+      }
+    },
+    [status.error, status.success]
+  );
+
+  const resetForm = useCallback(() => {
+    setFormData(INITIAL_FORM_DATA);
+    setFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
-  };
-
-  const handlePublishedChange = (value: string) => {
-    setIsPublished(value === 'true');
-  };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setStatus({ isLoading: true, error: null, success: null });
+
+    const trimmedTitle = formData.title.trim();
+    if (!trimmedTitle) {
+      setStatus({
+        isLoading: false,
+        error: 'Title is required',
+        success: null,
+      });
+      return;
+    }
+    const trimmedSubtitle = formData.subtitle.trim();
+    if (!trimmedSubtitle) {
+      setStatus({
+        isLoading: false,
+        error: 'Subtitle is required',
+        success: null,
+      });
+      return;
+    }
+    const trimmedAuthor = formData.author.trim();
+    if (!trimmedAuthor) {
+      setStatus({
+        isLoading: false,
+        error: 'Author is required',
+        success: null,
+      });
+      return;
+    }
 
     if (!file) {
-      setError('Please upload an image');
-      setLoading(false);
+      setStatus({
+        isLoading: false,
+        error: 'Please upload a cover image',
+        success: null,
+      });
       return;
     }
 
     try {
-      const newArticle = await createArticle(
-        {
-          title: titleRef.current,
-          subtitle: subtitleRef.current,
-          author: authorRef.current,
-          content: contentRef.current,
-          is_published: isPublished,
-          issue_id: parseInt(issueIdRef.current),
-        },
-        file
-      );
+      const articleData = {
+        title: trimmedTitle,
+        subtitle: trimmedSubtitle,
+        author: trimmedAuthor,
+        content: formData.content,
+        is_published: formData.isPublished,
+        issue_id: formData.issueId,
+      };
+      const newArticle = await createArticle(articleData, file);
       if (newArticle) {
-        alert('Article created successfully!');
-        setFile(null);
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
-        }
-        setError('');
+        setStatus({
+          isLoading: false,
+          error: null,
+          success: 'Article created successfully!',
+        });
+        resetForm();
+      }
+      const res = await fetch('/api/revalidate?path=/', {
+        method: 'POST',
+      });
+      const resData = await res.json();
+      if (res.ok) {
+        console.log(`Revalidated path at ${resData.now}`);
+      } else {
+        console.warn('Revalidated failed: ', resData.message);
       }
     } catch (error) {
-      console.log(error);
-      alert('Could not create article. Contact an admin.');
-    } finally {
-      setLoading(false);
+      console.error(error);
+      let errorMessage = 'Could not create article. Contact an admin.';
+      if (error instanceof Error) {
+        errorMessage = `Failed to create article: ${error.message}`;
+      }
+      setStatus({ isLoading: false, error: errorMessage, success: null });
     }
   };
+  const isSubmitDisabled = status.isLoading || !file || !formData.title.trim();
   return (
     <div className='mx-auto max-w-6xl p-2'>
-      <h3 className='mb-6 text-lg'>all fields required</h3>
+      <h2 className='mb-6 text-2xl font-semibold'>Create New Article</h2>
+      <p className='mb-6 text-sm'>
+        Fill in the details for the new magazine article. Fields marked with *
+        are required.
+      </p>
       <div className='flex flex-col gap-24 md:flex-row'>
         <div className='flex-1'>
           <form onSubmit={handleSubmit} className='space-y-6'>
             <div>
               <Label htmlFor='title' className='text-xl'>
-                title of the article
+                Title*
               </Label>
               <Input
+                id='title'
                 type='text'
                 name='title'
-                defaultValue=''
-                onChange={(e) => (titleRef.current = e.target.value)}
-                disabled={isLoading}
+                value={formData.title}
+                onChange={handleInputChange}
+                placeholder='Enter the article title'
+                disabled={status.isLoading}
                 required
+                className='mt-1'
               />
             </div>
             <div>
               <Label htmlFor='subtitle' className='text-xl'>
-                subtitle of the article
+                Subtitle*
               </Label>
               <Input
+                id='subtitle'
                 type='text'
                 name='subtitle'
-                defaultValue=''
-                onChange={(e) => (subtitleRef.current = e.target.value)}
-                disabled={isLoading}
+                value={formData.subtitle}
+                onChange={handleInputChange}
+                placeholder='Enter the article subtitle'
+                disabled={status.isLoading}
                 required
+                className='mt-1'
               />
             </div>
             <div>
               <Label htmlFor='author' className='text-xl'>
-                author of the article
+                Author*
               </Label>
               <Input
+                id='author'
                 type='text'
                 name='author'
-                defaultValue=''
-                onChange={(e) => (authorRef.current = e.target.value)}
-                disabled={isLoading}
+                value={formData.author}
+                onChange={handleInputChange}
+                placeholder='Enter the name of the author of the article'
+                disabled={status.isLoading}
                 required
+                className='mt-1'
               />
             </div>
             <div>
               <Label htmlFor='content' className='text-xl'>
-                content of the article
+                Content*
               </Label>
               <Textarea
                 id='content'
-                name='title'
-                defaultValue=''
-                onChange={(e) => (contentRef.current = e.target.value)}
-                disabled={isLoading}
+                name='content'
+                value={formData.content}
+                onChange={handleInputChange}
+                placeholder='Separate paragraphs by two line breaks. Indentation will be automatically applied.'
+                disabled={status.isLoading}
                 required
-                rows={4}
+                rows={40}
+                className='mt-1'
               />
             </div>
             <div>
               <Label htmlFor='is_published' className='text-xl'>
-                Set whether the article should be immediately published or not.
+                Status*
               </Label>
               <Select
                 onValueChange={handlePublishedChange}
-                value={isPublished ? 'true' : 'false'}
-                disabled={isLoading}
+                value={
+                  formData.isPublished
+                    ? PUBLISH_STATUS.PUBLISHED
+                    : PUBLISH_STATUS.DRAFT
+                }
+                disabled={status.isLoading}
                 name='is_published'
+                required
               >
                 <SelectTrigger id='is_published'>
                   <SelectValue placeholder='Select status...' />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='true'>Published</SelectItem>
-                  <SelectItem value='false'>Draft</SelectItem>
+                  <SelectItem value={PUBLISH_STATUS.PUBLISHED}>
+                    Published
+                  </SelectItem>
+                  <SelectItem value={PUBLISH_STATUS.DRAFT}>Draft</SelectItem>
                 </SelectContent>
               </Select>
+              <p className='mt-1 text-sm text-gray-500'>
+                {
+                  "'Published' issues are live immediately. 'Draft' issues are hidden."
+                }
+              </p>
             </div>
             <div>
               <Label htmlFor='issueId' className='text-xl'>
                 Set which issue this article belongs to
               </Label>
-              <IssueSelector
-                data={issues}
-                handleChange={(e: string) => (issueIdRef.current = e)}
-              />
+              <IssueSelector data={issues} handleChange={handleIssueIdChange} />
             </div>
             <div>
               <Label className='mb-2 block text-lg font-bold text-black'>
                 Image upload* - keep filenames unique
               </Label>
               <Input
+                id='coverImage'
+                name='coverImage'
                 type='file'
-                accept='image/*'
+                accept='image/png'
                 onChange={handleFileChange}
                 ref={fileInputRef}
-                className='w-full rounded border p-2 text-black'
+                disabled={status.isLoading}
                 required
               />
+              <p className='mt-1 text-sm text-gray-500'>
+                10Mb file size limit. We optimize the image by converting it to
+                WebP format and generating 5 cropped versions. Keep filenames
+                unique (e.g., article-101.jpg).
+              </p>
             </div>
-            {error && <p className='mt-2 text-red-600'>{error}</p>}
-            <Button type='submit' size='lg' disabled={isLoading}>
-              {isLoading ? 'processing...' : 'submit'}
+            <div className='mt-4 min-h-[20px]'>
+              {' '}
+              {/* Reserve space to prevent layout shifts */}
+              {status.error && <p className='text-red-600'>{status.error}</p>}
+              {status.success && (
+                <p className='text-green-600'>{status.success}</p>
+              )}
+            </div>
+            <Button type='submit' size='lg' disabled={isSubmitDisabled}>
+              {status.isLoading ? 'Processing...' : 'Submit Article'}
             </Button>
           </form>
         </div>
