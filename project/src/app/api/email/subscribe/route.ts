@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { SubscriptionEmail } from '@/components/email/Subsciption';
 
+// TODO: Fix
+
 // Rate limit configuration
 const RATE_LIMIT = 3; // Number of allowed submissions
 const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // Time window in milliseconds (1 hour)
