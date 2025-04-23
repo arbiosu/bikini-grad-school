@@ -1,37 +1,25 @@
+import { redirect } from 'next/navigation';
+import { queryIssues } from '@/lib/supabase/model/issues';
 import IssuesGrid from '@/components/Issues';
 import ImageOverlayCard from '@/components/ImageOverlay';
 
-const issues = [
-  {
-    imgUrl: '/content/issue-5',
-    issue: 'coquette',
-    index: 5,
-  },
-  {
-    imgUrl: '/content/issue-4',
-    issue: 'obsession',
-    index: 4,
-  },
-  {
-    imgUrl: '/content/issue-3',
-    issue: 'glam',
-    index: 3,
-  },
-  {
-    imgUrl: '/content/issue-2',
-    issue: 'tis the season',
-    index: 2,
-  },
-  {
-    imgUrl: '/content/issue-1',
-    issue: 'manifesto',
-    index: 1,
-  },
-];
+export default async function Page() {
+  const { data: issues, error } = await queryIssues({
+    filter: {
+      published: true,
+    },
+    sort: {
+      column: 'publication_date',
+      order: 'desc',
+    },
+  });
 
-export default function Page() {
+  if (error || !issues) {
+    redirect('/error');
+  }
+
   return (
-    <main className='container mx-auto'>
+    <section>
       <div className='py-10'></div>
       <ImageOverlayCard
         imgUrl='/content/bgs-macey'
@@ -41,8 +29,10 @@ export default function Page() {
         textPosition={'left'}
         textSize={'large'}
       />
-      <div className='py-10'></div>
-      <IssuesGrid issues={issues} />
-    </main>
+      <div className='p-10'></div>
+      <div className='container mx-auto'>
+        <IssuesGrid issues={issues} />
+      </div>
+    </section>
   );
 }
