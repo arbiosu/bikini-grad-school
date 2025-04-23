@@ -2,9 +2,54 @@ import { MetadataRoute } from 'next';
 import { queryArticles } from '@/lib/supabase/model/articles';
 import { queryIssues } from '@/lib/supabase/model/issues';
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'www.bikinigradschool.com';
+const baseUrl = 'www.bikinigradschool.com';
 
+async function generateArticlesSitemap() {
+  const { data: articles, error: articlesError } = await queryArticles({
+    select: ['id', 'created_at'],
+    filter: {
+      published: true,
+    },
+  });
+  if (articlesError || !articles) {
+    console.error(
+      'Sitemap generation partially failed: could not fetch articles'
+    );
+    return [];
+  }
+
+  const dynamicArticlesPages: MetadataRoute.Sitemap = articles.map(
+    (article) => ({
+      url: `${baseUrl}/articles/${article.id}`,
+      lastModified: article.created_at,
+      changeFrequency: 'yearly',
+      priority: 0.9,
+    })
+  );
+  return dynamicArticlesPages;
+}
+
+async function generateIssuesSitemap() {
+  const { data: issues, error: issuesError } = await queryIssues({
+    select: ['id', 'created_at', 'updated_at'],
+    filter: {
+      published: true,
+    },
+  });
+  if (issuesError || !issues) {
+    console.error('Sitemap generation failed: could not fetch issues.');
+    return [];
+  }
+  const dynamicIssuePages: MetadataRoute.Sitemap = issues.map((issue) => ({
+    url: `${baseUrl}/issues/${issue.id}`,
+    lastModified: issue.updated_at ? issue.updated_at : issue.created_at,
+    changeFrequency: 'monthly',
+    priority: 0.9,
+  }));
+  return dynamicIssuePages;
+}
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: `${baseUrl}/`,
@@ -43,22 +88,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.5,
     },
   ];
-  const { data: issues, error: issuesError } = await queryIssues({
-    select: ['id', 'created_at', 'updated_at'],
-    filter: {
-      published: true,
-    },
-  });
-  if (issuesError || !issues) {
-    console.error('Sitemap generation failed: could not fetch issues.');
-    return staticPages;
-  }
-  const dynamicIssuePages: MetadataRoute.Sitemap = issues.map((issue) => ({
-    url: `${baseUrl}/issues/${issue.id}`,
-    lastModified: issue.updated_at ? issue.updated_at : issue.created_at,
-    changeFrequency: 'monthly',
-    priority: 0.9,
-  }));
+  const dynamicIssuePages = await generateIssuesSitemap();
   const issuePages: MetadataRoute.Sitemap = [
     ...dynamicIssuePages,
     {
@@ -69,27 +99,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  const { data: articles, error: articlesError } = await queryArticles({
-    select: ['id', 'created_at'],
-    filter: {
-      published: true,
-    },
-  });
-  if (articlesError || !articles) {
-    console.error(
-      'Sitemap generation partially failed: could not fetch articles'
-    );
-    return [...staticPages, ...issuePages];
-  }
-
-  const dynamicArticlesPages: MetadataRoute.Sitemap = articles.map(
-    (article) => ({
-      url: `${baseUrl}/articles/${article.id}`,
-      lastModified: article.created_at,
-      changeFrequency: 'yearly',
-      priority: 0.9,
-    })
-  );
+  const dynamicArticlesPages = await generateArticlesSitemap();
   const articlePages: MetadataRoute.Sitemap = [
     ...dynamicArticlesPages,
     {
