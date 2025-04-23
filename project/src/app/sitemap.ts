@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
-import { getArticlesSitemap, getIssuesSitemap } from '@/lib/supabase/model';
+import { queryArticles } from '@/lib/supabase/model/articles';
+import { queryIssues } from '@/lib/supabase/model/issues';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'www.bikinigradschool.com';
@@ -42,8 +43,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.5,
     },
   ];
-  const { data: issues } = await getIssuesSitemap();
-  if (issues == null) {
+  const { data: issues, error: issuesError } = await queryIssues({
+    select: ['id', 'created_at', 'updated_at'],
+    filter: {
+      published: true,
+    },
+  });
+  if (issuesError || !issues) {
     console.error('Sitemap generation failed: could not fetch issues.');
     return staticPages;
   }
@@ -63,8 +69,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  const { data: articles } = await getArticlesSitemap();
-  if (articles == null) {
+  const { data: articles, error: articlesError } = await queryArticles({
+    select: ['id', 'created_at'],
+    filter: {
+      published: true,
+    },
+  });
+  if (articlesError || !articles) {
     console.error(
       'Sitemap generation partially failed: could not fetch articles'
     );

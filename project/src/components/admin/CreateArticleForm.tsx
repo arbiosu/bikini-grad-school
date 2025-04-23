@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
+import { createArticle } from '@/lib/supabase/model/articles';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { createArticle } from '@/lib/supabase/model';
 import IssueSelector from './IssueSelector';
 import { type Tables } from '@/lib/supabase/database';
 
@@ -170,22 +170,15 @@ export default function CreateNewArticleForm({ issues }: IssuesProps) {
         issue_id: formData.issueId,
       };
       const newArticle = await createArticle(articleData, file);
-      if (newArticle) {
+      if (newArticle.data) {
         setStatus({
           isLoading: false,
           error: null,
           success: 'Article created successfully!',
         });
         resetForm();
-      }
-      const res = await fetch('/api/revalidate?path=/', {
-        method: 'POST',
-      });
-      const resData = await res.json();
-      if (res.ok) {
-        console.log(`Revalidated path at ${resData.now}`);
       } else {
-        console.warn('Revalidated failed: ', resData.message);
+        setStatus({ isLoading: false, error: newArticle.error, success: null });
       }
     } catch (error) {
       console.error(error);

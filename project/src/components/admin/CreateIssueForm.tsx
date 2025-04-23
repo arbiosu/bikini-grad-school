@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { createIssue } from '@/lib/supabase/model';
+import { createIssue } from '@/lib/supabase/model/issues';
 
 interface IssueFormData {
   title: string;
@@ -117,8 +117,6 @@ export default function CreateNewIssueForm() {
       });
       return;
     }
-    // todo add file size validation (10mb)
-
     try {
       const issueData = {
         title: trimmedTitle,
@@ -126,22 +124,17 @@ export default function CreateNewIssueForm() {
         is_published: formData.isPublished,
         publication_date: formData.publicationDate,
       };
-      await createIssue(issueData, file);
-      const res = await fetch('/api/revalidate?path=/', {
-        method: 'POST',
-      });
-      const resData = await res.json();
-      if (res.ok) {
-        console.log(`Revalidated path at ${resData.now}`);
+      const { data, error } = await createIssue(issueData, file);
+      if (data) {
+        resetForm();
+        setStatus({
+          isLoading: false,
+          error: null,
+          success: 'Issue created successfully!',
+        });
       } else {
-        console.warn('Revalidated failed: ', resData.message);
+        setStatus({ isLoading: false, error: error, success: null });
       }
-      resetForm();
-      setStatus({
-        isLoading: false,
-        error: null,
-        success: 'Issue created successfully!',
-      });
     } catch (error) {
       console.error('Failed to create issue:', error);
       let errorMessage =

@@ -1,12 +1,17 @@
-import { getAllArticles } from '@/lib/supabase/model';
+import { redirect } from 'next/navigation';
+import { queryArticles } from '@/lib/supabase/model/articles';
 import ArticlesGrid from '@/components/Article';
 import ImageOverlayCard from '@/components/ImageOverlay';
 
 export default async function Page() {
-  const { data, error } = await getAllArticles();
+  const { data, error } = await queryArticles({
+    filter: {
+      published: true,
+    },
+  });
 
-  if (error) {
-    return <h1>Error retrieving articles</h1>;
+  if (error || !data) {
+    redirect('/error');
   }
 
   return (

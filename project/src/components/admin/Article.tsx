@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import handleArticleDelete from '@/actions/handleArticleDelete';
 import { type Tables } from '@/lib/supabase/database';
 import LinkButton from './LinkButton';
 import { Pencil } from 'lucide-react';
@@ -17,6 +16,7 @@ import {
   AlertDialogTitle,
 } from '../ui/alert-dialog';
 import Grid from '@/components/Grid';
+import { deleteArticle } from '@/lib/supabase/model/articles';
 
 export function ArticleAdminCard({
   id,
@@ -27,7 +27,7 @@ export function ArticleAdminCard({
 }: Tables<'articles'>) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const handleDelete = async () => {
-    await handleArticleDelete(id);
+    await deleteArticle(id);
     setShowDeleteConfirm(false);
   };
   return (

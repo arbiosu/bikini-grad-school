@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { editIssue } from '@/lib/supabase/model';
+import { editIssue } from '@/lib/supabase/model/issues';
 import { type Tables } from '@/lib/supabase/database';
 
 interface EditIssueFormData {
@@ -100,21 +100,18 @@ export default function EditIssueForm({ issue }: IssueProps) {
         publication_date: formData.publicationDate,
         id: issue.id,
       });
-      if (editedIssue) {
+      if (editedIssue.data) {
         setStatus({
           isLoading: false,
           error: null,
           success: 'Issue updated successfully!',
         });
-      }
-      const res = await fetch('/api/revalidate?path=/', {
-        method: 'POST',
-      });
-      const resData = await res.json();
-      if (res.ok) {
-        console.log(`Revalidated path at ${resData.now}`);
       } else {
-        console.warn('Revalidated failed: ', resData.message);
+        setStatus({
+          isLoading: false,
+          error: editedIssue.error,
+          success: null,
+        });
       }
     } catch (error) {
       console.error(error);

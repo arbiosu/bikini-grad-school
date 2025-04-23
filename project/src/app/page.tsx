@@ -1,4 +1,6 @@
-import { getCurrentIssue, getIssueArticles } from '@/lib/supabase/model';
+import { redirect } from 'next/navigation';
+import { queryIssues } from '@/lib/supabase/model/issues';
+import { queryArticles } from '@/lib/supabase/model/articles';
 import LandingPage from '@/components/LandingPage';
 import { ChonkText } from '@/components/Chonk';
 import SubscribeCard from '@/components/Subscribe';
@@ -30,16 +32,29 @@ const imgs = [
 ];
 
 export default async function Home() {
-  const { data: issue, error } = await getCurrentIssue();
-  if (error) {
-    console.log(error);
-    return <p>Error</p>;
+  const { data: issue, error: issueError } = await queryIssues({
+    filter: {
+      published: true,
+    },
+    sort: {
+      column: 'publication_date',
+      order: 'desc',
+    },
+    limit: 1,
+  });
+
+  if (issueError || !issue) {
+    redirect('/error');
   }
-  const { data: articles, error: articlesError } = await getIssueArticles(
-    issue[0].id
-  );
-  if (articlesError) {
-    return <p>Articles Error</p>;
+
+  const { data: articles, error: articlesError } = await queryArticles({
+    filter: {
+      issueId: issue[0].id,
+    },
+  });
+
+  if (articlesError || !articles) {
+    redirect('/error');
   }
   return (
     <main className='mx-auto'>

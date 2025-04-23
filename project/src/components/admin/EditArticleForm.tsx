@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { editArticle } from '@/lib/supabase/model';
+import { editArticle } from '@/lib/supabase/model/articles';
 import { type Tables } from '@/lib/supabase/database';
 
 interface EditArticleFormData {
@@ -123,21 +123,14 @@ export default function EditArticleForm({ article }: ArticleProps) {
         issue_id: article.issue_id,
         id: article.id,
       });
-      if (newArticle) {
+      if (newArticle.data) {
         setStatus({
           isLoading: false,
           error: null,
           success: 'Article updated successfully!',
         });
-      }
-      const res = await fetch('/api/revalidate?path=/', {
-        method: 'POST',
-      });
-      const resData = await res.json();
-      if (res.ok) {
-        console.log(`Revalidated path at ${resData.now}`);
       } else {
-        console.warn('Revalidated failed: ', resData.message);
+        setStatus({ isLoading: false, error: newArticle.error, success: null });
       }
     } catch (error) {
       console.error(error);

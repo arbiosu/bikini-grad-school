@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { getAllIssues } from '@/lib/supabase/model';
+import { queryIssues } from '@/lib/supabase/model/issues';
 import IssueAdminGrid from '@/components/admin/Issue';
 import LinkButton from '@/components/admin/LinkButton';
 import { ArrowLeft } from 'lucide-react';
@@ -13,9 +13,9 @@ export default async function Page() {
     console.log('Auth Error:', error);
     redirect('/admin/login');
   }
-  const { data: issues, error: dbError } = await getAllIssues();
+  const { data: issues, error: dbError } = await queryIssues();
 
-  if (dbError) {
+  if (dbError || !issues) {
     return (
       <h1 className='text-center text-2xl'>
         Error retrieving issues from database.

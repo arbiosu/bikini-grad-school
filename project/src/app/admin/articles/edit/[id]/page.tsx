@@ -1,4 +1,4 @@
-import { getArticleById } from '@/lib/supabase/model';
+import { queryArticles } from '@/lib/supabase/model/articles';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import EditArticleForm from '@/components/admin/EditArticleForm';
@@ -11,7 +11,11 @@ export default async function EditArticlePage({
   params: Promise<{ id: string }>;
 }) {
   const articleId = (await params).id;
-  const { data, error } = await getArticleById(articleId);
+  const { data, error } = await queryArticles({
+    filter: {
+      id: articleId,
+    },
+  });
 
   if (error || !data) {
     redirect('/admin');
@@ -26,13 +30,13 @@ export default async function EditArticlePage({
 
   return (
     <div className='container mx-auto p-20'>
-      <h1 className='text-3xl font-bold'>Edit Article: {data.title}</h1>
+      <h1 className='text-3xl font-bold'>Edit Article: {data[0].title}</h1>
       <LinkButton
         href={'/admin/articles'}
         label='Back to Articles Dashboard'
         Icon={ArrowLeft}
       />
-      <EditArticleForm article={data} />
+      <EditArticleForm article={data[0]} />
     </div>
   );
 }

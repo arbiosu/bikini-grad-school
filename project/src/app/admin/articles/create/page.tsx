@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { getAllIssues } from '@/lib/supabase/model';
+import { queryIssues } from '@/lib/supabase/model/issues';
 import CreateNewArticleForm from '@/components/admin/CreateArticleForm';
 import LinkButton from '@/components/admin/LinkButton';
 import { ArrowLeft } from 'lucide-react';
@@ -14,11 +14,10 @@ export default async function Page() {
     redirect('/admin/login');
   }
 
-  const { data: issues, error: dbError } = await getAllIssues();
-  if (dbError) {
+  const { data: issues, error: dbError } = await queryIssues();
+  if (dbError || !issues) {
     return <p>No issues found.</p>;
   }
-  console.log(issues);
 
   return (
     <div className='container mx-auto p-20'>

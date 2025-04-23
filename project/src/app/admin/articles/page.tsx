@@ -1,6 +1,6 @@
-import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { getAllArticles } from '@/lib/supabase/model';
+import { createClient } from '@/lib/supabase/server';
+import { queryArticles } from '@/lib/supabase/model/articles';
 import ArticleAdminGrid from '@/components/admin/Article';
 import LinkButton from '@/components/admin/LinkButton';
 import { ArrowLeft } from 'lucide-react';
@@ -14,9 +14,16 @@ export default async function Page() {
     redirect('/admin/login');
   }
 
-  const { data: articles, error: dbError } = await getAllArticles();
+  const {
+    data: articles,
+    count,
+    error: dbError,
+  } = await queryArticles({
+    count: 'exact',
+  });
 
-  if (dbError) {
+  if (dbError || !articles) {
+    console.log(error);
     return (
       <h1 className='text-center text-2xl'>Failed to retireve articles</h1>
     );
@@ -25,7 +32,7 @@ export default async function Page() {
   return (
     <div className='container mx-auto p-20'>
       <h1 className='mx-4 text-center text-5xl font-bold'>
-        Admin Dashboard - Articles
+        Admin Dashboard - Total Articles {count}
       </h1>
       <div className='p-2'>
         <LinkButton
