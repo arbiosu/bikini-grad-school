@@ -16,22 +16,29 @@ export async function uploadImage(file: File, folderPath: string) {
 
   const buffer = Buffer.from(await file.arrayBuffer());
   const filename = parse(file.name).name;
-  console.log('Filename:', filename);
 
-  for (const width of widths) {
-    const finalPath = `${folderPath}/${filename}-${width}w.webp`;
-    const resizedFile = await sharp(buffer)
+  const image = sharp(buffer);
+
+  const uploadTasks = widths.map(async (width) => {
+    const outputPath = `${folderPath}/${filename}-${width}w.webp`;
+    const resizedFile = await image
+      .clone()
       .resize(width)
       .webp({ quality: 80 })
       .toBuffer();
     const { error } = await supabase.storage
       .from('images')
-      .upload(finalPath, resizedFile, {
+      .upload(outputPath, resizedFile, {
         cacheControl: 'max-age=31536000',
         contentType: 'image/webp',
       });
-    if (error) throw new Error('Failed to upload to image');
-  }
+
+    if (error) {
+      throw new Error(`Upload failed for ${outputPath}: ${error.message}`);
+    }
+  });
+
+  await Promise.all(uploadTasks);
 
   return folderPath + '/' + filename;
 }
