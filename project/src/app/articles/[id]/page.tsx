@@ -2,7 +2,6 @@ import { redirect } from 'next/navigation';
 
 import { queryArticles } from '@/lib/supabase/model/articles';
 import { Article } from '@/components/Article';
-import BGSLogo from '@/components/BGSlogo';
 
 export default async function EditArticlePage({
   params,
@@ -21,11 +20,8 @@ export default async function EditArticlePage({
   }
 
   return (
-    <div className='container mx-auto py-10'>
+    <div className='container mx-auto py-20'>
       <Article article={data[0]} />
-      <div className='flex justify-center p-6'>
-        <BGSLogo />
-      </div>
     </div>
   );
 }

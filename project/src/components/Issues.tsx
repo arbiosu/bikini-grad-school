@@ -63,9 +63,9 @@ export function IssuesCard({
           alt={issue.title}
           className='mb-4'
           widths={['320', '640']}
-          sizes='640px'
+          sizes='320px'
         />
-        <p className='text-xl'>
+        <p className='text-base'>
           <span className='text-indigo-300'>issue .0{totalCount - index}</span>{' '}
           {issue.title}
         </p>
@@ -81,7 +81,7 @@ export default function IssuesGrid({ issues }: { issues: Tables<'issues'>[] }) {
       renderItem={(issue, index) => (
         <IssuesCard issue={issue} index={index} totalCount={issues.length} />
       )}
-      variant={'medium'}
+      variant={'large'}
     />
   );
 }

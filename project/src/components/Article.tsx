@@ -11,7 +11,7 @@ export function Article({ article }: { article: Tables<'articles'> }) {
 
   return (
     <div className='mx-auto max-w-4xl px-4 sm:px-6 md:px-8'>
-      <div className='mb-6 md:mb-8'>
+      <div className=''>
         <TextBlock
           heading={article.title}
           subheading={`by ${article.author}`}
@@ -45,7 +45,7 @@ export function Article({ article }: { article: Tables<'articles'> }) {
 export function ArticleCard({ article }: { article: Tables<'articles'> }) {
   return (
     <Link href={`/articles/${article.id}`}>
-      <div className='mx-auto text-center'>
+      <div className='mx-auto text-center hover:underline'>
         <Image
           baseUrl={article.img_path}
           alt={`${article.title} by ${article.author}`}

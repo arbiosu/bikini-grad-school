@@ -69,11 +69,11 @@ export default async function Home() {
         <ChonkText strings={['SHOW', 'ME']} variant={'large'} />
       </div>
       <ShowMeGrid cards={imgs} />
-      <div className='py-8'>
+      <div className='flex justify-start py-20'>
         <ChonkText strings={['GET', 'UPDATES']} />
       </div>
       <div className='container mx-auto'>
-        <div className='mx-auto grid max-w-3xl md:grid-cols-2'>
+        <div className='mx-auto grid max-w-3xl justify-start md:grid-cols-2'>
           <SubscribeCard />
           <SocialMediaCard />
         </div>
