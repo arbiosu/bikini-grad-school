@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -43,6 +43,8 @@ const INITIAL_STATUS: FormStatus = {
 interface ArticleProps {
   article: Tables<'articles'>;
 }
+
+const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
 
 export default function EditArticleForm({ article }: ArticleProps) {
   const [formData, setFormData] = useState<EditArticleFormData>({
@@ -195,14 +197,18 @@ export default function EditArticleForm({ article }: ArticleProps) {
               <Label htmlFor='content' className='text-xl'>
                 Content*
               </Label>
-              <Textarea
-                id='content'
-                name='content'
+              <MDEditor
                 value={formData.content}
-                onChange={handleInputChange}
-                disabled={status.isLoading}
-                required
-                rows={40}
+                onChange={(value = '') =>
+                  setFormData((prev) => ({ ...prev, content: value }))
+                }
+                height={500}
+                preview='edit'
+                textareaProps={{
+                  name: 'content',
+                  id: 'content',
+                  required: true,
+                }}
               />
             </div>
             <div>

@@ -1,14 +1,11 @@
 import Link from 'next/link';
+import MarkdownRenderer from '@/components/MarkdownRenderer';
 import Image from '@/components/Image';
-import Grid from './Grid';
-import TextBlock from './TextBlock';
+import Grid from '@/components/Grid';
+import TextBlock from '@/components/TextBlock';
 import { type Tables } from '@/lib/supabase/database';
 
 export function Article({ article }: { article: Tables<'articles'> }) {
-  const contentParagraphs = article.content
-    .split('\n')
-    .filter((line) => line.trim() !== '');
-
   return (
     <div className='mx-auto max-w-4xl px-4 sm:px-6 md:px-8'>
       <div className=''>
@@ -30,12 +27,7 @@ export function Article({ article }: { article: Tables<'articles'> }) {
         <p className='text-lg md:text-xl'>{article.subtitle}</p>
 
         <div className='space-y-4'>
-          {contentParagraphs.map((paragraph, index) => (
-            // use css style to indent first line
-            <p key={index} className='text-base' style={{ textIndent: '2em' }}>
-              {paragraph}
-            </p>
-          ))}
+          <MarkdownRenderer content={article.content} />
         </div>
       </div>
     </div>

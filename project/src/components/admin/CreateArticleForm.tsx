@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { createArticle } from '@/lib/supabase/model/articles';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/select';
 import IssueSelector from './IssueSelector';
 import { type Tables } from '@/lib/supabase/database';
+import { onImagePasted } from '@/lib/markdown/utils';
 
 interface ArticleFormData {
   title: string;
@@ -54,6 +55,8 @@ const INITIAL_STATUS: FormStatus = {
 interface IssuesProps {
   issues: Tables<'issues'>[];
 }
+
+const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
 
 export default function CreateNewArticleForm({ issues }: IssuesProps) {
   const [formData, setFormData] = useState<ArticleFormData>(INITIAL_FORM_DATA);
@@ -252,16 +255,38 @@ export default function CreateNewArticleForm({ issues }: IssuesProps) {
               <Label htmlFor='content' className='text-xl'>
                 Content*
               </Label>
-              <Textarea
-                id='content'
-                name='content'
+              <MDEditor
                 value={formData.content}
-                onChange={handleInputChange}
-                placeholder='Separate paragraphs by two line breaks. Indentation will be automatically applied.'
-                disabled={status.isLoading}
-                required
-                rows={40}
-                className='mt-1'
+                onChange={(value = '') =>
+                  setFormData((prev) => ({ ...prev, content: value }))
+                }
+                onPaste={async (event) => {
+                  await onImagePasted(event.clipboardData, (newContent) => {
+                    if (typeof newContent === 'string') {
+                      setFormData((prev) => ({
+                        ...prev,
+                        content: newContent,
+                      }));
+                    }
+                  });
+                }}
+                onDrop={async (event) => {
+                  await onImagePasted(event.dataTransfer, (newContent) => {
+                    if (typeof newContent === 'string') {
+                      setFormData((prev) => ({
+                        ...prev,
+                        content: newContent,
+                      }));
+                    }
+                  });
+                }}
+                height={500}
+                preview='edit'
+                textareaProps={{
+                  name: 'content',
+                  id: 'content',
+                  required: true,
+                }}
               />
             </div>
             <div>
