@@ -14,15 +14,16 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import IssueSelector from './IssueSelector';
-import { type Tables } from '@/lib/supabase/database';
+import ContributorSelector from './ContributorSelector';
+import type { Issue, Contributor } from '@/lib/supabase/model/types';
 import { onImagePasted } from '@/lib/markdown/utils';
 
 interface ArticleFormData {
   title: string;
   subtitle: string;
-  author: string;
   content: string;
   issueId: number;
+  contributorId: string;
   isPublished: boolean;
 }
 
@@ -40,7 +41,7 @@ const PUBLISH_STATUS = {
 const INITIAL_FORM_DATA: ArticleFormData = {
   title: '',
   subtitle: '',
-  author: '',
+  contributorId: '',
   content: '',
   issueId: 1,
   isPublished: false,
@@ -52,13 +53,17 @@ const INITIAL_STATUS: FormStatus = {
   success: null,
 };
 
-interface IssuesProps {
-  issues: Tables<'issues'>[];
+interface CreateArticleProps {
+  issues: Issue[];
+  contributors: Contributor[];
 }
 
 const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
 
-export default function CreateNewArticleForm({ issues }: IssuesProps) {
+export default function CreateNewArticleForm({
+  issues,
+  contributors,
+}: CreateArticleProps) {
   const [formData, setFormData] = useState<ArticleFormData>(INITIAL_FORM_DATA);
   const [status, setStatus] = useState<FormStatus>(INITIAL_STATUS);
   const [file, setFile] = useState<File | null>(null);
@@ -114,6 +119,19 @@ export default function CreateNewArticleForm({ issues }: IssuesProps) {
     [status.error, status.success]
   );
 
+  const handleContributorChange = useCallback(
+    (id: string) => {
+      setFormData((prevData) => ({
+        ...prevData,
+        contributorId: id,
+      }));
+      if (status.error || status.success) {
+        setStatus(INITIAL_STATUS);
+      }
+    },
+    [status.error, status.success]
+  );
+
   const resetForm = useCallback(() => {
     setFormData(INITIAL_FORM_DATA);
     setFile(null);
@@ -144,15 +162,6 @@ export default function CreateNewArticleForm({ issues }: IssuesProps) {
       });
       return;
     }
-    const trimmedAuthor = formData.author.trim();
-    if (!trimmedAuthor) {
-      setStatus({
-        isLoading: false,
-        error: 'Author is required',
-        success: null,
-      });
-      return;
-    }
 
     if (!file) {
       setStatus({
@@ -167,10 +176,10 @@ export default function CreateNewArticleForm({ issues }: IssuesProps) {
       const articleData = {
         title: trimmedTitle,
         subtitle: trimmedSubtitle,
-        author: trimmedAuthor,
         content: formData.content,
         is_published: formData.isPublished,
         issue_id: formData.issueId,
+        contributor: formData.contributorId,
       };
       const newArticle = await createArticle(articleData, file);
       if (newArticle.data) {
@@ -230,22 +239,6 @@ export default function CreateNewArticleForm({ issues }: IssuesProps) {
                 value={formData.subtitle}
                 onChange={handleInputChange}
                 placeholder='Enter the article subtitle'
-                disabled={status.isLoading}
-                required
-                className='mt-1'
-              />
-            </div>
-            <div>
-              <Label htmlFor='author' className='text-xl'>
-                Author*
-              </Label>
-              <Input
-                id='author'
-                type='text'
-                name='author'
-                value={formData.author}
-                onChange={handleInputChange}
-                placeholder='Enter the name of the author of the article'
                 disabled={status.isLoading}
                 required
                 className='mt-1'
@@ -325,6 +318,15 @@ export default function CreateNewArticleForm({ issues }: IssuesProps) {
                 Set which issue this article belongs to
               </Label>
               <IssueSelector data={issues} handleChange={handleIssueIdChange} />
+            </div>
+            <div>
+              <Label htmlFor='contributorId' className='text-xl'>
+                Select the contributor for this article
+              </Label>
+              <ContributorSelector
+                data={contributors}
+                handleChange={handleContributorChange}
+              />
             </div>
             <div>
               <Label className='mb-2 block text-lg font-bold text-black'>

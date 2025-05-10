@@ -28,6 +28,16 @@ export default async function AdminDashboard() {
           Icon={Newspaper}
         />
         <LinkButton
+          href={'/admin/contributors'}
+          label={'View/Edit Contributors'}
+          Icon={ScrollText}
+        />
+        <LinkButton
+          href={'/admin/photoshoots'}
+          label={'View/Edit Photoshoots'}
+          Icon={ScrollText}
+        />
+        <LinkButton
           href={'/admin/issues/create'}
           label={'Create New Issue'}
           Icon={PlusCircle}
@@ -35,6 +45,16 @@ export default async function AdminDashboard() {
         <LinkButton
           href={'/admin/articles/create'}
           label={'Create New Article'}
+          Icon={PlusCircle}
+        />
+        <LinkButton
+          href={'/admin/contributors/create'}
+          label={'Create New Contributor'}
+          Icon={PlusCircle}
+        />
+        <LinkButton
+          href={'/admin/photoshoots/create'}
+          label={'Create New Photoshoot'}
           Icon={PlusCircle}
         />
 

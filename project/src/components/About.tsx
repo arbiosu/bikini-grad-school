@@ -3,7 +3,7 @@ import BGSstar from './BGSstar';
 
 export default function About() {
   return (
-    <section className='mx-auto p-36 pt-12'>
+    <section className='mx-auto p-12 md:p-36'>
       <div className='absolute right-8'>
         <BGSstar />
       </div>

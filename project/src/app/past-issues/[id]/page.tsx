@@ -3,6 +3,7 @@ import { queryIssues } from '@/lib/supabase/model/issues';
 import { queryArticles } from '@/lib/supabase/model/articles';
 import { Issue } from '@/components/Issues';
 import Image from '@/components/Image';
+import { queryPhotoshoots } from '@/lib/supabase/model/photoshoots';
 
 export default async function Page({
   params,
@@ -30,9 +31,19 @@ export default async function Page({
       issueId: issueId,
     },
   });
-  console.log('todo implement count', articleCount);
+  const {
+    data: photoshoots,
+    count: photoshootCount,
+    error: photoshootError,
+  } = await queryPhotoshoots({
+    count: 'exact',
+    filter: {
+      issueId: issueId,
+    },
+  });
+  console.log('todo implement count', articleCount, photoshootCount);
 
-  if (articlesError || !articles) {
+  if (articlesError || !articles || photoshootError || !photoshoots) {
     redirect('/past-issues');
   }
 
@@ -47,7 +58,11 @@ export default async function Page({
           sizes='640px'
         />
       </div>
-      <Issue issue={issue[0]} issueArticles={articles} />
+      <Issue
+        issue={issue[0]}
+        issueArticles={articles}
+        issuePhotoshoots={photoshoots}
+      />
     </div>
   );
 }

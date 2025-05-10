@@ -1,29 +1,26 @@
-// CRUD for issues table
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
-import { createServiceClient } from '@/lib/supabase/service';
+import { createServiceClient } from '../service';
 import { uploadImage } from '@/lib/supabase/model/storage';
 import {
-  IssueInsert,
-  IssueResult,
-  QueryIssuesOptions,
-  QueryIssuesResult,
-} from '@/lib/supabase/model/types';
+  QueryPhotoshootsOptions,
+  QueryPhotoshootsResult,
+  PhotoshootsResult,
+  PhotoshootInsert,
+} from './types';
 import { MAX_FILE_SIZE_MB, ALLOWED_FILE_TYPES } from './constants';
 
-export async function queryIssues(
-  options: QueryIssuesOptions = { sort: { order: 'desc' } }
-): Promise<QueryIssuesResult> {
+export async function queryPhotoshoots(
+  options: QueryPhotoshootsOptions = { sort: { order: 'desc' } }
+): Promise<QueryPhotoshootsResult> {
   try {
     const supabase = await createClient();
-    // Have to use "as '*'" here as Supabase expects a string literal
-    // https://github.com/supabase/supabase-js/issues/551#issuecomment-1246189359
     const selectColumns = options.select?.length
       ? options.select.join(', ')
       : '*';
-    let query = supabase.from('issues').select(selectColumns as '*', {
+    let query = supabase.from('photoshoots').select(selectColumns as '*', {
       count: options.count,
       head: options.onlyCount ?? false,
     });
@@ -32,8 +29,8 @@ export async function queryIssues(
       query = query.eq('id', options.filter.id);
     }
 
-    if (options.filter?.published !== undefined) {
-      query = query.eq('is_published', options.filter.published);
+    if (options.filter?.issueId) {
+      query = query.eq('issue_id', options.filter.issueId);
     }
 
     const sortColumn = options.sort?.column ?? 'created_at';
@@ -47,10 +44,10 @@ export async function queryIssues(
 
     const { data, error, count } = await query;
     if (error) {
-      console.error('Supabase query error in queryIssues: ', error);
+      console.error('Supabase query error in queryPhotoshoots: ', error);
       return {
         data: null,
-        error: `Failed to query issues. Code: ${error.code || 'UNKNOWN'}`,
+        error: `Failed to query photoshoots. Code: ${error.code || 'UNKNOWN'}`,
         count: null,
       };
     }
@@ -60,19 +57,23 @@ export async function queryIssues(
       count: count,
     };
   } catch (err) {
-    console.error('Unexpected error in queryIssues: ', err);
+    console.error('Unexpected error in queryPhotoshoots:', err);
     return {
       data: null,
-      error: '[queryIssues] An unexpected error occurred',
+      error: '[queryPhotoshoots] An unexpected error occurred',
       count: null,
     };
   }
 }
 
-export async function createIssue(
-  issueData: IssueInsert,
-  file: File
-): Promise<IssueResult> {
+interface AddPhotoToBucketProps {
+  data: string | null;
+  error: string | null;
+}
+export async function addPhotoToBucket(
+  file: File,
+  folderPath: string
+): Promise<AddPhotoToBucketProps> {
   let uploadedImagePath: string | null = null;
   try {
     if (!ALLOWED_FILE_TYPES.includes(file.type)) {
@@ -87,24 +88,56 @@ export async function createIssue(
         error: `File size exceeds ${MAX_FILE_SIZE_MB}MB limit`,
       };
     }
-
-    uploadedImagePath = await uploadImage(file, '/content');
+    uploadedImagePath = await uploadImage(file, folderPath);
     if (!uploadedImagePath) {
       return { data: null, error: 'Image upload failed' };
     }
-    const finalIssueData: IssueInsert = {
-      ...issueData,
-      ...{ cover_image_path: uploadedImagePath },
+    return { data: uploadedImagePath, error: null };
+  } catch (err) {
+    console.error('Unexpected error in createPhotoshoot:', err);
+    return {
+      data: null,
+      error: 'SERVER_ERROR: An unexpected server error occurred.',
+    };
+  }
+}
+
+export async function createPhotoshoot(
+  photoshootData: PhotoshootInsert,
+  file: File
+): Promise<PhotoshootsResult> {
+  let uploadedImagePath: string | null = null;
+  try {
+    if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+      return {
+        data: null,
+        error: `Invalid file type. Allowed: ${ALLOWED_FILE_TYPES.join(', ')}`,
+      };
+    }
+    if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+      return {
+        data: null,
+        error: `File size exceeds ${MAX_FILE_SIZE_MB}MB limit`,
+      };
+    }
+    uploadedImagePath = await uploadImage(file, '/photoshoots');
+    if (!uploadedImagePath) {
+      return { data: null, error: 'Image upload failed' };
+    }
+    const finalPhotoshootData: PhotoshootInsert = {
+      ...photoshootData,
+      ...{ images: [uploadedImagePath] },
     };
 
     const supabase = await createServiceClient();
     const { data: insertedData, error: insertError } = await supabase
-      .from('issues')
-      .insert(finalIssueData)
+      .from('photoshoots')
+      .insert(finalPhotoshootData)
       .select()
       .single();
+
     if (insertError || !insertedData) {
-      console.error('Supabase insert error in createIssue: ', insertError);
+      console.error('Supabase insert error in createPhotoshoot: ', insertError);
       if (uploadedImagePath) {
         console.warn(
           `Database insert failed. Attempting to delete orphaned image ${uploadedImagePath}`
@@ -120,15 +153,14 @@ export async function createIssue(
       }
       return {
         data: null,
-        error: `Failed to create issue. Code: ${insertError?.code || 'UNKNOWN'}`,
+        error: `Failed to create photoshoot. Code: ${insertError?.code || 'UNKNOWN'}`,
       };
     }
-    // -- Success --
     console.log(
-      `Issue created successfull with ID: ${insertedData.id}. Revalidating paths...`
+      `Photoshoot created successfully with ID: ${insertedData.id}. Revalidating paths...`
     );
     revalidatePath('/');
-    revalidatePath('/past-issues');
+    revalidatePath('/issues');
     revalidatePath('/admin');
     revalidatePath('/admin/issues');
     return {
@@ -136,7 +168,7 @@ export async function createIssue(
       error: null,
     };
   } catch (err) {
-    console.error('Unexpected error in createIssue:', err);
+    console.error('Unexpected error in createPhotoshoot:', err);
     return {
       data: null,
       error: 'SERVER_ERROR: An unexpected server error occurred.',
@@ -144,28 +176,30 @@ export async function createIssue(
   }
 }
 
-export async function editIssue(issueData: IssueInsert): Promise<IssueResult> {
+export async function editPhotoshoot(
+  photoshootData: PhotoshootInsert
+): Promise<PhotoshootsResult> {
   try {
     const supabase = await createServiceClient();
     const { data: insertedData, error: insertError } = await supabase
-      .from('issues')
-      .update({ ...issueData })
-      .eq('id', issueData.id!)
+      .from('photoshoots')
+      .update({ ...photoshootData })
+      .eq('id', photoshootData.id!)
       .select()
       .single();
     if (insertError || !insertedData) {
-      console.error(`Failed to edit issue with id ${issueData.id}`);
+      console.error(`Failed to edit photoshoot with id ${photoshootData.id}`);
       return {
         data: null,
-        error: `Failed to edit issue. Code: ${insertError?.code || 'UNKNOWN'}`,
+        error: `Failed to create photoshoot. Code: ${insertError?.code || 'UNKNOWN'}`,
       };
     }
     // -- Success --
     console.log(
-      `Issue with id ${insertedData.id} updated successfully. Revalidating paths...`
+      `Photoshoot with id ${insertedData.id} updated successfully. Revalidating paths...`
     );
     revalidatePath('/');
-    revalidatePath('/past-issues');
+    revalidatePath('/issues');
     revalidatePath('/admin');
     revalidatePath('/admin/issues');
     return {
@@ -173,7 +207,7 @@ export async function editIssue(issueData: IssueInsert): Promise<IssueResult> {
       error: null,
     };
   } catch (err) {
-    console.error('Unexpected error in editIssue:', err);
+    console.error('Unexpected error in editPhotoshoot:', err);
     return {
       data: null,
       error: 'SERVER_ERROR: An unexpected server error occurred.',
@@ -181,39 +215,37 @@ export async function editIssue(issueData: IssueInsert): Promise<IssueResult> {
   }
 }
 
-export async function deleteIssue(id: number): Promise<IssueResult> {
+export async function deletePhotoshoot(id: string): Promise<PhotoshootsResult> {
   try {
     const supabase = await createServiceClient();
     const { data: deletedData, error: deleteError } = await supabase
-      .from('issues')
+      .from('photoshoots')
       .delete()
       .eq('id', id)
       .select()
       .single();
     if (deleteError || !deletedData) {
-      console.error(`Failed to delete issue with id ${id}`);
+      console.error(`Failed to delete photoshoot with id ${id}`);
       return {
         data: null,
-        error: `Failed to delete issue. Code: ${deleteError?.code || 'UNKNOWN'}`,
+        error: `Failed to delete photoshoot. Code: ${deleteError?.code || 'UNKNOWN'}`,
       };
     }
     // -- Success --
-    console.log(
-      `Issue with id ${deletedData.id} has been successfully deleted. Revalidating paths...`
-    );
+    console.log(`Photoshoot with id ${deletedData.id} has been deleted`);
     revalidatePath('/');
-    revalidatePath('/past-issues');
+    revalidatePath('/issues');
     revalidatePath('/admin');
-    revalidatePath('/admin/issues');
+    revalidatePath('/admin/photoshoots');
     return {
       data: deletedData,
       error: null,
     };
   } catch (err) {
-    console.error('Unexpected error in deleteIssue:', err);
+    console.error('Unexpected error in deletePhotoshoot', err);
     return {
       data: null,
-      error: 'SERVER_ERROR: An unexpected server error occurred.',
+      error: 'SERVER_ERROR: An unexpected server error occurred',
     };
   }
 }

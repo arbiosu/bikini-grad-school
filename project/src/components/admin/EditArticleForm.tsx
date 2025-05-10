@@ -18,9 +18,9 @@ import { type Tables } from '@/lib/supabase/database';
 interface EditArticleFormData {
   title: string;
   subtitle: string;
-  author: string;
   content: string;
   isPublished: boolean;
+  contributor: string | null;
 }
 
 interface FormStatus {
@@ -50,9 +50,9 @@ export default function EditArticleForm({ article }: ArticleProps) {
   const [formData, setFormData] = useState<EditArticleFormData>({
     title: article.title,
     subtitle: article.subtitle,
-    author: article.author,
     content: article.content,
     isPublished: article.is_published,
+    contributor: article.contributor,
   });
   const [status, setStatus] = useState<FormStatus>(INITIAL_STATUS);
 
@@ -105,25 +105,16 @@ export default function EditArticleForm({ article }: ArticleProps) {
       });
       return;
     }
-    const trimmedAuthor = formData.author.trim();
-    if (!trimmedAuthor) {
-      setStatus({
-        isLoading: false,
-        error: 'Author is required',
-        success: null,
-      });
-      return;
-    }
 
     try {
       const newArticle = await editArticle({
         title: trimmedTitle,
         subtitle: trimmedSubtitle,
-        author: trimmedAuthor,
         content: formData.content,
         is_published: formData.isPublished,
         issue_id: article.issue_id,
         id: article.id,
+        contributor: formData.contributor,
       });
       if (newArticle.data) {
         setStatus({
@@ -180,17 +171,16 @@ export default function EditArticleForm({ article }: ArticleProps) {
               />
             </div>
             <div>
-              <Label htmlFor='author' className='text-xl'>
-                Author*
+              <Label htmlFor='contributor' className='text-xl'>
+                Contributor*
               </Label>
               <Input
-                id='author'
+                id='contributor'
                 type='text'
-                name='author'
-                value={formData.author}
+                name='contributor'
+                value={formData.contributor ? formData.contributor : 'None'}
                 onChange={handleInputChange}
-                disabled={status.isLoading}
-                required
+                disabled={true}
               />
             </div>
             <div>

@@ -5,15 +5,15 @@ import Image from '@/components/Image';
 
 export default function Page() {
   return (
-    <main className='mx-auto'>
-      <div className='absolute inset-0 h-full w-full overflow-hidden'>
+    <main className='relative mx-auto'>
+      <div className='absolute inset-0 -z-10 h-full w-full overflow-hidden'>
         <Image
-          baseUrl='/content/bgs-4'
+          baseUrl='/content/get-involved-bg'
           className='h-full w-full object-cover'
           alt='Background image'
         />
       </div>
-      <div className='pt-20'>
+      <div className='relative pt-20'>
         <ChonkText strings={['GET', 'INVOLVED']} variant='large' />
         <TextBlock
           heading='We accept photo, art, and writing contributions.'

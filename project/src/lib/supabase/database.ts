@@ -38,6 +38,7 @@ export type Database = {
         Row: {
           author: string
           content: string
+          contributor: string | null
           created_at: string
           id: string
           img_path: string
@@ -50,6 +51,7 @@ export type Database = {
         Insert: {
           author?: string
           content?: string
+          contributor?: string | null
           created_at?: string
           id?: string
           img_path?: string
@@ -62,6 +64,7 @@ export type Database = {
         Update: {
           author?: string
           content?: string
+          contributor?: string | null
           created_at?: string
           id?: string
           img_path?: string
@@ -73,6 +76,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "articles_contributor_fkey"
+            columns: ["contributor"]
+            isOneToOne: false
+            referencedRelation: "contributors"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "articles_issue_id_fkey"
             columns: ["issue_id"]
             isOneToOne: false
@@ -81,38 +91,173 @@ export type Database = {
           },
         ]
       }
+      contributors: {
+        Row: {
+          avatar_path: string | null
+          bio: string | null
+          created_at: string
+          id: string
+          name: string
+          type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_path?: string | null
+          bio?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_path?: string | null
+          bio?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      creative_roles: {
+        Row: {
+          created_at: string
+          id: number
+          name: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string | null
+        }
+        Relationships: []
+      }
       issues: {
         Row: {
+          cover_image_id: string | null
           cover_image_path: string
           created_at: string
           description: string
           id: number
           is_published: boolean
+          issue_number: number | null
           publication_date: string | null
           title: string
           updated_at: string | null
         }
         Insert: {
+          cover_image_id?: string | null
           cover_image_path?: string
           created_at?: string
           description?: string
           id?: number
           is_published?: boolean
+          issue_number?: number | null
           publication_date?: string | null
           title?: string
           updated_at?: string | null
         }
         Update: {
+          cover_image_id?: string | null
           cover_image_path?: string
           created_at?: string
           description?: string
           id?: number
           is_published?: boolean
+          issue_number?: number | null
           publication_date?: string | null
           title?: string
           updated_at?: string | null
         }
         Relationships: []
+      }
+      photoshoot_contributors: {
+        Row: {
+          contributor_id: string
+          photoshoot_id: string
+          role_id: number
+        }
+        Insert: {
+          contributor_id: string
+          photoshoot_id: string
+          role_id: number
+        }
+        Update: {
+          contributor_id?: string
+          photoshoot_id?: string
+          role_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "photoshoot_contributors_contributor_id_fkey"
+            columns: ["contributor_id"]
+            isOneToOne: false
+            referencedRelation: "contributors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "photoshoot_contributors_photoshoot_id_fkey"
+            columns: ["photoshoot_id"]
+            isOneToOne: false
+            referencedRelation: "photoshoots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "photoshoot_contributors_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "creative_roles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      photoshoots: {
+        Row: {
+          cover_image_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          images: string[]
+          issue_id: number | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          cover_image_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          images?: string[]
+          issue_id?: number | null
+          title?: string
+          updated_at?: string | null
+        }
+        Update: {
+          cover_image_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          images?: string[]
+          issue_id?: number | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "photoshoots_issue_id_fkey"
+            columns: ["issue_id"]
+            isOneToOne: false
+            referencedRelation: "issues"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

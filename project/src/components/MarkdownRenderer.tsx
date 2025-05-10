@@ -15,18 +15,16 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
   const { theme } = useTheme();
 
   return (
-    <article className='prose lg:prose-xl dark:prose-invert max-w-7xl bg-background'>
-      <div className='wmde-markdown-var'></div>
-      <MarkdownPreview
-        source={content}
-        wrapperElement={{
-          'data-color-mode': theme === 'light' ? theme : 'dark',
-        }}
-        style={{
-          fontSize: '1.125rem',
-          lineHeight: 1.8,
-        }}
-      />{' '}
+    <article className='mx-auto max-w-7xl'>
+      <div
+        data-color-mode={theme === 'light' ? 'light' : 'dark'}
+        className='prose lg:prose-xl dark:prose-invert rounded-2xl bg-background p-6'
+      >
+        <MarkdownPreview
+          source={content}
+          style={{ background: 'transparent' }}
+        />
+      </div>
     </article>
   );
 }
