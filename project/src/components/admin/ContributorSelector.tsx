@@ -13,15 +13,17 @@ import {
 
 interface ContributorSelectorProps {
   handleChange: (e: string) => void;
+  value: string;
   data: Contributor[];
 }
 
 export default function ContributorSelector({
   handleChange,
+  value,
   data,
 }: ContributorSelectorProps) {
   return (
-    <Select onValueChange={handleChange}>
+    <Select value={value} onValueChange={handleChange}>
       <SelectTrigger className='w-[180px]'>
         <SelectValue placeholder='Select a contributor' />
       </SelectTrigger>

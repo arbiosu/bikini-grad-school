@@ -6,7 +6,7 @@ import { ChonkText } from '@/components/Chonk';
 import SubscribeCard from '@/components/Subscribe';
 import SocialMediaCard from '@/components/SocialMedia';
 import ShowMeGrid from '@/components/ShowMe';
-import { Issue } from '@/components/Issues';
+import { IssuePage } from '@/components/Issues';
 import { queryPhotoshoots } from '@/lib/supabase/model/photoshoots';
 
 const imgs = [
@@ -71,7 +71,11 @@ export default async function Home() {
       <div className='py-10'>
         <ChonkText strings={['CURRENT', 'ISSUE']} variant={'large'} />
         <div className='py-10'>
-          <Issue issue={issue[0]} issueArticles={articles} />
+          <IssuePage
+            issue={issue[0]}
+            issueArticles={articles}
+            issuePhotoshoots={photoshoots}
+          />
         </div>
       </div>
       <div className='py-8'>

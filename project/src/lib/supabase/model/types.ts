@@ -132,3 +132,23 @@ export interface FetchRolesResult {
   data: Role[] | null;
   error: string | null;
 }
+
+export type IssueContent =
+  | { kind: 'article'; payload: Article }
+  | { kind: 'photoshoot'; payload: Photoshoot };
+
+export interface PhotoshootContributorExpanded {
+  contributor: Contributor;
+  photoshoot: Photoshoot;
+  role: Role;
+}
+
+export interface PhotoshootContributorNames {
+  role: { name: string | null };
+  contributor: { name: string | null };
+}
+
+export interface PhotoshootContributorsNamesResult {
+  data: PhotoshootContributorNames[];
+  error: string | null;
+}

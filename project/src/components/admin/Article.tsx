@@ -21,7 +21,6 @@ import { deleteArticle } from '@/lib/supabase/model/articles';
 export function ArticleAdminCard({
   id,
   title,
-  author,
   created_at,
   is_published,
 }: Tables<'articles'>) {
@@ -33,7 +32,6 @@ export function ArticleAdminCard({
   return (
     <div className='mx-auto rounded-md border border-black p-10 text-center'>
       <p className='text-xl'>Title: {title}</p>
-      <p className='text-xl'>Author: {author}</p>
       <p className='text-xl'>
         Created on: {new Date(created_at).toLocaleDateString()}
       </p>

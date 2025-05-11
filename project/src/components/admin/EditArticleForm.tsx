@@ -12,8 +12,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import ContributorSelector from './ContributorSelector';
 import { editArticle } from '@/lib/supabase/model/articles';
-import { type Tables } from '@/lib/supabase/database';
+import type { Article, Contributor } from '@/lib/supabase/model/types';
+import { onImagePasted } from '@/lib/markdown/utils';
 
 interface EditArticleFormData {
   title: string;
@@ -41,12 +43,16 @@ const INITIAL_STATUS: FormStatus = {
 };
 
 interface ArticleProps {
-  article: Tables<'articles'>;
+  article: Article;
+  contributors: Contributor[];
 }
 
 const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
 
-export default function EditArticleForm({ article }: ArticleProps) {
+export default function EditArticleForm({
+  article,
+  contributors,
+}: ArticleProps) {
   const [formData, setFormData] = useState<EditArticleFormData>({
     title: article.title,
     subtitle: article.subtitle,
@@ -75,6 +81,18 @@ export default function EditArticleForm({ article }: ArticleProps) {
       setFormData((prevData) => ({
         ...prevData,
         isPublished: value === PUBLISH_STATUS.PUBLISHED,
+      }));
+      if (status.error || status.success) {
+        setStatus(INITIAL_STATUS);
+      }
+    },
+    [status.error, status.success]
+  );
+  const handleContributorChange = useCallback(
+    (id: string) => {
+      setFormData((prevData) => ({
+        ...prevData,
+        contributor: id,
       }));
       if (status.error || status.success) {
         setStatus(INITIAL_STATUS);
@@ -171,16 +189,13 @@ export default function EditArticleForm({ article }: ArticleProps) {
               />
             </div>
             <div>
-              <Label htmlFor='contributor' className='text-xl'>
-                Contributor*
+              <Label htmlFor='contributorId' className='text-xl'>
+                Select the contributor for this article
               </Label>
-              <Input
-                id='contributor'
-                type='text'
-                name='contributor'
+              <ContributorSelector
                 value={formData.contributor ? formData.contributor : 'None'}
-                onChange={handleInputChange}
-                disabled={true}
+                data={contributors}
+                handleChange={handleContributorChange}
               />
             </div>
             <div>
@@ -192,6 +207,26 @@ export default function EditArticleForm({ article }: ArticleProps) {
                 onChange={(value = '') =>
                   setFormData((prev) => ({ ...prev, content: value }))
                 }
+                onPaste={async (event) => {
+                  await onImagePasted(event.clipboardData, (newContent) => {
+                    if (typeof newContent === 'string') {
+                      setFormData((prev) => ({
+                        ...prev,
+                        content: newContent,
+                      }));
+                    }
+                  });
+                }}
+                onDrop={async (event) => {
+                  await onImagePasted(event.dataTransfer, (newContent) => {
+                    if (typeof newContent === 'string') {
+                      setFormData((prev) => ({
+                        ...prev,
+                        content: newContent,
+                      }));
+                    }
+                  });
+                }}
                 height={500}
                 preview='edit'
                 textareaProps={{
