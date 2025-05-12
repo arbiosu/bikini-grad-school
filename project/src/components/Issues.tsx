@@ -1,72 +1,72 @@
 import Link from 'next/link';
 import Image from '@/components/Image';
 import Grid from './Grid';
-import { type Tables } from '@/lib/supabase/database';
-import ArticlesGrid from './Article';
+import type {
+  IssueContent,
+  Photoshoot,
+  Issue,
+  ArticleWithContributorName,
+} from '@/lib/supabase/model/types';
+import { MONTH_NAMES } from '@/lib/supabase/model/constants';
+import { IssueContentCard } from './IssueContent';
 
-const monthNames = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-];
-
-export function Issue({
+export function IssuePage({
   issue,
   issueArticles,
+  issuePhotoshoots,
 }: {
-  issue: Tables<'issues'>;
-  issueArticles: Tables<'articles'>[];
+  issue: Issue;
+  issueArticles: ArticleWithContributorName[];
+  issuePhotoshoots: Photoshoot[];
 }) {
   const date = issue.publication_date
     ? new Date(issue.publication_date)
     : new Date();
 
-  const month = monthNames[date.getMonth()].toLowerCase();
+  const month = MONTH_NAMES[date.getMonth()].toLowerCase();
+  const paddedIssueNum = issue.issue_number
+    ? issue.issue_number.toString().padStart(4, '0.')
+    : '';
+  const contents: IssueContent[] = [
+    ...issueArticles.map((a) => ({ kind: 'article' as const, payload: a })),
+    ...issuePhotoshoots.map((p) => ({
+      kind: 'photoshoot' as const,
+      payload: p,
+    })),
+  ];
 
   return (
     <section>
       <div>
         <p className='mb-4 text-center text-lg'>
-          {month} issue - {issue.title}
+          {month} issue {paddedIssueNum}-{' '}
+          <span className='font-bold'>{issue.title}</span>
         </p>
       </div>
       <div className='p-10'>
-        <ArticlesGrid articles={issueArticles} />
+        <Grid
+          items={contents}
+          renderItem={(item) => <IssueContentCard item={item} />}
+          variant={'large'}
+        />
       </div>
     </section>
   );
 }
 
-export function IssuesCard({
-  issue,
-  index,
-  totalCount,
-}: {
-  issue: Tables<'issues'>;
-  index: number;
-  totalCount: number;
-}) {
+export function IssuesCard({ issue }: { issue: Issue }) {
   return (
     <Link href={`/past-issues/${issue.id}`}>
-      <div className='mx-auto text-center transition-transform duration-500 ease-in-out hover:scale-105'>
+      <div className='mx-auto flex h-full flex-col items-center justify-center text-center transition-transform duration-500 ease-in-out hover:scale-105'>
         <Image
           baseUrl={issue.cover_image_path}
           alt={issue.title}
           className='mb-4'
-          widths={['320', '640']}
-          sizes='640px'
+          widths={['320']}
+          sizes='320px'
         />
-        <p className='text-xl'>
-          <span className='text-indigo-300'>issue .0{totalCount - index}</span>{' '}
+        <p className='text-base'>
+          <span className='text-indigo-300'>issue .0{issue.issue_number}</span>{' '}
           {issue.title}
         </p>
       </div>
@@ -74,14 +74,12 @@ export function IssuesCard({
   );
 }
 
-export default function IssuesGrid({ issues }: { issues: Tables<'issues'>[] }) {
+export default function IssuesGrid({ issues }: { issues: Issue[] }) {
   return (
     <Grid
       items={issues}
-      renderItem={(issue, index) => (
-        <IssuesCard issue={issue} index={index} totalCount={issues.length} />
-      )}
-      variant={'medium'}
+      renderItem={(issue) => <IssuesCard issue={issue} />}
+      variant={'large'}
     />
   );
 }

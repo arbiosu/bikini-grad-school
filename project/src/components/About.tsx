@@ -3,7 +3,7 @@ import BGSstar from './BGSstar';
 
 export default function About() {
   return (
-    <section className='mx-auto p-36 pt-12'>
+    <section className='mx-auto p-12 md:p-36'>
       <div className='absolute right-8'>
         <BGSstar />
       </div>
@@ -21,7 +21,7 @@ export default function About() {
             <h1 className='border-b-2 border-bgs-pink text-center text-4xl tracking-wider md:text-left md:text-5xl'>
               about
             </h1>
-            <p className='text-left text-2xl leading-relaxed'>
+            <p className='text-left text-xl leading-relaxed'>
               Bikini Grad School is a magazine and art community.
             </p>
             <p className='text-xl font-medium leading-relaxed'>
@@ -30,7 +30,7 @@ export default function About() {
               conversations, in-person events and a monthly newsletter, someday
               to be a physical publication.
             </p>
-            <p className='text-lg leading-relaxed'>
+            <p className='text-xl leading-relaxed'>
               The big gorgeous brains behind BGS are Kelly Slater and Jayne
               Breakfast.
             </p>

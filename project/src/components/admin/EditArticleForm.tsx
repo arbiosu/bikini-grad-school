@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -12,15 +12,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import ContributorSelector from './ContributorSelector';
 import { editArticle } from '@/lib/supabase/model/articles';
-import { type Tables } from '@/lib/supabase/database';
+import type { Article, Contributor } from '@/lib/supabase/model/types';
+import { onImagePasted } from '@/lib/markdown/utils';
 
 interface EditArticleFormData {
   title: string;
   subtitle: string;
-  author: string;
   content: string;
   isPublished: boolean;
+  contributor: string | null;
 }
 
 interface FormStatus {
@@ -41,16 +43,22 @@ const INITIAL_STATUS: FormStatus = {
 };
 
 interface ArticleProps {
-  article: Tables<'articles'>;
+  article: Article;
+  contributors: Contributor[];
 }
 
-export default function EditArticleForm({ article }: ArticleProps) {
+const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
+
+export default function EditArticleForm({
+  article,
+  contributors,
+}: ArticleProps) {
   const [formData, setFormData] = useState<EditArticleFormData>({
     title: article.title,
     subtitle: article.subtitle,
-    author: article.author,
     content: article.content,
     isPublished: article.is_published,
+    contributor: article.contributor,
   });
   const [status, setStatus] = useState<FormStatus>(INITIAL_STATUS);
 
@@ -73,6 +81,18 @@ export default function EditArticleForm({ article }: ArticleProps) {
       setFormData((prevData) => ({
         ...prevData,
         isPublished: value === PUBLISH_STATUS.PUBLISHED,
+      }));
+      if (status.error || status.success) {
+        setStatus(INITIAL_STATUS);
+      }
+    },
+    [status.error, status.success]
+  );
+  const handleContributorChange = useCallback(
+    (id: string) => {
+      setFormData((prevData) => ({
+        ...prevData,
+        contributor: id,
       }));
       if (status.error || status.success) {
         setStatus(INITIAL_STATUS);
@@ -103,25 +123,16 @@ export default function EditArticleForm({ article }: ArticleProps) {
       });
       return;
     }
-    const trimmedAuthor = formData.author.trim();
-    if (!trimmedAuthor) {
-      setStatus({
-        isLoading: false,
-        error: 'Author is required',
-        success: null,
-      });
-      return;
-    }
 
     try {
       const newArticle = await editArticle({
         title: trimmedTitle,
         subtitle: trimmedSubtitle,
-        author: trimmedAuthor,
         content: formData.content,
         is_published: formData.isPublished,
         issue_id: article.issue_id,
         id: article.id,
+        contributor: formData.contributor,
       });
       if (newArticle.data) {
         setStatus({
@@ -178,31 +189,51 @@ export default function EditArticleForm({ article }: ArticleProps) {
               />
             </div>
             <div>
-              <Label htmlFor='author' className='text-xl'>
-                Author*
+              <Label htmlFor='contributorId' className='text-xl'>
+                Select the contributor for this article
               </Label>
-              <Input
-                id='author'
-                type='text'
-                name='author'
-                value={formData.author}
-                onChange={handleInputChange}
-                disabled={status.isLoading}
-                required
+              <ContributorSelector
+                value={formData.contributor ? formData.contributor : 'None'}
+                data={contributors}
+                handleChange={handleContributorChange}
               />
             </div>
             <div>
               <Label htmlFor='content' className='text-xl'>
                 Content*
               </Label>
-              <Textarea
-                id='content'
-                name='content'
+              <MDEditor
                 value={formData.content}
-                onChange={handleInputChange}
-                disabled={status.isLoading}
-                required
-                rows={40}
+                onChange={(value = '') =>
+                  setFormData((prev) => ({ ...prev, content: value }))
+                }
+                onPaste={async (event) => {
+                  await onImagePasted(event.clipboardData, (newContent) => {
+                    if (typeof newContent === 'string') {
+                      setFormData((prev) => ({
+                        ...prev,
+                        content: newContent,
+                      }));
+                    }
+                  });
+                }}
+                onDrop={async (event) => {
+                  await onImagePasted(event.dataTransfer, (newContent) => {
+                    if (typeof newContent === 'string') {
+                      setFormData((prev) => ({
+                        ...prev,
+                        content: newContent,
+                      }));
+                    }
+                  });
+                }}
+                height={500}
+                preview='edit'
+                textareaProps={{
+                  name: 'content',
+                  id: 'content',
+                  required: true,
+                }}
               />
             </div>
             <div>

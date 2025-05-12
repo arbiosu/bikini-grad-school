@@ -12,7 +12,7 @@ interface ShowMeProps {
 function ShowMeCard({ label, imgUrl, href }: ShowMeProps) {
   return (
     <Link href={href}>
-      <Card className='mx-auto flex h-full flex-col border-none shadow-none transition-transform duration-500 ease-in-out hover:scale-105'>
+      <Card className='mx-auto flex h-full flex-col border-none shadow-none transition-transform duration-500 ease-in-out hover:scale-105 hover:underline'>
         <CardContent className='flex flex-grow items-center justify-center p-6 pb-0'>
           <div className='relative flex aspect-square w-full items-center justify-center overflow-hidden'>
             <Image

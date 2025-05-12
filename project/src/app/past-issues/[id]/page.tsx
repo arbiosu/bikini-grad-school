@@ -1,8 +1,10 @@
 import { redirect } from 'next/navigation';
 import { queryIssues } from '@/lib/supabase/model/issues';
 import { queryArticles } from '@/lib/supabase/model/articles';
-import { Issue } from '@/components/Issues';
+import { IssuePage } from '@/components/Issues';
 import Image from '@/components/Image';
+import { queryPhotoshoots } from '@/lib/supabase/model/photoshoots';
+import { ArticleWithContributorName } from '@/lib/supabase/model/types';
 
 export default async function Page({
   params,
@@ -25,16 +27,32 @@ export default async function Page({
     count: articleCount,
     error: articlesError,
   } = await queryArticles({
+    select: [
+      '*',
+      'contributorName:contributors!articles_contributor_fkey(name)',
+    ],
     count: 'exact',
     filter: {
       issueId: issueId,
     },
   });
-  console.log('todo implement count', articleCount);
+  const {
+    data: photoshoots,
+    count: photoshootCount,
+    error: photoshootError,
+  } = await queryPhotoshoots({
+    count: 'exact',
+    filter: {
+      issueId: issueId,
+    },
+  });
+  console.log('todo implement count', articleCount, photoshootCount);
 
-  if (articlesError || !articles) {
+  if (articlesError || !articles || photoshootError || !photoshoots) {
     redirect('/past-issues');
   }
+
+  const articlesWithNames = articles as ArticleWithContributorName[];
 
   return (
     <div className='container mx-auto py-10'>
@@ -47,7 +65,11 @@ export default async function Page({
           sizes='640px'
         />
       </div>
-      <Issue issue={issue[0]} issueArticles={articles} />
+      <IssuePage
+        issue={issue[0]}
+        issueArticles={articlesWithNames}
+        issuePhotoshoots={photoshoots}
+      />
     </div>
   );
 }

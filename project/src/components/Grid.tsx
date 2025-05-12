@@ -7,7 +7,8 @@ const gridVariants = cva('grid', {
     variant: {
       default: 'grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-2',
       small: 'grid-cols-1 md:grid-cols-2 gap-8',
-      medium: 'grid cols-a md:grid-cols-3 gap-8',
+      medium: 'grid-cols-1 md:grid-cols-3 gap-8',
+      large: 'grid-cols-1 md:grid-cols-3 gap-16',
     },
   },
   defaultVariants: {

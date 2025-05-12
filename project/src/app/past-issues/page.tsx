@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { queryIssues } from '@/lib/supabase/model/issues';
 import IssuesGrid from '@/components/Issues';
 import ImageOverlayCard from '@/components/ImageOverlay';
+import MediaNavbar from '@/components/MediaNavbar';
 
 export default async function Page() {
   const { data: issues, error } = await queryIssues({
@@ -29,8 +30,10 @@ export default async function Page() {
         textPosition={'left'}
         textSize={'large'}
       />
-      <div className='p-10'></div>
-      <div className='container mx-auto'>
+      <div className='p-10'>
+        <MediaNavbar />
+      </div>
+      <div className='container mx-auto p-10'>
         <IssuesGrid issues={issues} />
       </div>
     </section>

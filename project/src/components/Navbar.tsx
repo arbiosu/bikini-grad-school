@@ -52,7 +52,12 @@ export default function Navbar() {
       }`}
     >
       <Link href='/' className='z-10'>
-        <Image src='/bgs.svg' alt='Bikini Grad School' width={64} height={64} />
+        <Image
+          src='/bgs-logo.png'
+          alt='Bikini Grad School'
+          width={64}
+          height={64}
+        />
       </Link>
 
       {/* Desktop Navigation */}

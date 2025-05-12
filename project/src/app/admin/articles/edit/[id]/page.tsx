@@ -1,4 +1,5 @@
 import { queryArticles } from '@/lib/supabase/model/articles';
+import { queryContributors } from '@/lib/supabase/model/contributors';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import EditArticleForm from '@/components/admin/EditArticleForm';
@@ -20,6 +21,16 @@ export default async function EditArticlePage({
   if (error || !data) {
     redirect('/admin');
   }
+  const { data: contributor, error: contributorError } =
+    await queryContributors({
+      filter: {
+        id: data[0].contributor ? data[0].contributor : undefined,
+      },
+    });
+
+  if (contributorError || !contributor) {
+    redirect('/admin');
+  }
 
   const supabase = await createClient();
   const { data: user } = await supabase.auth.getUser();
@@ -36,7 +47,7 @@ export default async function EditArticlePage({
         label='Back to Articles Dashboard'
         Icon={ArrowLeft}
       />
-      <EditArticleForm article={data[0]} />
+      <EditArticleForm article={data[0]} contributors={contributor} />
     </div>
   );
 }

@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { createArticle } from '@/lib/supabase/model/articles';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -14,14 +14,16 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import IssueSelector from './IssueSelector';
-import { type Tables } from '@/lib/supabase/database';
+import ContributorSelector from './ContributorSelector';
+import type { Issue, Contributor } from '@/lib/supabase/model/types';
+import { onImagePasted } from '@/lib/markdown/utils';
 
 interface ArticleFormData {
   title: string;
   subtitle: string;
-  author: string;
   content: string;
   issueId: number;
+  contributorId: string;
   isPublished: boolean;
 }
 
@@ -39,7 +41,7 @@ const PUBLISH_STATUS = {
 const INITIAL_FORM_DATA: ArticleFormData = {
   title: '',
   subtitle: '',
-  author: '',
+  contributorId: '',
   content: '',
   issueId: 1,
   isPublished: false,
@@ -51,11 +53,17 @@ const INITIAL_STATUS: FormStatus = {
   success: null,
 };
 
-interface IssuesProps {
-  issues: Tables<'issues'>[];
+interface CreateArticleProps {
+  issues: Issue[];
+  contributors: Contributor[];
 }
 
-export default function CreateNewArticleForm({ issues }: IssuesProps) {
+const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
+
+export default function CreateNewArticleForm({
+  issues,
+  contributors,
+}: CreateArticleProps) {
   const [formData, setFormData] = useState<ArticleFormData>(INITIAL_FORM_DATA);
   const [status, setStatus] = useState<FormStatus>(INITIAL_STATUS);
   const [file, setFile] = useState<File | null>(null);
@@ -111,6 +119,19 @@ export default function CreateNewArticleForm({ issues }: IssuesProps) {
     [status.error, status.success]
   );
 
+  const handleContributorChange = useCallback(
+    (id: string) => {
+      setFormData((prevData) => ({
+        ...prevData,
+        contributorId: id,
+      }));
+      if (status.error || status.success) {
+        setStatus(INITIAL_STATUS);
+      }
+    },
+    [status.error, status.success]
+  );
+
   const resetForm = useCallback(() => {
     setFormData(INITIAL_FORM_DATA);
     setFile(null);
@@ -141,15 +162,6 @@ export default function CreateNewArticleForm({ issues }: IssuesProps) {
       });
       return;
     }
-    const trimmedAuthor = formData.author.trim();
-    if (!trimmedAuthor) {
-      setStatus({
-        isLoading: false,
-        error: 'Author is required',
-        success: null,
-      });
-      return;
-    }
 
     if (!file) {
       setStatus({
@@ -164,10 +176,10 @@ export default function CreateNewArticleForm({ issues }: IssuesProps) {
       const articleData = {
         title: trimmedTitle,
         subtitle: trimmedSubtitle,
-        author: trimmedAuthor,
         content: formData.content,
         is_published: formData.isPublished,
         issue_id: formData.issueId,
+        contributor: formData.contributorId,
       };
       const newArticle = await createArticle(articleData, file);
       if (newArticle.data) {
@@ -233,35 +245,41 @@ export default function CreateNewArticleForm({ issues }: IssuesProps) {
               />
             </div>
             <div>
-              <Label htmlFor='author' className='text-xl'>
-                Author*
-              </Label>
-              <Input
-                id='author'
-                type='text'
-                name='author'
-                value={formData.author}
-                onChange={handleInputChange}
-                placeholder='Enter the name of the author of the article'
-                disabled={status.isLoading}
-                required
-                className='mt-1'
-              />
-            </div>
-            <div>
               <Label htmlFor='content' className='text-xl'>
                 Content*
               </Label>
-              <Textarea
-                id='content'
-                name='content'
+              <MDEditor
                 value={formData.content}
-                onChange={handleInputChange}
-                placeholder='Separate paragraphs by two line breaks. Indentation will be automatically applied.'
-                disabled={status.isLoading}
-                required
-                rows={40}
-                className='mt-1'
+                onChange={(value = '') =>
+                  setFormData((prev) => ({ ...prev, content: value }))
+                }
+                onPaste={async (event) => {
+                  await onImagePasted(event.clipboardData, (newContent) => {
+                    if (typeof newContent === 'string') {
+                      setFormData((prev) => ({
+                        ...prev,
+                        content: newContent,
+                      }));
+                    }
+                  });
+                }}
+                onDrop={async (event) => {
+                  await onImagePasted(event.dataTransfer, (newContent) => {
+                    if (typeof newContent === 'string') {
+                      setFormData((prev) => ({
+                        ...prev,
+                        content: newContent,
+                      }));
+                    }
+                  });
+                }}
+                height={500}
+                preview='edit'
+                textareaProps={{
+                  name: 'content',
+                  id: 'content',
+                  required: true,
+                }}
               />
             </div>
             <div>
@@ -300,6 +318,16 @@ export default function CreateNewArticleForm({ issues }: IssuesProps) {
                 Set which issue this article belongs to
               </Label>
               <IssueSelector data={issues} handleChange={handleIssueIdChange} />
+            </div>
+            <div>
+              <Label htmlFor='contributorId' className='text-xl'>
+                Select the contributor for this article
+              </Label>
+              <ContributorSelector
+                value={formData.contributorId}
+                data={contributors}
+                handleChange={handleContributorChange}
+              />
             </div>
             <div>
               <Label className='mb-2 block text-lg font-bold text-black'>

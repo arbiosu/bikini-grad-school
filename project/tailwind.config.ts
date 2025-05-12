@@ -83,5 +83,6 @@ export default {
       addUtilities(newUtilities);
     }),
     require('tailwindcss-animate'),
+    require('@tailwindcss/typography'),
   ],
 } satisfies Config;

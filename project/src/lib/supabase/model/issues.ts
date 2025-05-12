@@ -157,7 +157,7 @@ export async function editIssue(issueData: IssueInsert): Promise<IssueResult> {
       console.error(`Failed to edit issue with id ${issueData.id}`);
       return {
         data: null,
-        error: `Failed to create issue. Code: ${insertError?.code || 'UNKNOWN'}`,
+        error: `Failed to edit issue. Code: ${insertError?.code || 'UNKNOWN'}`,
       };
     }
     // -- Success --

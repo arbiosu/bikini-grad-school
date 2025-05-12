@@ -14,12 +14,7 @@ export function StaffCard({ imgUrl, name, pronouns, title }: StaffCardProps) {
     <Card className='flex flex-col border-none shadow-none'>
       <CardHeader className='relative'>
         <div className='flex items-center justify-center'>
-          <Image
-            baseUrl={imgUrl}
-            alt={name}
-            className=''
-            sizes='(max-width: 1920px) 320px'
-          />
+          <Image baseUrl={imgUrl} alt={name} className='' sizes='320px' />
         </div>
       </CardHeader>
       <CardContent className='flex-grow p-4'>

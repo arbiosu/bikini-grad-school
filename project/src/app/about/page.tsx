@@ -4,27 +4,27 @@ import About from '@/components/About';
 
 const staff = [
   {
-    imgUrl: '/content/jayne-bgs',
+    imgUrl: '/content/jayne-staff-star',
     name: 'jayne breakfast',
     pronouns: 'she/her',
     title: 'Co-founder, Design and Media Editor',
   },
   {
-    imgUrl: '/content/kelly-bgs',
+    imgUrl: '/content/kelly-staff-star',
     name: 'kelly slater',
     pronouns: 'she/her',
     title: 'Co-founder, Editorial Producer',
   },
   {
-    imgUrl: '/content/yasemin-bgs',
+    imgUrl: '/content/yasemin-staff-star',
     name: 'yasemin tingleff',
     pronouns: 'she/they',
     title: 'Engagement and Outreach Coordinator',
   },
   {
-    imgUrl: '/content/billie-bgs',
-    name: 'billie raposa',
-    pronouns: 'they/them',
+    imgUrl: '/content/annabelle-staff-star',
+    name: 'annabelle lisa',
+    pronouns: 'she/they',
     title: 'Site and Editorial Manager',
   },
 ];
@@ -34,7 +34,7 @@ export default function Page() {
     <section>
       <About />
       <ImageOverlay
-        imgUrl='/content/bgs-staff'
+        imgUrl='/content/staff-photo-header'
         altText='Bikini Grad School Staff'
         overlayText={['STAFF']}
         aspectRatio={'aspectVideo'}
