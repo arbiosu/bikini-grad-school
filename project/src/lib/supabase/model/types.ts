@@ -5,6 +5,11 @@ export type SortOrder = 'asc' | 'desc';
 
 export type Article = Tables<'articles'>;
 export type ArticleInsert = TablesInsert<'articles'>;
+export type ArticleWithContributorName = Article & {
+  contributorName: {
+    name: string;
+  };
+};
 
 export type Issue = Tables<'issues'>;
 export type IssueInsert = TablesInsert<'issues'>;
@@ -27,7 +32,12 @@ export interface QueryArticlesOptions {
     issueId?: number;
     published?: boolean;
   };
-  select?: (keyof Article)[];
+  select?: (
+    | keyof Article
+    | 'contributorName:contributors!articles_contributor_fkey(name)'
+    | 'contributorFull:contributors!articles_contributor_fkey(*)'
+    | '*'
+  )[];
   sort?: {
     column?: keyof Article;
     order: SortOrder;
@@ -36,7 +46,7 @@ export interface QueryArticlesOptions {
 }
 
 export interface QueryArticlesResult {
-  data: Article[] | null;
+  data: Article[] | ArticleWithContributorName[] | null;
   error: string | null;
   count: number | null;
 }
@@ -134,7 +144,7 @@ export interface FetchRolesResult {
 }
 
 export type IssueContent =
-  | { kind: 'article'; payload: Article }
+  | { kind: 'article'; payload: ArticleWithContributorName }
   | { kind: 'photoshoot'; payload: Photoshoot };
 
 export interface PhotoshootContributorExpanded {
@@ -149,6 +159,6 @@ export interface PhotoshootContributorNames {
 }
 
 export interface PhotoshootContributorsNamesResult {
-  data: PhotoshootContributorNames[];
+  data: PhotoshootContributorNames[] | null;
   error: string | null;
 }

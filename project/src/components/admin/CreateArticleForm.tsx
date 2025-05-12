@@ -324,6 +324,7 @@ export default function CreateNewArticleForm({
                 Select the contributor for this article
               </Label>
               <ContributorSelector
+                value={formData.contributorId}
                 data={contributors}
                 handleChange={handleContributorChange}
               />

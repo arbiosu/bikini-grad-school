@@ -3,9 +3,9 @@ import Image from '@/components/Image';
 import Grid from './Grid';
 import type {
   IssueContent,
-  Article,
   Photoshoot,
   Issue,
+  ArticleWithContributorName,
 } from '@/lib/supabase/model/types';
 import { MONTH_NAMES } from '@/lib/supabase/model/constants';
 import { IssueContentCard } from './IssueContent';
@@ -16,7 +16,7 @@ export function IssuePage({
   issuePhotoshoots,
 }: {
   issue: Issue;
-  issueArticles: Article[];
+  issueArticles: ArticleWithContributorName[];
   issuePhotoshoots: Photoshoot[];
 }) {
   const date = issue.publication_date

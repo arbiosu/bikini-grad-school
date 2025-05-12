@@ -23,8 +23,8 @@ const staff = [
   },
   {
     imgUrl: '/content/annabelle-staff-star',
-    name: 'billie raposa',
-    pronouns: 'they/them',
+    name: 'annabelle lisa',
+    pronouns: 'she/they',
     title: 'Site and Editorial Manager',
   },
 ];

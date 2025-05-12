@@ -2,17 +2,24 @@ import { redirect } from 'next/navigation';
 import { queryArticles } from '@/lib/supabase/model/articles';
 import ArticlesGrid from '@/components/Article';
 import ImageOverlayCard from '@/components/ImageOverlay';
+import { ArticleWithContributorName } from '@/lib/supabase/model/types';
 
 export default async function Page() {
   const { data, error } = await queryArticles({
+    select: [
+      '*',
+      'contributorName:contributors!articles_contributor_fkey(name)',
+    ],
     filter: {
       published: true,
     },
   });
+  console.log('queryArticles /articles:', data);
 
   if (error || !data) {
     redirect('/error');
   }
+  const articles = data as ArticleWithContributorName[];
 
   return (
     <section>
@@ -27,7 +34,7 @@ export default async function Page() {
       />
       <div className='p-10'></div>
       <div className='container mx-auto'>
-        <ArticlesGrid articles={data} />
+        <ArticlesGrid articles={articles} />
       </div>
     </section>
   );

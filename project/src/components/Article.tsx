@@ -2,7 +2,12 @@ import Link from 'next/link';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import Image from '@/components/Image';
 import Grid from '@/components/Grid';
-import type { Article, Contributor, Issue } from '@/lib/supabase/model/types';
+import type {
+  Article,
+  ArticleWithContributorName,
+  Contributor,
+  Issue,
+} from '@/lib/supabase/model/types';
 import { ArticleChonkText } from './Chonk';
 import { MONTH_NAMES } from '@/lib/supabase/model/constants';
 
@@ -53,7 +58,11 @@ export function Article({
   );
 }
 
-export function ArticleCard({ article }: { article: Article }) {
+export function ArticleCard({
+  article,
+}: {
+  article: ArticleWithContributorName;
+}) {
   return (
     <Link href={`/articles/${article.id}`} className='block h-full'>
       <div className='mx-auto flex h-full flex-col items-center justify-center text-center hover:underline'>
@@ -66,14 +75,20 @@ export function ArticleCard({ article }: { article: Article }) {
         />
         <p className='text-xl'>
           {article.title}{' '}
-          <span className='text-indigo-300'>{article.author}</span>
+          <span className='text-indigo-300'>
+            {article.contributorName.name}
+          </span>
         </p>
       </div>
     </Link>
   );
 }
 
-export default function ArticlesGrid({ articles }: { articles: Article[] }) {
+export default function ArticlesGrid({
+  articles,
+}: {
+  articles: ArticleWithContributorName[];
+}) {
   return (
     <Grid
       items={articles}

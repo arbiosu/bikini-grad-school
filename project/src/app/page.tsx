@@ -8,6 +8,7 @@ import SocialMediaCard from '@/components/SocialMedia';
 import ShowMeGrid from '@/components/ShowMe';
 import { IssuePage } from '@/components/Issues';
 import { queryPhotoshoots } from '@/lib/supabase/model/photoshoots';
+import { ArticleWithContributorName } from '@/lib/supabase/model/types';
 
 const imgs = [
   {
@@ -49,8 +50,13 @@ export default async function Home() {
   }
 
   const { data: articles, error: articlesError } = await queryArticles({
+    select: [
+      '*',
+      'contributorName:contributors!articles_contributor_fkey(name)',
+    ],
     filter: {
       issueId: issue[0].id,
+      published: true,
     },
   });
 
@@ -65,6 +71,7 @@ export default async function Home() {
   if (articlesError || photoshootsError || !photoshoots || !articles) {
     redirect('/error');
   }
+  const articlesWithNames = articles as ArticleWithContributorName[];
   return (
     <main className='mx-auto'>
       <LandingPage />
@@ -73,7 +80,7 @@ export default async function Home() {
         <div className='py-10'>
           <IssuePage
             issue={issue[0]}
-            issueArticles={articles}
+            issueArticles={articlesWithNames}
             issuePhotoshoots={photoshoots}
           />
         </div>

@@ -4,6 +4,7 @@ import { queryArticles } from '@/lib/supabase/model/articles';
 import { IssuePage } from '@/components/Issues';
 import Image from '@/components/Image';
 import { queryPhotoshoots } from '@/lib/supabase/model/photoshoots';
+import { ArticleWithContributorName } from '@/lib/supabase/model/types';
 
 export default async function Page({
   params,
@@ -26,6 +27,10 @@ export default async function Page({
     count: articleCount,
     error: articlesError,
   } = await queryArticles({
+    select: [
+      '*',
+      'contributorName:contributors!articles_contributor_fkey(name)',
+    ],
     count: 'exact',
     filter: {
       issueId: issueId,
@@ -47,6 +52,8 @@ export default async function Page({
     redirect('/past-issues');
   }
 
+  const articlesWithNames = articles as ArticleWithContributorName[];
+
   return (
     <div className='container mx-auto py-10'>
       <div className='py-10'></div>
@@ -60,7 +67,7 @@ export default async function Page({
       </div>
       <IssuePage
         issue={issue[0]}
-        issueArticles={articles}
+        issueArticles={articlesWithNames}
         issuePhotoshoots={photoshoots}
       />
     </div>

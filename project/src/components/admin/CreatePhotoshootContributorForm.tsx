@@ -137,6 +137,7 @@ export default function CreateNewPhotoshootContributorForm({
                 Assign the contributor from our list of Contributors
               </Label>
               <ContributorSelector
+                value={formData.contributorId}
                 data={contributors}
                 handleChange={handleContributorChange}
               />
