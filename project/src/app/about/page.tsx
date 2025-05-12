@@ -25,7 +25,7 @@ const staff = [
     imgUrl: '/content/annabelle-staff-star',
     name: 'annabelle lisa',
     pronouns: 'she/they',
-    title: 'Site and Editorial Manager',
+    title: 'Social Media Team',
   },
 ];
 
