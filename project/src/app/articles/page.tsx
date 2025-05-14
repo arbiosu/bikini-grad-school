@@ -14,7 +14,6 @@ export default async function Page() {
       published: true,
     },
   });
-  console.log('queryArticles /articles:', data);
 
   if (error || !data) {
     redirect('/error');
@@ -25,7 +24,7 @@ export default async function Page() {
     <section>
       <div className='py-10'></div>
       <ImageOverlayCard
-        imgUrl='/content/articles-bg'
+        imgUrl='/photoshoots/articles-new'
         overlayText={['ARTICLES']}
         altText='Bikini Grad School: Articles'
         aspectRatio={'aspectVideo'}
