@@ -70,8 +70,8 @@ export function ArticleCard({
           baseUrl={article.img_path}
           alt={`${article.title} by ${article.author}`}
           className='mb-4'
-          widths={['640']}
-          sizes='640px'
+          widths={['960']}
+          sizes='960px'
         />
         <p className='text-xl'>
           {article.title}{' '}

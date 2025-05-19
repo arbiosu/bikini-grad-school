@@ -248,7 +248,8 @@ export default function ContactForm() {
             </div>
             <div>
               <Label htmlFor='message' className='text-xl'>
-                message*
+                message* - include social media handles of where we can find
+                your past work
               </Label>
               <Textarea
                 id='message'

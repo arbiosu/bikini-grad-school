@@ -193,13 +193,10 @@ export default function CreateNewArticleForm({
       </p>
       <div className='flex flex-col gap-24 md:flex-row'>
         <div className='flex-1'>
+          <div className='mb-12'>
+            <UploadImageForm folder='/articles' onUpload={handleImageUpload} />
+          </div>
           <form onSubmit={handleSubmit} className='space-y-6'>
-            <div className='mb-12'>
-              <UploadImageForm
-                folder='/articles'
-                onUpload={handleImageUpload}
-              />
-            </div>
             <div>
               <Label htmlFor='title' className='text-xl'>
                 Title*

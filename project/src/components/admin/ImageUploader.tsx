@@ -143,7 +143,7 @@ export default function UploadImageForm({
             error: null,
             success: `Image has been uploaded! PATH: ${uploadData.path}. Resizing images...`,
           });
-          // call api?
+
           const res = await fetch('/api/images', {
             method: 'POST',
             headers: {
@@ -152,16 +152,15 @@ export default function UploadImageForm({
             body: JSON.stringify({ imagePath: uploadData.path }),
           });
 
-          if (!res.ok) {
+          const resData = await res.json();
+
+          if (!resData.paths) {
             setStatus({
               isLoading: false,
               error: 'Could not resize images!',
               success: null,
             });
-            return;
           }
-
-          const resData = await res.json();
 
           // -- All successes
           setStatus({

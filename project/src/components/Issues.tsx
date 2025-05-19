@@ -62,8 +62,8 @@ export function IssuesCard({ issue }: { issue: Issue }) {
           baseUrl={issue.cover_image_path}
           alt={issue.title}
           className='mb-4'
-          widths={['320']}
-          sizes='320px'
+          widths={['960']}
+          sizes='960px'
         />
         <p className='text-base'>
           <span className='text-indigo-300'>issue .0{issue.issue_number}</span>{' '}
