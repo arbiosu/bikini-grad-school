@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server';
 
-export default async function POST(req: NextRequest) {
+export async function POST(req: NextRequest) {
   const internalKey = process.env.HONO_INTERNAL_API_KEY;
   const apiUrl = process.env.NEXT_PUBLIC_HONO_API_KEY;
 
