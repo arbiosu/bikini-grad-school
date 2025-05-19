@@ -20,6 +20,7 @@ interface IssueFormData {
   isPublished: boolean;
   publicationDate: string;
   coverImgPath: string;
+  issueNumber: number;
 }
 
 interface FormStatus {
@@ -39,6 +40,7 @@ const INITIAL_FORM_DATA: IssueFormData = {
   isPublished: false,
   publicationDate: new Date().toLocaleDateString(),
   coverImgPath: '',
+  issueNumber: 0,
 };
 
 const INITIAL_STATUS: FormStatus = {
@@ -107,6 +109,7 @@ export default function CreateNewIssueForm() {
         is_published: formData.isPublished,
         publication_date: formData.publicationDate,
         cover_image_path: formData.coverImgPath,
+        issue_number: formData.issueNumber,
       };
       const { data, error } = await createIssue(issueData);
       if (data) {
@@ -174,6 +177,21 @@ export default function CreateNewIssueForm() {
                 type='text'
                 name='description'
                 value={formData.description}
+                onChange={handleInputChange}
+                placeholder='Optionally enter the issue description'
+                disabled={status.isLoading}
+                className='mt-1'
+              />
+            </div>
+            <div>
+              <Label htmlFor='issueNumber' className='text-xl'>
+                Issue Number
+              </Label>
+              <Input
+                id='issueNumber'
+                type='number'
+                name='issueNumber'
+                value={formData.issueNumber}
                 onChange={handleInputChange}
                 placeholder='Optionally enter the issue description'
                 disabled={status.isLoading}
