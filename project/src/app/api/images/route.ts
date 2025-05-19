@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const backendResponse = await fetch(apiUrl, {
+    const backendResponse = await fetch(`${apiUrl}api/images/process`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
