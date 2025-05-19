@@ -25,7 +25,10 @@ export default function Image({
   className,
   sizes = '(max-width: 480px) 100vw, (max-width: 768px) 90vw, (max-width: 1024px) 80vw, (max-width: 1440px) 70vw, 60vw',
 }: ImageProps) {
-  const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/images${baseUrl}`;
+  const hasBackslash = baseUrl.startsWith('/');
+  const backslash = hasBackslash ? '' : '/';
+
+  const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/images${backslash}${baseUrl}`;
   const source = `${url}-320w.webp`;
   const srcset = widths
     .map((width) => {
