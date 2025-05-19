@@ -4,14 +4,12 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '../server';
 import { createServiceClient } from '../service';
-import { uploadImage } from '@/lib/supabase/model/storage';
 import {
   QueryArticlesOptions,
   QueryArticlesResult,
   ArticleInsert,
   ArticleResult,
 } from '@/lib/supabase/model/types';
-import { MAX_FILE_SIZE_MB, ALLOWED_FILE_TYPES } from './constants';
 
 export async function queryArticles(
   options: QueryArticlesOptions = { sort: { order: 'desc' } }
@@ -74,31 +72,11 @@ export async function queryArticles(
 }
 
 export async function createArticle(
-  articleData: ArticleInsert,
-  file: File
+  articleData: ArticleInsert
 ): Promise<ArticleResult> {
-  let uploadedImagePath: string | null = null;
   try {
-    if (!ALLOWED_FILE_TYPES.includes(file.type)) {
-      return {
-        data: null,
-        error: `Invalid file type. Allowed: ${ALLOWED_FILE_TYPES.join(', ')}`,
-      };
-    }
-    if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-      return {
-        data: null,
-        error: `File size exceeds ${MAX_FILE_SIZE_MB}MB limit`,
-      };
-    }
-
-    uploadedImagePath = await uploadImage(file, '/articles');
-    if (!uploadedImagePath) {
-      return { data: null, error: 'Image upload failed' };
-    }
     const finalArticleData: ArticleInsert = {
       ...articleData,
-      ...{ img_path: uploadedImagePath },
     };
 
     const supabase = await createServiceClient();
@@ -109,19 +87,6 @@ export async function createArticle(
       .single();
     if (insertError || !insertedData) {
       console.error('Supabase insert error in createArticle: ', insertError);
-      if (uploadedImagePath) {
-        console.warn(
-          `Database insert failed. Attempting to delete orphaned image ${uploadedImagePath}`
-        );
-        try {
-          console.log('TODO: implement delete image');
-        } catch (cleanupError) {
-          console.warn(
-            `Failed to delete orphaned image ${uploadedImagePath} with error: `,
-            cleanupError
-          );
-        }
-      }
       return {
         data: null,
         error: `Failed to create article. Code: ${insertError?.code || 'UNKNOWN'}`,

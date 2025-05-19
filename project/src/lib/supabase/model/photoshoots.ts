@@ -3,14 +3,12 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { createServiceClient } from '../service';
-import { uploadImage } from '@/lib/supabase/model/storage';
 import {
   QueryPhotoshootsOptions,
   QueryPhotoshootsResult,
   PhotoshootsResult,
   PhotoshootInsert,
 } from './types';
-import { MAX_FILE_SIZE_MB, ALLOWED_FILE_TYPES } from './constants';
 
 export async function queryPhotoshoots(
   options: QueryPhotoshootsOptions = { sort: { order: 'desc' } }
@@ -66,67 +64,12 @@ export async function queryPhotoshoots(
   }
 }
 
-interface AddPhotoToBucketProps {
-  data: string | null;
-  error: string | null;
-}
-export async function addPhotoToBucket(
-  file: File,
-  folderPath: string
-): Promise<AddPhotoToBucketProps> {
-  let uploadedImagePath: string | null = null;
-  try {
-    if (!ALLOWED_FILE_TYPES.includes(file.type)) {
-      return {
-        data: null,
-        error: `Invalid file type. Allowed: ${ALLOWED_FILE_TYPES.join(', ')}`,
-      };
-    }
-    if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-      return {
-        data: null,
-        error: `File size exceeds ${MAX_FILE_SIZE_MB}MB limit`,
-      };
-    }
-    uploadedImagePath = await uploadImage(file, folderPath);
-    if (!uploadedImagePath) {
-      return { data: null, error: 'Image upload failed' };
-    }
-    return { data: uploadedImagePath, error: null };
-  } catch (err) {
-    console.error('Unexpected error in createPhotoshoot:', err);
-    return {
-      data: null,
-      error: 'SERVER_ERROR: An unexpected server error occurred.',
-    };
-  }
-}
-
 export async function createPhotoshoot(
-  photoshootData: PhotoshootInsert,
-  file: File
+  photoshootData: PhotoshootInsert
 ): Promise<PhotoshootsResult> {
-  let uploadedImagePath: string | null = null;
   try {
-    if (!ALLOWED_FILE_TYPES.includes(file.type)) {
-      return {
-        data: null,
-        error: `Invalid file type. Allowed: ${ALLOWED_FILE_TYPES.join(', ')}`,
-      };
-    }
-    if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-      return {
-        data: null,
-        error: `File size exceeds ${MAX_FILE_SIZE_MB}MB limit`,
-      };
-    }
-    uploadedImagePath = await uploadImage(file, '/photoshoots');
-    if (!uploadedImagePath) {
-      return { data: null, error: 'Image upload failed' };
-    }
     const finalPhotoshootData: PhotoshootInsert = {
       ...photoshootData,
-      ...{ images: [uploadedImagePath] },
     };
 
     const supabase = await createServiceClient();
@@ -138,19 +81,6 @@ export async function createPhotoshoot(
 
     if (insertError || !insertedData) {
       console.error('Supabase insert error in createPhotoshoot: ', insertError);
-      if (uploadedImagePath) {
-        console.warn(
-          `Database insert failed. Attempting to delete orphaned image ${uploadedImagePath}`
-        );
-        try {
-          console.log('TODO: implement delete image');
-        } catch (cleanupError) {
-          console.warn(
-            `Failed to delete orphaned image ${uploadedImagePath} with error: `,
-            cleanupError
-          );
-        }
-      }
       return {
         data: null,
         error: `Failed to create photoshoot. Code: ${insertError?.code || 'UNKNOWN'}`,

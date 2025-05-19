@@ -2,6 +2,10 @@ import Link from 'next/link';
 
 const links = [
   {
+    href: '/past-issues',
+    label: 'past issues',
+  },
+  {
     href: '/articles',
     label: 'articles',
   },
