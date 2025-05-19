@@ -1,37 +1,74 @@
 'use server';
 
-import { parse } from 'path';
-import sharp from 'sharp';
 import { createServiceClient } from '@/lib/supabase/service';
-import { widths } from '@/lib/supabase/model/constants';
 
-/**
- *
- * @param file image file
- * @param folderPath the folder the image will be stored in the bucket
- * @returns the full path of the image minus the file ext, adds cache control to 1 year
- */
-export async function uploadImage(file: File, folderPath: string) {
-  const supabase = await createServiceClient();
+interface GenerateSignedUrlResponse {
+  data: {
+    signedUrl: string;
+    token: string;
+    path: string;
+  } | null;
+  error: string | null;
+}
 
-  const buffer = Buffer.from(await file.arrayBuffer());
-  const filename = parse(file.name).name;
-  console.log('Filename:', filename);
-
-  for (const width of widths) {
-    const finalPath = `${folderPath}/${filename}-${width}w.webp`;
-    const resizedFile = await sharp(buffer)
-      .resize(width)
-      .webp({ quality: 80 })
-      .toBuffer();
-    const { error } = await supabase.storage
+export async function getAllImagesInFolder(folder: string) {
+  try {
+    const supabase = await createServiceClient();
+    const { data, error: imgError } = await supabase.storage
       .from('images')
-      .upload(finalPath, resizedFile, {
-        cacheControl: 'max-age=31536000',
-        contentType: 'image/webp',
+      .list(folder, {
+        sortBy: { column: 'name', order: 'asc' },
       });
-    if (error) throw new Error('Failed to upload to image');
+    if (imgError || !data) {
+      throw new Error(`Failed to list all images in folder ${folder}`);
+    }
+    return {
+      data: data,
+      error: null,
+    };
+  } catch (error) {
+    console.log(error);
+    if (error instanceof Error) {
+      return {
+        data: null,
+        error: error.message,
+      };
+    }
+    return {
+      data: null,
+      error: 'Unknown Error in getAllImagesInFolder',
+    };
   }
+}
 
-  return folderPath + '/' + filename;
+export async function generateSignedUploadUrl(
+  path: string
+): Promise<GenerateSignedUrlResponse> {
+  try {
+    const supabase = await createServiceClient();
+
+    const { data, error } = await supabase.storage
+      .from('images')
+      .createSignedUploadUrl(path);
+
+    if (error || !data) {
+      throw new Error('Failed to generateSignedUploadUrl');
+    }
+    return {
+      data: data,
+      error: null,
+    };
+  } catch (err) {
+    console.log(err);
+    if (err instanceof Error) {
+      return {
+        data: null,
+        error: err.message,
+      };
+    }
+    return {
+      data: null,
+      error: 'Unknown Error in getAllImagesInFolder',
+    };
+  }
 }

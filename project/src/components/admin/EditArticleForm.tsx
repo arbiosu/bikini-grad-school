@@ -15,7 +15,6 @@ import {
 import ContributorSelector from './ContributorSelector';
 import { editArticle } from '@/lib/supabase/model/articles';
 import type { Article, Contributor } from '@/lib/supabase/model/types';
-import { onImagePasted } from '@/lib/markdown/utils';
 
 interface EditArticleFormData {
   title: string;
@@ -207,26 +206,6 @@ export default function EditArticleForm({
                 onChange={(value = '') =>
                   setFormData((prev) => ({ ...prev, content: value }))
                 }
-                onPaste={async (event) => {
-                  await onImagePasted(event.clipboardData, (newContent) => {
-                    if (typeof newContent === 'string') {
-                      setFormData((prev) => ({
-                        ...prev,
-                        content: newContent,
-                      }));
-                    }
-                  });
-                }}
-                onDrop={async (event) => {
-                  await onImagePasted(event.dataTransfer, (newContent) => {
-                    if (typeof newContent === 'string') {
-                      setFormData((prev) => ({
-                        ...prev,
-                        content: newContent,
-                      }));
-                    }
-                  });
-                }}
                 height={500}
                 preview='edit'
                 textareaProps={{

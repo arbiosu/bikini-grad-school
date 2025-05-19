@@ -4,14 +4,12 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/service';
-import { uploadImage } from '@/lib/supabase/model/storage';
 import {
   IssueInsert,
   IssueResult,
   QueryIssuesOptions,
   QueryIssuesResult,
 } from '@/lib/supabase/model/types';
-import { MAX_FILE_SIZE_MB, ALLOWED_FILE_TYPES } from './constants';
 
 export async function queryIssues(
   options: QueryIssuesOptions = { sort: { order: 'desc' } }
@@ -70,31 +68,11 @@ export async function queryIssues(
 }
 
 export async function createIssue(
-  issueData: IssueInsert,
-  file: File
+  issueData: IssueInsert
 ): Promise<IssueResult> {
-  let uploadedImagePath: string | null = null;
   try {
-    if (!ALLOWED_FILE_TYPES.includes(file.type)) {
-      return {
-        data: null,
-        error: `Invalid file type. Allowed: ${ALLOWED_FILE_TYPES.join(', ')}`,
-      };
-    }
-    if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-      return {
-        data: null,
-        error: `File size exceeds ${MAX_FILE_SIZE_MB}MB limit`,
-      };
-    }
-
-    uploadedImagePath = await uploadImage(file, '/content');
-    if (!uploadedImagePath) {
-      return { data: null, error: 'Image upload failed' };
-    }
     const finalIssueData: IssueInsert = {
       ...issueData,
-      ...{ cover_image_path: uploadedImagePath },
     };
 
     const supabase = await createServiceClient();
@@ -104,20 +82,6 @@ export async function createIssue(
       .select()
       .single();
     if (insertError || !insertedData) {
-      console.error('Supabase insert error in createIssue: ', insertError);
-      if (uploadedImagePath) {
-        console.warn(
-          `Database insert failed. Attempting to delete orphaned image ${uploadedImagePath}`
-        );
-        try {
-          console.log('TODO: implement delete image');
-        } catch (cleanupError) {
-          console.warn(
-            `Failed to delete orphaned image ${uploadedImagePath} with error: `,
-            cleanupError
-          );
-        }
-      }
       return {
         data: null,
         error: `Failed to create issue. Code: ${insertError?.code || 'UNKNOWN'}`,

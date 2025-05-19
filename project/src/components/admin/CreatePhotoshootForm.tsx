@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import IssueSelector from './IssueSelector';
+import UploadImageForm from './ImageUploader';
 import { createPhotoshoot } from '@/lib/supabase/model/photoshoots';
 import { type Issue } from '@/lib/supabase/model/types';
 
@@ -42,8 +43,6 @@ export default function CreateNewPhotoshootForm({ issues }: IssuesProps) {
   const [formData, setFormData] =
     useState<PhotoshootFormData>(INITIAL_FORM_DATA);
   const [status, setStatus] = useState<FormStatus>(INITIAL_STATUS);
-  const [file, setFile] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,16 +57,10 @@ export default function CreateNewPhotoshootForm({ issues }: IssuesProps) {
     },
     [status.error, status.success]
   );
-  const handleFileChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const currentFile = e.target.files?.[0] || null;
-      setFile(currentFile);
-      if (status.error || status.success) {
-        setStatus(INITIAL_STATUS);
-      }
-    },
-    [status.error, status.success]
-  );
+
+  const handleImageUpload = useCallback((url: string) => {
+    setFormData((prevData) => ({ ...prevData, images: [url] }));
+  }, []);
 
   const handleIssueIdChange = useCallback(
     (id: string) => {
@@ -84,10 +77,6 @@ export default function CreateNewPhotoshootForm({ issues }: IssuesProps) {
 
   const resetForm = useCallback(() => {
     setFormData(INITIAL_FORM_DATA);
-    setFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -103,21 +92,15 @@ export default function CreateNewPhotoshootForm({ issues }: IssuesProps) {
       });
       return;
     }
-    if (!file) {
-      setStatus({
-        isLoading: false,
-        error: 'Please upload a cover image',
-        success: null,
-      });
-      return;
-    }
+
     try {
       const photoshootData = {
         title: trimmedTitle,
         description: formData.description.trim(),
         issue_id: formData.issueId,
+        images: formData.images,
       };
-      const { data, error } = await createPhotoshoot(photoshootData, file);
+      const { data, error } = await createPhotoshoot(photoshootData);
       if (data) {
         resetForm();
         setStatus({
@@ -139,7 +122,7 @@ export default function CreateNewPhotoshootForm({ issues }: IssuesProps) {
     }
   };
 
-  const isSubmitDisabled = status.isLoading || !file || !formData.title.trim();
+  const isSubmitDisabled = status.isLoading || !formData.title.trim();
   return (
     <div className='mx-auto max-w-6xl p-2'>
       <h2 className='mb-6 text-2xl font-semibold'>Create New Photoshoot</h2>
@@ -151,6 +134,9 @@ export default function CreateNewPhotoshootForm({ issues }: IssuesProps) {
       <div className='flex flex-col gap-24 md:flex-row'>
         <div className='flex-1'>
           <form onSubmit={handleSubmit} className='space-y-6'>
+            <div className='mb-12'>
+              <UploadImageForm folder='/content' onUpload={handleImageUpload} />
+            </div>
             <div>
               <Label htmlFor='title' className='text-xl'>
                 Title*
@@ -190,29 +176,6 @@ export default function CreateNewPhotoshootForm({ issues }: IssuesProps) {
                 Set which issue this article belongs to
               </Label>
               <IssueSelector data={issues} handleChange={handleIssueIdChange} />
-            </div>
-            <div>
-              <Label
-                htmlFor='coverImage'
-                className='mb-2 block text-lg font-bold text-black'
-              >
-                Image*
-              </Label>
-              <Input
-                id='coverImage'
-                name='coverImage'
-                type='file'
-                accept='image/png'
-                onChange={handleFileChange}
-                ref={fileInputRef}
-                disabled={status.isLoading}
-                required
-              />
-              <p className='mt-1 text-sm text-gray-500'>
-                10Mb file size limit. We optimize the image by converting it to
-                WebP format and generating 5 cropped versions. Keep filenames
-                unique (e.g., issue-101.jpg).
-              </p>
             </div>
             <div className='mt-4 min-h-[20px]'>
               {' '}

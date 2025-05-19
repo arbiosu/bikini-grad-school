@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import UploadImageForm from './ImageUploader';
 import { createIssue } from '@/lib/supabase/model/issues';
 
 interface IssueFormData {
@@ -18,6 +19,7 @@ interface IssueFormData {
   description: string;
   isPublished: boolean;
   publicationDate: string;
+  coverImgPath: string;
 }
 
 interface FormStatus {
@@ -36,6 +38,7 @@ const INITIAL_FORM_DATA: IssueFormData = {
   description: '',
   isPublished: false,
   publicationDate: new Date().toLocaleDateString(),
+  coverImgPath: '',
 };
 
 const INITIAL_STATUS: FormStatus = {
@@ -47,8 +50,10 @@ const INITIAL_STATUS: FormStatus = {
 export default function CreateNewIssueForm() {
   const [formData, setFormData] = useState<IssueFormData>(INITIAL_FORM_DATA);
   const [status, setStatus] = useState<FormStatus>(INITIAL_STATUS);
-  const [file, setFile] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = useCallback((url: string) => {
+    setFormData((prevData) => ({ ...prevData, coverImgPath: url }));
+  }, []);
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,23 +82,8 @@ export default function CreateNewIssueForm() {
     [status.error, status.success]
   );
 
-  const handleFileChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const currentFile = e.target.files?.[0] || null;
-      setFile(currentFile);
-      if (status.error || status.success) {
-        setStatus(INITIAL_STATUS);
-      }
-    },
-    [status.error, status.success]
-  );
-
   const resetForm = useCallback(() => {
     setFormData(INITIAL_FORM_DATA);
-    setFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -109,22 +99,16 @@ export default function CreateNewIssueForm() {
       });
       return;
     }
-    if (!file) {
-      setStatus({
-        isLoading: false,
-        error: 'Please upload a cover image',
-        success: null,
-      });
-      return;
-    }
+
     try {
       const issueData = {
         title: trimmedTitle,
         description: formData.description.trim(),
         is_published: formData.isPublished,
         publication_date: formData.publicationDate,
+        cover_image_path: formData.coverImgPath,
       };
-      const { data, error } = await createIssue(issueData, file);
+      const { data, error } = await createIssue(issueData);
       if (data) {
         resetForm();
         setStatus({
@@ -145,18 +129,22 @@ export default function CreateNewIssueForm() {
       setStatus({ isLoading: false, error: errorMessage, success: null });
     }
   };
-  const isSubmitDisabled = status.isLoading || !file || !formData.title.trim();
+  const isSubmitDisabled = status.isLoading || !formData.title.trim();
 
   return (
     <div className='mx-auto max-w-6xl p-2'>
       <h2 className='mb-6 text-2xl font-semibold'>Create New Issue</h2>
       <p className='mb-6 text-sm text-gray-600'>
-        Fill in the details for the new magazine issue. Fields marked with * are
-        required.
+        Fill in the details for the new magazine issue. Upload the cover image
+        first. Fields marked with * are required.
       </p>
 
       <div className='flex flex-col gap-24 md:flex-row'>
         <div className='flex-1'>
+          <div className='mb-12'>
+            <UploadImageForm folder='/content' onUpload={handleImageUpload} />
+          </div>
+
           <form onSubmit={handleSubmit} className='space-y-6'>
             <div>
               <Label htmlFor='title' className='text-xl'>
@@ -234,29 +222,6 @@ export default function CreateNewIssueForm() {
                 value={formData.publicationDate}
                 onChange={handleInputChange}
               />
-            </div>
-            <div>
-              <Label
-                htmlFor='coverImage'
-                className='mb-2 block text-lg font-bold text-black'
-              >
-                Cover Image*
-              </Label>
-              <Input
-                id='coverImage'
-                name='coverImage'
-                type='file'
-                accept='image/png'
-                onChange={handleFileChange}
-                ref={fileInputRef}
-                disabled={status.isLoading}
-                required
-              />
-              <p className='mt-1 text-sm text-gray-500'>
-                10Mb file size limit. We optimize the image by converting it to
-                WebP format and generating 5 cropped versions. Keep filenames
-                unique (e.g., issue-101.jpg).
-              </p>
             </div>
             <div className='mt-4 min-h-[20px]'>
               {' '}

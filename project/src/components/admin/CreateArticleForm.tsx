@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { createArticle } from '@/lib/supabase/model/articles';
 import { Label } from '@/components/ui/label';
@@ -13,10 +13,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import UploadImageForm from './ImageUploader';
 import IssueSelector from './IssueSelector';
 import ContributorSelector from './ContributorSelector';
 import type { Issue, Contributor } from '@/lib/supabase/model/types';
-import { onImagePasted } from '@/lib/markdown/utils';
 
 interface ArticleFormData {
   title: string;
@@ -25,6 +25,7 @@ interface ArticleFormData {
   issueId: number;
   contributorId: string;
   isPublished: boolean;
+  imgPath: string;
 }
 
 interface FormStatus {
@@ -45,6 +46,7 @@ const INITIAL_FORM_DATA: ArticleFormData = {
   content: '',
   issueId: 1,
   isPublished: false,
+  imgPath: '',
 };
 
 const INITIAL_STATUS: FormStatus = {
@@ -66,8 +68,6 @@ export default function CreateNewArticleForm({
 }: CreateArticleProps) {
   const [formData, setFormData] = useState<ArticleFormData>(INITIAL_FORM_DATA);
   const [status, setStatus] = useState<FormStatus>(INITIAL_STATUS);
-  const [file, setFile] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -83,16 +83,9 @@ export default function CreateNewArticleForm({
     [status.error, status.success]
   );
 
-  const handleFileChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const currentFile = e.target.files?.[0] || null;
-      setFile(currentFile);
-      if (status.error || status.success) {
-        setStatus(INITIAL_STATUS);
-      }
-    },
-    [status.error, status.success]
-  );
+  const handleImageUpload = useCallback((url: string) => {
+    setFormData((prevData) => ({ ...prevData, imgPath: url }));
+  }, []);
 
   const handlePublishedChange = useCallback(
     (value: string) => {
@@ -106,6 +99,7 @@ export default function CreateNewArticleForm({
     },
     [status.error, status.success]
   );
+
   const handleIssueIdChange = useCallback(
     (id: string) => {
       setFormData((prevData) => ({
@@ -134,10 +128,6 @@ export default function CreateNewArticleForm({
 
   const resetForm = useCallback(() => {
     setFormData(INITIAL_FORM_DATA);
-    setFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -163,15 +153,6 @@ export default function CreateNewArticleForm({
       return;
     }
 
-    if (!file) {
-      setStatus({
-        isLoading: false,
-        error: 'Please upload a cover image',
-        success: null,
-      });
-      return;
-    }
-
     try {
       const articleData = {
         title: trimmedTitle,
@@ -180,8 +161,9 @@ export default function CreateNewArticleForm({
         is_published: formData.isPublished,
         issue_id: formData.issueId,
         contributor: formData.contributorId,
+        img_path: formData.imgPath,
       };
-      const newArticle = await createArticle(articleData, file);
+      const newArticle = await createArticle(articleData);
       if (newArticle.data) {
         setStatus({
           isLoading: false,
@@ -201,7 +183,7 @@ export default function CreateNewArticleForm({
       setStatus({ isLoading: false, error: errorMessage, success: null });
     }
   };
-  const isSubmitDisabled = status.isLoading || !file || !formData.title.trim();
+  const isSubmitDisabled = status.isLoading || !formData.title.trim();
   return (
     <div className='mx-auto max-w-6xl p-2'>
       <h2 className='mb-6 text-2xl font-semibold'>Create New Article</h2>
@@ -212,6 +194,12 @@ export default function CreateNewArticleForm({
       <div className='flex flex-col gap-24 md:flex-row'>
         <div className='flex-1'>
           <form onSubmit={handleSubmit} className='space-y-6'>
+            <div className='mb-12'>
+              <UploadImageForm
+                folder='/articles'
+                onUpload={handleImageUpload}
+              />
+            </div>
             <div>
               <Label htmlFor='title' className='text-xl'>
                 Title*
@@ -253,26 +241,6 @@ export default function CreateNewArticleForm({
                 onChange={(value = '') =>
                   setFormData((prev) => ({ ...prev, content: value }))
                 }
-                onPaste={async (event) => {
-                  await onImagePasted(event.clipboardData, (newContent) => {
-                    if (typeof newContent === 'string') {
-                      setFormData((prev) => ({
-                        ...prev,
-                        content: newContent,
-                      }));
-                    }
-                  });
-                }}
-                onDrop={async (event) => {
-                  await onImagePasted(event.dataTransfer, (newContent) => {
-                    if (typeof newContent === 'string') {
-                      setFormData((prev) => ({
-                        ...prev,
-                        content: newContent,
-                      }));
-                    }
-                  });
-                }}
                 height={500}
                 preview='edit'
                 textareaProps={{
@@ -328,26 +296,6 @@ export default function CreateNewArticleForm({
                 data={contributors}
                 handleChange={handleContributorChange}
               />
-            </div>
-            <div>
-              <Label className='mb-2 block text-lg font-bold text-black'>
-                Image upload* - keep filenames unique
-              </Label>
-              <Input
-                id='coverImage'
-                name='coverImage'
-                type='file'
-                accept='image/png'
-                onChange={handleFileChange}
-                ref={fileInputRef}
-                disabled={status.isLoading}
-                required
-              />
-              <p className='mt-1 text-sm text-gray-500'>
-                10Mb file size limit. We optimize the image by converting it to
-                WebP format and generating 5 cropped versions. Keep filenames
-                unique (e.g., article-101.jpg).
-              </p>
             </div>
             <div className='mt-4 min-h-[20px]'>
               {' '}
