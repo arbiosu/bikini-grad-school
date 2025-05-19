@@ -137,6 +137,7 @@ export default function UploadImageForm({
           return;
         }
         if (uploadData) {
+          onUpload(uploadData.path);
           setStatus({
             isLoading: false,
             error: null,
@@ -168,7 +169,6 @@ export default function UploadImageForm({
             error: null,
             success: `Upload fully success! Image has been uploaded and resized. FULL PATH URL (for use in linking to articles): ${uploadData.fullPath} PATH: ${uploadData.path} RESIZED: ${resData}`,
           });
-          onUpload(uploadData.path);
           resetForm();
           return;
         }
