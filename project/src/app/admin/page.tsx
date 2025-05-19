@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import SignOutButton from '@/components/admin/SignOut';
 import LinkButton from '@/components/admin/LinkButton';
-import { Newspaper, ScrollText, PlusCircle } from 'lucide-react';
+import { Newspaper, ScrollText, PlusCircle, Image } from 'lucide-react';
 
 export default async function AdminDashboard() {
   const supabase = await createClient();
@@ -17,6 +17,11 @@ export default async function AdminDashboard() {
     <div className='container mx-auto p-20'>
       <h1 className='mx-4 text-center text-5xl font-bold'>Admin Dashboard</h1>
       <div className='flex flex-col gap-10 p-10'>
+        <LinkButton
+          href={'/admin/image'}
+          label={'Upload Standalone Image'}
+          Icon={Image}
+        />
         <LinkButton
           href={'/admin/issues'}
           label={'View/Edit Issues'}

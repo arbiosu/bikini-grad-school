@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { queryArticles } from '@/lib/supabase/model/articles';
 import ArticlesGrid from '@/components/Article';
 import ImageOverlayCard from '@/components/ImageOverlay';
+import MediaNavbar from '@/components/MediaNavbar';
 import { ArticleWithContributorName } from '@/lib/supabase/model/types';
 
 export default async function Page() {
@@ -31,7 +32,9 @@ export default async function Page() {
         textPosition={'left'}
         textSize={'large'}
       />
-      <div className='p-10'></div>
+      <div className='p-10'>
+        <MediaNavbar />
+      </div>
       <div className='container mx-auto'>
         <ArticlesGrid articles={articles} />
       </div>
