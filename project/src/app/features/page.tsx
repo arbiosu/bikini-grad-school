@@ -14,16 +14,15 @@ export default async function Page() {
 
   return (
     <section>
-      <div className='py-20'>
-        <ImageOverlayCard
-          imgUrl='/content/features'
-          overlayText={['FEATURES']}
-          altText='Bikini Grad School: FEATURES'
-          aspectRatio={'aspectVideo'}
-          textPosition={'left'}
-          textSize={'large'}
-        />
-      </div>
+      <div className='py-10'></div>
+      <ImageOverlayCard
+        imgUrl='/content/features'
+        overlayText={['FEATURES']}
+        altText='Bikini Grad School: FEATURES'
+        aspectRatio={'aspectVideo'}
+        textPosition={'left'}
+        textSize={'large'}
+      />
       <div className='p-10'>
         <MediaNavbar />
       </div>

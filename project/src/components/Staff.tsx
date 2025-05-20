@@ -38,6 +38,7 @@ export default function StaffGrid({
     <Grid
       items={staffMembers}
       renderItem={(staff) => <StaffCard {...staff} />}
+      variant={'medium'}
     />
   );
 }

@@ -10,10 +10,6 @@ const links = [
     label: 'articles',
   },
   {
-    href: '/digimedia',
-    label: 'digimedia',
-  },
-  {
     href: '/features',
     label: 'features',
   },

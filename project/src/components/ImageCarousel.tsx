@@ -23,14 +23,14 @@ export function ImageCarousel({ images }: { images: string[] }) {
     <div className='w-full py-6'>
       <div
         ref={scrollRef}
-        className='relative flex flex-nowrap overflow-x-auto px-2 py-4'
+        className='relative flex flex-nowrap overflow-x-auto p-10'
       >
         {images.map((image, index) => (
           <div
             key={index}
-            className='mr-4 inline-block flex-shrink-0 p-6 align-top last:mr-0'
+            className='mr-4 inline-block flex-shrink-0 p-10 align-top last:mr-0'
           >
-            <Image baseUrl={image} alt={`Image number ${index}`} />
+            <Image baseUrl={image} alt={`Image number ${index}`} className='' />
           </div>
         ))}
       </div>

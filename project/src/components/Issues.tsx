@@ -25,7 +25,7 @@ export function IssuePage({
 
   const month = MONTH_NAMES[date.getMonth()].toLowerCase();
   const paddedIssueNum = issue.issue_number
-    ? issue.issue_number.toString().padStart(4, '0.')
+    ? issue.description.padStart(4, '0.')
     : '';
   const contents: IssueContent[] = [
     ...issueArticles.map((a) => ({ kind: 'article' as const, payload: a })),
@@ -66,7 +66,7 @@ export function IssuesCard({ issue }: { issue: Issue }) {
           sizes='960px'
         />
         <p className='text-base'>
-          <span className='text-indigo-300'>issue .0{issue.issue_number}</span>{' '}
+          <span className='text-indigo-300'>issue {issue.description}</span>{' '}
           {issue.title}
         </p>
       </div>

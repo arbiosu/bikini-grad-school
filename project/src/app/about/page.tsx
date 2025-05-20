@@ -21,12 +21,6 @@ const staff = [
     pronouns: 'she/they',
     title: 'Engagement and Outreach Coordinator',
   },
-  {
-    imgUrl: '/content/annabelle-staff-star',
-    name: 'annabelle lisa',
-    pronouns: 'she/they',
-    title: 'Social Media Team',
-  },
 ];
 
 export default function Page() {
