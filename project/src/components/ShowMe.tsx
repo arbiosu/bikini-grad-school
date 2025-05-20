@@ -33,5 +33,11 @@ function ShowMeCard({ label, imgUrl, href }: ShowMeProps) {
 }
 
 export default function ShowMeGrid({ cards }: { cards: ShowMeProps[] }) {
-  return <Grid items={cards} renderItem={(card) => <ShowMeCard {...card} />} />;
+  return (
+    <Grid
+      items={cards}
+      renderItem={(card) => <ShowMeCard {...card} />}
+      variant={'medium'}
+    />
+  );
 }

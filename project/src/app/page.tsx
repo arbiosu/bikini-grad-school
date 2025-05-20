@@ -17,11 +17,6 @@ const imgs = [
     href: '/articles',
   },
   {
-    imgUrl: '/content/show-me-digimedia',
-    label: 'digi media',
-    href: '/digimedia',
-  },
-  {
     imgUrl: '/content/show-me-features',
     label: 'features',
     href: '/features',
