@@ -65,18 +65,25 @@ export function ArticleCard({
 }) {
   return (
     <Link href={`/articles/${article.id}`} className='block h-full'>
-      <div className='mx-auto flex h-full flex-col items-center justify-center text-center hover:underline'>
-        <Image
-          baseUrl={article.img_path}
-          alt={`${article.title} by ${article.author}`}
-          className='mx-auto mb-4 aspect-square max-w-lg object-cover p-2'
-        />
-        <p className='text-xl'>
-          {article.title}{' '}
-          <span className='text-indigo-300'>
-            {article.contributorName.name}
-          </span>
-        </p>
+      <div className='mx-auto flex h-full flex-col text-center hover:underline'>
+        <div className='relative mx-auto mb-4 aspect-square w-full max-w-lg'>
+          <Image
+            baseUrl={article.img_path}
+            alt={`${article.title} by ${article.author}`}
+            className='aspect-square h-full w-full object-contain p-2'
+          />
+        </div>
+
+        <div className='flex flex-1 items-center justify-center px-2'>
+          <p className='text-xl leading-tight'>
+            <span className='mb-1 block'>
+              {article.title}{' '}
+              <span className='text-lg text-indigo-300'>
+                {article.contributorName.name}
+              </span>
+            </span>
+          </p>
+        </div>
       </div>
     </Link>
   );

@@ -72,7 +72,7 @@ export default async function Home() {
       <LandingPage />
       <div className='py-10'>
         <ChonkText strings={['CURRENT', 'ISSUE']} variant={'large'} />
-        <div className='py-10'>
+        <div className='px-2 py-6 md:px-20'>
           <IssuePage
             issue={issue[0]}
             issueArticles={articlesWithNames}

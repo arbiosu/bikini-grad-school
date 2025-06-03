@@ -64,11 +64,13 @@ export default async function Page({
           className='mx-auto max-w-lg object-cover'
         />
       </div>
-      <IssuePage
-        issue={issue[0]}
-        issueArticles={articlesWithNames}
-        issuePhotoshoots={photoshoots}
-      />
+      <div className=''>
+        <IssuePage
+          issue={issue[0]}
+          issueArticles={articlesWithNames}
+          issuePhotoshoots={photoshoots}
+        />
+      </div>
     </div>
   );
 }
