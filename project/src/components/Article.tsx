@@ -69,9 +69,7 @@ export function ArticleCard({
         <Image
           baseUrl={article.img_path}
           alt={`${article.title} by ${article.author}`}
-          className='mb-4'
-          widths={['960']}
-          sizes='960px'
+          className='mx-auto mb-4 aspect-square max-w-lg object-cover p-2'
         />
         <p className='text-xl'>
           {article.title}{' '}
