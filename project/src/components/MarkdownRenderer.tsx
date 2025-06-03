@@ -15,7 +15,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
   const { theme } = useTheme();
 
   return (
-    <article className='mx-auto max-w-7xl'>
+    <article className='mx-auto max-w-3xl'>
       <div
         data-color-mode={theme === 'light' ? 'light' : 'dark'}
         className='prose rounded-2xl bg-background p-6 dark:prose-invert lg:prose-xl'

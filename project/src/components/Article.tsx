@@ -41,11 +41,11 @@ export function Article({
         </span>
       </p>
 
-      <div className='mx-auto mb-6 md:mb-8'>
+      <div className='relative mx-auto mb-6 flex justify-center md:mb-8'>
         <Image
           baseUrl={article.img_path}
           alt={article.subtitle}
-          className='w-full'
+          className='w-full max-w-lg object-cover'
         />
       </div>
 
