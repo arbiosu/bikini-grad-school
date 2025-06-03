@@ -61,8 +61,7 @@ export default async function Page({
         <Image
           baseUrl={issue[0].cover_image_path}
           alt={`Cover Image for Bikini Grad's School Issue ${issue[0].title}`}
-          widths={['640']}
-          sizes='640px'
+          className='mx-auto max-w-lg object-cover'
         />
       </div>
       <IssuePage
