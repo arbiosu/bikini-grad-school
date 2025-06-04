@@ -44,29 +44,33 @@ export default async function Home() {
     redirect('/error');
   }
 
-  const { data: articles, error: articlesError } = await queryArticles({
-    select: [
-      '*',
-      'contributorName:contributors!articles_contributor_fkey(name)',
-    ],
-    filter: {
-      issueId: issue[0].id,
-      published: true,
-    },
-  });
-
-  const { data: photoshoots, error: photoshootsError } = await queryPhotoshoots(
-    {
+  const [articles, photoshoots] = await Promise.all([
+    queryArticles({
+      select: [
+        '*',
+        'contributorName:contributors!articles_contributor_fkey(name)',
+      ],
+      filter: {
+        issueId: issue[0].id,
+        published: true,
+      },
+    }),
+    queryPhotoshoots({
       filter: {
         issueId: issue[0].id,
       },
-    }
-  );
+    }),
+  ]);
 
-  if (articlesError || photoshootsError || !photoshoots || !articles) {
+  if (
+    articles.error ||
+    photoshoots.error ||
+    !photoshoots.data ||
+    !articles.data
+  ) {
     redirect('/error');
   }
-  const articlesWithNames = articles as ArticleWithContributorName[];
+  const articlesWithNames = articles.data as ArticleWithContributorName[];
   return (
     <main className='mx-auto'>
       <LandingPage />
@@ -76,7 +80,7 @@ export default async function Home() {
           <IssuePage
             issue={issue[0]}
             issueArticles={articlesWithNames}
-            issuePhotoshoots={photoshoots}
+            issuePhotoshoots={photoshoots.data}
           />
         </div>
       </div>

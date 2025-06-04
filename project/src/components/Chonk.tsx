@@ -21,7 +21,7 @@ const chonkVariants = cva(
 const articleChonkVariants = cva(`${chonk.className} block text-center`, {
   variants: {
     variant: {
-      small: 'text-2xl md:text-4xl',
+      small: 'text-2xl md:text-4xl lg:text-6xl',
       medium: 'text-4xl md:text-6xl',
       large: 'text-5xl md:text-8xl',
     },

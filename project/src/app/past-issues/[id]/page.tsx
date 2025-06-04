@@ -21,37 +21,34 @@ export default async function Page({
     redirect('/past-issues');
   }
 
-  const {
-    data: articles,
-    count: articleCount,
-    error: articlesError,
-  } = await queryArticles({
-    select: [
-      '*',
-      'contributorName:contributors!articles_contributor_fkey(name)',
-    ],
-    count: 'exact',
-    filter: {
-      issueId: issueId,
-    },
-  });
-  const {
-    data: photoshoots,
-    count: photoshootCount,
-    error: photoshootError,
-  } = await queryPhotoshoots({
-    count: 'exact',
-    filter: {
-      issueId: issueId,
-    },
-  });
-  console.log('todo implement count', articleCount, photoshootCount);
+  const [articles, photoshoots] = await Promise.all([
+    queryArticles({
+      select: [
+        '*',
+        'contributorName:contributors!articles_contributor_fkey(name)',
+      ],
+      filter: {
+        issueId: issueId,
+        published: true,
+      },
+    }),
+    queryPhotoshoots({
+      filter: {
+        issueId: issueId,
+      },
+    }),
+  ]);
 
-  if (articlesError || !articles || photoshootError || !photoshoots) {
+  if (
+    articles.error ||
+    !articles.data ||
+    photoshoots.error ||
+    !photoshoots.data
+  ) {
     redirect('/past-issues');
   }
 
-  const articlesWithNames = articles as ArticleWithContributorName[];
+  const articlesWithNames = articles.data as ArticleWithContributorName[];
 
   return (
     <div className='container mx-auto py-10'>
@@ -59,7 +56,7 @@ export default async function Page({
         <IssuePageAlt
           issue={issue[0]}
           issueArticles={articlesWithNames}
-          issuePhotoshoots={photoshoots}
+          issuePhotoshoots={photoshoots.data}
         />
       </div>
     </div>
