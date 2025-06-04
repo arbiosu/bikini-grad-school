@@ -16,7 +16,7 @@ export default async function Page() {
     <section>
       <div className='py-10'></div>
       <ImageOverlayCard
-        imgUrl='/content/features'
+        imgUrl='/content/features-new'
         overlayText={['FEATURES']}
         altText='Bikini Grad School: FEATURES'
         aspectRatio={'aspectVideo'}

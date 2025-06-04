@@ -43,7 +43,7 @@ export function IssuePage({
           <span className='font-bold'>{issue.title}</span>
         </p>
       </div>
-      <div className='p-10'>
+      <div>
         <Grid
           items={contents}
           renderItem={(item) => <IssueContentCard item={item} />}

@@ -22,6 +22,8 @@ interface EditArticleFormData {
   content: string;
   isPublished: boolean;
   contributor: string | null;
+  publicationDate: string | null;
+  coverImage: string;
 }
 
 interface FormStatus {
@@ -58,6 +60,8 @@ export default function EditArticleForm({
     content: article.content,
     isPublished: article.is_published,
     contributor: article.contributor,
+    publicationDate: article.created_at,
+    coverImage: article.img_path,
   });
   const [status, setStatus] = useState<FormStatus>(INITIAL_STATUS);
 
@@ -132,6 +136,10 @@ export default function EditArticleForm({
         issue_id: article.issue_id,
         id: article.id,
         contributor: formData.contributor,
+        created_at: formData.publicationDate
+          ? formData.publicationDate
+          : undefined,
+        img_path: formData.coverImage,
       });
       if (newArticle.data) {
         setStatus({
@@ -153,7 +161,7 @@ export default function EditArticleForm({
   };
 
   return (
-    <div className='mx-auto max-w-6xl p-2'>
+    <div className='mx-auto p-2'>
       <div className='flex flex-col gap-24 md:flex-row'>
         <div className='flex-1'>
           <form onSubmit={handleSubmit} className='space-y-6'>
@@ -195,6 +203,41 @@ export default function EditArticleForm({
                 value={formData.contributor ? formData.contributor : 'None'}
                 data={contributors}
                 handleChange={handleContributorChange}
+              />
+            </div>
+            <div>
+              <Label htmlFor='coverImage' className='text-xl'>
+                Cover Image Link*
+              </Label>
+              <Input
+                id='coverImage'
+                type='text'
+                name='coverImage'
+                value={formData.coverImage}
+                onChange={handleInputChange}
+                disabled={status.isLoading}
+                required
+                className='mt-1'
+              />
+              <p>{`IMPORTANT: must be in this format: {folder}/{filename}. No file extensions. You can get this link after uploading an image, or by viewing the Image Bucket page`}</p>
+            </div>
+            <div>
+              <Label htmlFor='publication_date' className='text-xl'>
+                Current Publication Date:{' '}
+                {article.created_at
+                  ? new Date(article.created_at).toLocaleDateString()
+                  : 'none'}
+              </Label>
+              <Input
+                id='publicationDate'
+                type='date'
+                name='publicationDate'
+                value={
+                  formData.publicationDate
+                    ? formData.publicationDate
+                    : new Date().toLocaleDateString()
+                }
+                onChange={handleInputChange}
               />
             </div>
             <div>
@@ -255,13 +298,6 @@ export default function EditArticleForm({
             <p className='mx-1 mt-2 text-blue-600'>
               - This article belongs to the issue with issue_id #
               {article.issue_id}
-            </p>
-            <p className='mx-1 mt-2 text-blue-600'>
-              - Publication Date:{' '}
-              {new Date(article.created_at).toLocaleDateString()}
-            </p>
-            <p className='mx-1 mt-2 text-blue-600'>
-              - Image: {article.img_path}
             </p>
             <Button type='submit' size='lg' disabled={status.isLoading}>
               {status.isLoading ? 'processing...' : 'submit'}

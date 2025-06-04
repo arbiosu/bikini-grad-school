@@ -93,6 +93,11 @@ export default async function AdminDashboard() {
               label={'Upload Standalone Image'}
               Icon={Image}
             />
+            <LinkButton
+              href={'/admin/bucket'}
+              label={'View All Images'}
+              Icon={Image}
+            />
           </div>
         </section>
 

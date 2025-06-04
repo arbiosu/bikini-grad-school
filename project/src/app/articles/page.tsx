@@ -35,7 +35,7 @@ export default async function Page() {
       <div className='p-10'>
         <MediaNavbar />
       </div>
-      <div className='container mx-auto'>
+      <div className='container mx-auto p-6'>
         <ArticlesGrid articles={articles} />
       </div>
     </section>
