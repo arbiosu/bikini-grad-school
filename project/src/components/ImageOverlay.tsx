@@ -66,7 +66,6 @@ export default function ImageOverlayCard({
         baseUrl={imgUrl}
         alt={altText}
         className='absolute inset-0 z-0 h-full w-full object-cover'
-        sizes='1920px'
       />
       <div className={cn(textPositionVariants({ textPosition }))}>
         <div>

@@ -1,8 +1,7 @@
 import { redirect } from 'next/navigation';
 import { queryIssues } from '@/lib/supabase/model/issues';
 import { queryArticles } from '@/lib/supabase/model/articles';
-import { IssuePage } from '@/components/Issues';
-import Image from '@/components/Image';
+import { IssuePageAlt } from '@/components/Issues';
 import { queryPhotoshoots } from '@/lib/supabase/model/photoshoots';
 import { ArticleWithContributorName } from '@/lib/supabase/model/types';
 
@@ -56,16 +55,8 @@ export default async function Page({
 
   return (
     <div className='container mx-auto py-10'>
-      <div className='py-10'></div>
-      <div className='mb-4 flex justify-center'>
-        <Image
-          baseUrl={issue[0].cover_image_path}
-          alt={`Cover Image for Bikini Grad's School Issue ${issue[0].title}`}
-          className='mx-auto max-w-lg object-cover'
-        />
-      </div>
-      <div className=''>
-        <IssuePage
+      <div>
+        <IssuePageAlt
           issue={issue[0]}
           issueArticles={articlesWithNames}
           issuePhotoshoots={photoshoots}

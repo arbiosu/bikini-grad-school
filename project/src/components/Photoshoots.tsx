@@ -10,15 +10,21 @@ export function Photoshoot({ photoshoot }: { photoshoot: Photoshoot }) {
 
 export function PhotoshootCard({ photoshoot }: { photoshoot: Photoshoot }) {
   return (
-    <Link href={`/photoshoots/${photoshoot.id}`} className='block h-full'>
+    <Link
+      href={`/photoshoots/${photoshoot.id}`}
+      className='block h-full'
+      target='_blank'
+      rel='noopener noreferrer'
+    >
       <div className='mx-auto flex h-full flex-col items-center justify-center text-center hover:underline'>
-        <Image
-          baseUrl={photoshoot.images[0]}
-          alt={`${photoshoot.title}`}
-          className='mb-4'
-          widths={['640']}
-          sizes='640px'
-        />
+        <div className='relative mx-auto mb-4 aspect-square w-full max-w-lg'>
+          <Image
+            baseUrl={photoshoot.images[0]}
+            alt={`${photoshoot.title}`}
+            className='aspect-square h-full w-full object-contain'
+          />
+        </div>
+
         <p className='text-xl'>{photoshoot.title}</p>
       </div>
     </Link>
