@@ -82,7 +82,6 @@ export function IssuePageAlt({
 
   return (
     <section className='container mx-auto px-4 py-8'>
-      {/* Issue Header */}
       <div className='mb-8 text-center'>
         <h1 className='mb-2 text-3xl font-bold md:text-4xl'>
           {month} issue- {paddedIssueNum} {issue.title}
