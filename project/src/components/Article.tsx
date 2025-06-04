@@ -64,7 +64,12 @@ export function ArticleCard({
   article: ArticleWithContributorName;
 }) {
   return (
-    <Link href={`/articles/${article.id}`} className='block h-full'>
+    <Link
+      href={`/articles/${article.id}`}
+      className='block h-full'
+      target='_blank'
+      rel='noopener noreferrer'
+    >
       <div className='mx-auto flex h-full flex-col text-center hover:underline'>
         <div className='relative mx-auto mb-4 aspect-square w-full max-w-lg'>
           <Image
