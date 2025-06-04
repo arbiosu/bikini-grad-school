@@ -1,16 +1,33 @@
 import { MetadataRoute } from 'next';
-import { queryArticles } from '@/lib/supabase/model/articles';
-import { queryIssues } from '@/lib/supabase/model/issues';
+import { createServiceClient } from '@/lib/supabase/service';
 
 const baseUrl = 'www.bikinigradschool.com';
 
+async function queryArticlesSitemap() {
+  const supabase = await createServiceClient();
+  return await supabase
+    .from('articles')
+    .select('id, created_at')
+    .eq('is_published', true);
+}
+
+async function queryIssuesSitemap() {
+  const supabase = await createServiceClient();
+  return await supabase
+    .from('issues')
+    .select('id, created_at, updated_at')
+    .eq('is_published', true);
+}
+
+async function queryPhotoshootsSitemap() {
+  const supabase = await createServiceClient();
+  return await supabase
+    .from('photoshoots')
+    .select('id, created_at, updated_at');
+}
+
 async function generateArticlesSitemap() {
-  const { data: articles, error: articlesError } = await queryArticles({
-    select: ['id', 'created_at'],
-    filter: {
-      published: true,
-    },
-  });
+  const { data: articles, error: articlesError } = await queryArticlesSitemap();
   if (articlesError || !articles) {
     console.error(
       'Sitemap generation partially failed: could not fetch articles'
@@ -30,23 +47,38 @@ async function generateArticlesSitemap() {
 }
 
 async function generateIssuesSitemap() {
-  const { data: issues, error: issuesError } = await queryIssues({
-    select: ['id', 'created_at', 'updated_at'],
-    filter: {
-      published: true,
-    },
-  });
+  const { data: issues, error: issuesError } = await queryIssuesSitemap();
   if (issuesError || !issues) {
     console.error('Sitemap generation failed: could not fetch issues.');
     return [];
   }
   const dynamicIssuePages: MetadataRoute.Sitemap = issues.map((issue) => ({
-    url: `${baseUrl}/issues/${issue.id}`,
+    url: `${baseUrl}/past-issues/${issue.id}`,
     lastModified: issue.updated_at ? issue.updated_at : issue.created_at,
     changeFrequency: 'monthly',
     priority: 0.9,
   }));
   return dynamicIssuePages;
+}
+
+async function generatePhotoshootsSitemap() {
+  const { data: photoshoots, error: photoshootsError } =
+    await queryPhotoshootsSitemap();
+  if (photoshootsError || !photoshoots) {
+    console.error('Sitemap generation failed: could not fetch photoshoots.');
+    return [];
+  }
+  const dynamicPhotoshootPages: MetadataRoute.Sitemap = photoshoots.map(
+    (photoshoot) => ({
+      url: `${baseUrl}/photoshoots/${photoshoot.id}`,
+      lastModified: photoshoot.updated_at
+        ? photoshoot.updated_at
+        : photoshoot.created_at,
+      changeFrequency: 'monthly',
+      priority: 0.9,
+    })
+  );
+  return dynamicPhotoshootPages;
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -88,18 +120,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.5,
     },
   ];
-  const dynamicIssuePages = await generateIssuesSitemap();
+
+  const [dynamicIssuePages, dynamicArticlesPages, dynamicPhotoshootPages] =
+    await Promise.all([
+      generateIssuesSitemap(),
+      generateArticlesSitemap(),
+      generatePhotoshootsSitemap(),
+    ]);
   const issuePages: MetadataRoute.Sitemap = [
     ...dynamicIssuePages,
     {
-      url: `${baseUrl}/issues`,
+      url: `${baseUrl}/past-issues`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 1,
     },
   ];
 
-  const dynamicArticlesPages = await generateArticlesSitemap();
   const articlePages: MetadataRoute.Sitemap = [
     ...dynamicArticlesPages,
     {
@@ -110,5 +147,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  return [...staticPages, ...issuePages, ...articlePages];
+  const photoshootPages: MetadataRoute.Sitemap = [
+    ...dynamicPhotoshootPages,
+    {
+      url: `${baseUrl}/features`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 1,
+    },
+  ];
+
+  return [...staticPages, ...issuePages, ...articlePages, ...photoshootPages];
 }
