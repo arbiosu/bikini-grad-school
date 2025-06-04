@@ -37,6 +37,7 @@ export default function EditPhotoshootForm({ photoshoot }: PhotoshootProps) {
     images: photoshoot.images,
   });
   const [status, setStatus] = useState<FormStatus>(INITIAL_STATUS);
+  const [newImageUrl, setNewImageUrl] = useState<string>('');
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,23 +56,40 @@ export default function EditPhotoshootForm({ photoshoot }: PhotoshootProps) {
   const handleImageUpload = useCallback(
     (url: string) => {
       const newImagesArray = formData.images
-        ? [...formData.images, ...url]
+        ? [...formData.images, url]
         : [url];
       setFormData((prevData) => ({ ...prevData, images: newImagesArray }));
     },
     [formData.images]
   );
 
+  const handleAddImageUrl = useCallback(() => {
+    if (newImageUrl.trim()) {
+      const newImagesArray = formData.images
+        ? [...formData.images, newImageUrl.trim()]
+        : [newImageUrl.trim()];
+      setFormData((prevData) => ({ ...prevData, images: newImagesArray }));
+      setNewImageUrl(''); // Clear the input after adding
+    }
+  }, [newImageUrl, formData.images]);
+
+  const handleRemoveImage = useCallback((indexToRemove: number) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      images: prevData.images?.filter((_, index) => index !== indexToRemove),
+    }));
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus({ isLoading: true, error: null, success: null });
-    const newImagesArray = photoshoot.images ? photoshoot.images : [];
+
     try {
       const editedPhotoshoot = await editPhotoshoot({
         title: formData.title,
         description: formData.description,
         id: photoshoot.id,
-        images: newImagesArray,
+        images: formData.images || [],
       });
       if (editedPhotoshoot.data) {
         setStatus({
@@ -95,6 +113,7 @@ export default function EditPhotoshootForm({ photoshoot }: PhotoshootProps) {
       setStatus({ isLoading: false, error: errorMessage, success: null });
     }
   };
+
   return (
     <div className='mx-auto max-w-6xl p-2'>
       <h2 className='mb-6 text-2xl font-semibold'>Edit Photoshoot</h2>
@@ -136,20 +155,63 @@ export default function EditPhotoshootForm({ photoshoot }: PhotoshootProps) {
                 className='mt-1'
               />
             </div>
+
             <div>
-              <p className='text-xl'>Current images: {photoshoot.images}</p>
-              {photoshoot.images ? (
-                photoshoot.images.map((image, index) => (
-                  <p key={index}>{image}</p>
-                ))
+              <Label htmlFor='newImageUrl' className='text-xl'>
+                Add Image URL - click add and then submit for changes to take
+                effect
+              </Label>
+              <div className='mt-1 flex gap-2'>
+                <Input
+                  id='newImageUrl'
+                  type='url'
+                  placeholder='content/image.jpg'
+                  value={newImageUrl}
+                  onChange={(e) => setNewImageUrl(e.target.value)}
+                  disabled={status.isLoading}
+                  className='flex-1'
+                />
+                <Button
+                  type='button'
+                  onClick={handleAddImageUrl}
+                  disabled={status.isLoading || !newImageUrl.trim()}
+                  variant='outline'
+                >
+                  Add
+                </Button>
+              </div>
+            </div>
+
+            <div>
+              <p className='mb-2 text-xl'>Current Images:</p>
+              {formData.images && formData.images.length > 0 ? (
+                <div className='space-y-2'>
+                  {formData.images.map((image, index) => (
+                    <div
+                      key={index}
+                      className='flex items-center justify-between rounded bg-gray-50 p-2'
+                    >
+                      <span className='mr-2 flex-1 truncate text-sm'>
+                        {image}
+                      </span>
+                      <Button
+                        type='button'
+                        onClick={() => handleRemoveImage(index)}
+                        disabled={status.isLoading}
+                        variant='destructive'
+                        size='sm'
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  ))}
+                </div>
               ) : (
-                <p>None</p>
+                <p className='text-gray-500'>No images added yet</p>
               )}
             </div>
 
             <div className='mt-4 min-h-[20px]'>
-              {' '}
-              {/* Reserve space to prevent layout shifts */}
               {status.error && <p className='text-red-600'>{status.error}</p>}
               {status.success && (
                 <p className='text-green-600'>{status.success}</p>
