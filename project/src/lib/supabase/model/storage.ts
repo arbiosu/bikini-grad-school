@@ -2,7 +2,6 @@
 
 import { createServiceClient } from '@/lib/supabase/service';
 
-
 interface GenerateSignedUrlResponse {
   data: {
     signedUrl: string;
@@ -18,6 +17,7 @@ export async function getAllImagesInFolder(folder: string) {
     const { data, error: imgError } = await supabase.storage
       .from('images')
       .list(folder, {
+        limit: 1000,
         sortBy: { column: 'name', order: 'asc' },
       });
     if (imgError || !data) {

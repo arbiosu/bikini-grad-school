@@ -19,6 +19,7 @@ interface EditIssueFormData {
   description: string;
   isPublished: boolean;
   publicationDate: string | null;
+  coverImage: string;
 }
 
 interface FormStatus {
@@ -48,6 +49,7 @@ export default function EditIssueForm({ issue }: IssueProps) {
     description: issue.description,
     isPublished: issue.is_published,
     publicationDate: issue.publication_date,
+    coverImage: issue.cover_image_path,
   });
   const [status, setStatus] = useState<FormStatus>(INITIAL_STATUS);
 
@@ -98,6 +100,7 @@ export default function EditIssueForm({ issue }: IssueProps) {
         description: formData.description,
         is_published: formData.isPublished,
         publication_date: formData.publicationDate,
+        cover_image_path: formData.coverImage,
         id: issue.id,
       });
       if (editedIssue.data) {
@@ -123,8 +126,7 @@ export default function EditIssueForm({ issue }: IssueProps) {
     }
   };
   return (
-    <div className='mx-auto max-w-6xl p-2'>
-      <h2 className='mb-6 text-2xl font-semibold'>Edit Article</h2>
+    <div className='mx-auto p-2'>
       <div className='flex flex-col gap-24 md:flex-row'>
         <div className='flex-1'>
           <form onSubmit={handleSubmit} className='space-y-6'>
@@ -144,8 +146,24 @@ export default function EditIssueForm({ issue }: IssueProps) {
               />
             </div>
             <div>
+              <Label htmlFor='coverImage' className='text-xl'>
+                Cover Image Link*
+              </Label>
+              <Input
+                id='coverImage'
+                type='text'
+                name='coverImage'
+                value={formData.coverImage}
+                onChange={handleInputChange}
+                disabled={status.isLoading}
+                required
+                className='mt-1'
+              />
+              <p>{`IMPORTANT: must be in this format: {folder}/{filename}. No file extensions. You can get this link after uploading an image, or by viewing the Image Bucket page`}</p>
+            </div>
+            <div>
               <Label htmlFor='description' className='text-xl'>
-                Description
+                Issue Number*
               </Label>
               <Input
                 id='description'
@@ -156,6 +174,7 @@ export default function EditIssueForm({ issue }: IssueProps) {
                 disabled={status.isLoading}
                 className='mt-1'
               />
+              <p>{`NOTE: input the numbers, nothing else`}</p>
             </div>
             <div>
               <Label htmlFor='is_published' className='text-xl'>
@@ -210,13 +229,6 @@ export default function EditIssueForm({ issue }: IssueProps) {
                 <p className='text-green-600'>{status.success}</p>
               )}
             </div>
-            <p className='mt-2 text-blue-600'>
-              Contact an admin if you need to change the following:{' '}
-            </p>
-            <p className='mx-1 mt-2 text-blue-600'>
-              Cover Image: {issue.cover_image_path}
-            </p>
-
             <Button type='submit' size='lg' disabled={status.isLoading}>
               {status.isLoading ? 'processing...' : 'submit'}
             </Button>
