@@ -46,10 +46,8 @@ export default async function PhotoshootPage({
     : new Date();
 
   const month = MONTH_NAMES[issueDate.getMonth()].toLowerCase();
-  const paddedIssueNum = issueData[0].issue_number
-    ? issueData[0].issue_number.toString().padStart(4, '0.')
-    : '';
   const issueTitle = issueData[0].title;
+  const issueNumber = issueData[0].description;
   return (
     <div className='container mx-auto py-20'>
       <ArticleChonkText
@@ -57,7 +55,7 @@ export default async function PhotoshootPage({
         variant={'small'}
       />
       <p className='pt-4 text-center md:pt-10'>
-        {month} issue {paddedIssueNum}-{' '}
+        {month} issue {issueNumber}-{' '}
         <span className='font-bold'>{issueTitle}</span>
       </p>
       <ImageCarousel images={photoshoot.data[0].images} />

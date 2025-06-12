@@ -24,9 +24,7 @@ export function Article({
     ? new Date(issue.publication_date)
     : new Date();
   const month = MONTH_NAMES[issueDate.getMonth()].toLowerCase();
-  const paddedIssueNum = issue.issue_number
-    ? issue.issue_number.toString().padStart(4, '0.')
-    : '';
+  const issueNumber = issue.description;
 
   return (
     <div className='mx-auto max-w-4xl px-4 sm:px-6 md:px-8'>
@@ -34,7 +32,7 @@ export function Article({
         <ArticleChonkText strings={[article.title]} variant={'medium'} />
       </div>
       <p className='mb-4 pt-10 text-center'>
-        {month} issue {paddedIssueNum}-{' '}
+        {month} issue {issueNumber}-{' '}
         <span className='font-bold'>{issue.title} / </span>
         <span className='text-blue-300'>
           {contributor.name ? contributor.name : 'no contributor found :('}

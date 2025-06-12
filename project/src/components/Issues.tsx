@@ -22,11 +22,8 @@ export function IssuePage({
   const date = issue.publication_date
     ? new Date(issue.publication_date)
     : new Date();
-
   const month = MONTH_NAMES[date.getMonth()].toLowerCase();
-  const paddedIssueNum = issue.issue_number
-    ? issue.description.padStart(4, '0.')
-    : '';
+
   const contents: IssueContent[] = [
     ...issueArticles.map((a) => ({ kind: 'article' as const, payload: a })),
     ...issuePhotoshoots.map((p) => ({
@@ -39,7 +36,7 @@ export function IssuePage({
     <section>
       <div>
         <p className='mb-4 text-center text-lg'>
-          {month} issue {paddedIssueNum}-{' '}
+          {month} issue {issue.description}-{' '}
           <span className='font-bold'>{issue.title}</span>
         </p>
       </div>
@@ -66,11 +63,7 @@ export function IssuePageAlt({
   const date = issue.publication_date
     ? new Date(issue.publication_date)
     : new Date();
-
   const month = MONTH_NAMES[date.getMonth()].toLowerCase();
-  const paddedIssueNum = issue.issue_number
-    ? issue.description.padStart(4, '0.')
-    : '';
 
   const contents: IssueContent[] = [
     ...issueArticles.map((a) => ({ kind: 'article' as const, payload: a })),
@@ -83,10 +76,10 @@ export function IssuePageAlt({
   return (
     <section className='container mx-auto px-4 py-8'>
       <div className='mb-8 text-center'>
-        <h1 className='mb-2 text-3xl font-bold md:text-4xl'>
-          {month} issue- {paddedIssueNum} {issue.title}
-        </h1>
-        <p className='text-lg text-gray-600'></p>
+        <p className='mb-2'>
+          {month} issue {issue.description}-{' '}
+          <span className='font-bold'>{issue.title}</span>
+        </p>
       </div>
 
       {/* Main Layout: Cover + Content Grid */}

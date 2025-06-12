@@ -16,6 +16,12 @@ const staff = [
     title: 'Co-founder, Editorial Producer',
   },
   {
+    imgUrl: '/content/rachel-staff-star',
+    name: 'rachel west',
+    pronouns: 'she/her',
+    title: 'Lead Contributor',
+  },
+  {
     imgUrl: '/content/yasemin-staff-star',
     name: 'yasemin tingleff',
     pronouns: 'she/they',
