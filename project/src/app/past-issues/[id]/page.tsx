@@ -4,6 +4,7 @@ import { queryArticles } from '@/lib/supabase/model/articles';
 import { IssuePageAlt } from '@/components/Issues';
 import { queryPhotoshoots } from '@/lib/supabase/model/photoshoots';
 import { ArticleWithContributorName } from '@/lib/supabase/model/types';
+import { ArticleChonkText } from '@/components/Chonk';
 
 export default async function Page({
   params,
@@ -51,7 +52,8 @@ export default async function Page({
   const articlesWithNames = articles.data as ArticleWithContributorName[];
 
   return (
-    <div className='container mx-auto py-10'>
+    <div className='container mx-auto py-20'>
+      <ArticleChonkText strings={[issue[0].title]} variant={'small'} />
       <div>
         <IssuePageAlt
           issue={issue[0]}
