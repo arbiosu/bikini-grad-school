@@ -12,7 +12,6 @@ export default function About() {
           <Image
             baseUrl='/content/bgs-jk'
             alt='Kelly Slater (right) and Jayne Breakfast (left)'
-            sizes='960px'
             className='object-contain'
           />
         </div>
