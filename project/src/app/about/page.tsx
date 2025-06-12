@@ -1,7 +1,7 @@
 import ImageOverlay from '@/components/ImageOverlay';
 import StaffGrid from '@/components/Staff';
 import About from '@/components/About';
-
+import DonationSection from '@/components/Donations';
 const staff = [
   {
     imgUrl: '/content/jayne-staff-star',
@@ -43,6 +43,7 @@ export default function Page() {
       />
       <div className='py-10'></div>
       <StaffGrid staffMembers={staff} />
+      <DonationSection />
     </section>
   );
 }
