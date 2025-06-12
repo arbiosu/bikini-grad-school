@@ -26,9 +26,9 @@ export default function About() {
             </p>
             <p className='text-xl font-medium leading-relaxed'>
               Bikini Grad School was born out of a want for connection in adult
-              life and the mag works to build community through creative
-              conversations, in-person events and a monthly newsletter, someday
-              to be a physical publication.
+              life. The mag works to build community through creative
+              conversations, in-person events and a monthly zine, someday to be
+              a physical publication.
             </p>
             <p className='text-xl leading-relaxed'>
               The big gorgeous brains behind BGS are Kelly Slater and Jayne
