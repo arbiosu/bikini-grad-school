@@ -41,8 +41,10 @@ export default function Page() {
         textPosition={'center'}
         textSize={'large'}
       />
-      <div className='py-10'></div>
-      <StaffGrid staffMembers={staff} />
+      <div className='p-10'>
+        <StaffGrid staffMembers={staff} />
+      </div>
+
       <DonationSection />
     </section>
   );
