@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
-import { mainFont } from '../../public/fonts/fonts';
+import { mainFont, chonkFont } from '../../public/fonts/fonts';
 import './globals.css';
+import Navbar from '@/components/nav';
+import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
   title: 'Bikini Grad School',
@@ -13,11 +15,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en'>
+    <html lang='en' suppressHydrationWarning>
       <body
-        className={`${mainFont.className} ${mainFont.className} antialiased`}
+        className={`${mainFont.variable} ${chonkFont.variable} antialiased`}
       >
-        {children}
+        <ThemeProvider
+          attribute={'class'}
+          defaultTheme='system'
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Navbar />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
