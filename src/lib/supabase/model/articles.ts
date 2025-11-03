@@ -34,7 +34,7 @@ interface QueryArticlesResult {
   count: number | null;
 }
 
-export async function createArtcles(
+export async function createArticle(
   data: TablesInsert<'articles'>
 ): Promise<Result> {
   try {

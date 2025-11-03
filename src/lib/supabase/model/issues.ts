@@ -1,10 +1,14 @@
+'use server';
+
 import { revalidatePath } from 'next/cache';
-import type { Tables, TablesInsert } from '@/lib/supabase/database/types';
+import type {
+  Tables,
+  TablesInsert,
+  Count,
+  SortOrder,
+} from '@/lib/supabase/database/types';
 import { createClient } from '@/lib/supabase/clients/server';
 import { createServiceClient } from '@/lib/supabase/clients/service';
-
-export type Count = 'exact' | 'planned' | 'estimated';
-export type SortOrder = 'asc' | 'desc';
 
 type Result = {
   data: Tables<'issues'> | null;

@@ -79,11 +79,6 @@ export async function queryRoles(
       query = query.eq('id', options.filter.id);
     }
 
-    const sortColumn = options.sort?.column ?? 'created_at';
-    const sortOrder = options.sort?.order ?? 'desc';
-
-    query = query.order(sortColumn, { ascending: sortOrder === 'asc' });
-
     if (options.limit) {
       query = query.limit(options.limit);
     }
