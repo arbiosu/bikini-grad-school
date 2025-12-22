@@ -12,17 +12,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+
 import { ArticleForm } from './article';
 import { FeatureForm } from './feature';
 import { InterviewForm } from './interview';
 import { ContentContributorsForm } from './content-contributors';
 import { IssueSelector } from '../issue-selector';
 
-import { createContent } from '@/lib/supabase/model/contents';
-import { createContentContributor } from '@/lib/supabase/model/contentContributors';
-import { createArticle } from '@/lib/supabase/model/articles';
-import { createInterview } from '@/lib/supabase/model/interviews';
-import { createFeature } from '@/lib/supabase/model/features';
+import { createFullContent } from '@/lib/supabase/model/contents';
 
 import { slugify, isValidSlug } from '@/lib/utils';
 
@@ -52,7 +49,7 @@ interface CreateFeatureFormData {
 
 interface CreateInterviewFormData {
   intervieweeBio: string | null;
-  intervieweName: string;
+  intervieweeName: string;
   profile_image: string | null;
   transcript: string;
 }
@@ -108,9 +105,8 @@ export function CreateContentForm({
   const [step, setStep] = useState<FormStep>('base');
   const [formData, setFormData] =
     useState<CreateContentFormData>(INITIAL_FORM_DATA);
-  const [typeSpecificData, setTypeSpecificData] = useState<
-    Partial<TypeSpecificData>
-  >({ type: formData.type });
+  const [typeSpecificData, setTypeSpecificData] =
+    useState<TypeSpecificData | null>(null);
   const [contributors, setContributors] = useState<ContentContributor[]>([]);
 
   const [status, setStatus] = useState<FormStatus>(INITIAL_STATUS);
@@ -126,7 +122,36 @@ export function CreateContentForm({
       }));
 
       if (field === 'type') {
-        setTypeSpecificData({ type: value as ContentTypes });
+        switch (value as ContentTypes) {
+          case 'article':
+            setTypeSpecificData({
+              type: 'article',
+              body: '',
+              featuredImage: null,
+            });
+            break;
+          case 'feature':
+            setTypeSpecificData({
+              type: 'feature',
+              description: '',
+            });
+            break;
+          case 'interview':
+            setTypeSpecificData({
+              type: 'interview',
+              intervieweeName: '',
+              intervieweeBio: null,
+              profile_image: null,
+              transcript: '',
+            });
+            break;
+          case 'digi_media':
+            setTypeSpecificData({
+              type: 'digi_media',
+              mediaUrl: '',
+            });
+            break;
+        }
       }
 
       if (status.error || status.success) {
@@ -137,11 +162,45 @@ export function CreateContentForm({
   );
 
   const handleTypeSpecificChange = useCallback(
-    (field: string, value: string | number) => {
-      setTypeSpecificData((prev) => ({
-        ...prev,
-        [field]: value,
-      }));
+    <K extends keyof Omit<TypeSpecificData, 'type'>>(
+      field: K,
+      value: TypeSpecificData[K]
+    ) => {
+      setTypeSpecificData((prev) => {
+        if (!prev) return prev;
+
+        switch (prev.type) {
+          case 'article':
+            if (field === 'body' || field === 'featuredImage') {
+              return { ...prev, [field]: value } as TypeSpecificData;
+            }
+            return prev;
+
+          case 'feature':
+            if (field === 'description') {
+              return { ...prev, description: value as string };
+            }
+            return prev;
+
+          case 'interview':
+            if (
+              field === 'intervieweeName' ||
+              field === 'intervieweeBio' ||
+              field === 'profile_image' ||
+              field === 'transcript'
+            ) {
+              return { ...prev, [field]: value } as TypeSpecificData;
+            }
+            return prev;
+
+          case 'digi_media':
+            if (field === 'mediaUrl') {
+              return { ...prev, mediaUrl: value as string };
+            }
+            return prev;
+        }
+      });
+
       if (status.error || status.success) {
         setStatus(INITIAL_STATUS);
       }
@@ -151,7 +210,7 @@ export function CreateContentForm({
 
   const resetForm = useCallback(() => {
     setFormData(INITIAL_FORM_DATA);
-    setTypeSpecificData({});
+    setTypeSpecificData(null);
     setStep('base');
   }, []);
 
@@ -241,7 +300,7 @@ export function CreateContentForm({
       return;
     }
     try {
-      const data = {
+      const finalContentData = {
         issue_id: formData.issueId,
         published: formData.published,
         published_at: formData.publicationDate,
@@ -250,77 +309,24 @@ export function CreateContentForm({
         title: trimmedTitle,
         type: formData.type,
       };
-      const { data: insertData, error } = await createContent(data);
+      const finalContributors = contributors.map((c) => ({
+        contributorId: c.contributorId,
+        roleId: c.roleId,
+      }));
+
+      if (typeSpecificData == null) return;
+
+      const { data: insertData, error } = await createFullContent(
+        finalContentData,
+        finalContributors,
+        typeSpecificData
+      );
       if (insertData) {
         setStatus({
           isLoading: false,
           error: null,
           success: `Content added to issue with ID ${formData.issueId} ${'\n'} Title: ${trimmedTitle} Type: ${formData.type}`,
         });
-        const contentId = insertData.id;
-        switch (formData.type) {
-          case 'article':
-            if (
-              typeSpecificData.type === 'article' &&
-              typeof typeSpecificData.body === 'string'
-            ) {
-              const { data, error } = await createArticle({
-                id: contentId,
-                body: typeSpecificData.body,
-                featured_image: typeSpecificData.featuredImage ?? null,
-              });
-              if (error || !data) {
-                setStatus({
-                  isLoading: false,
-                  error:
-                    'Could not add article to the database. Please try again.',
-                  success: null,
-                });
-                return;
-              }
-            }
-            break;
-          case 'feature':
-            if (typeSpecificData.type === 'feature') {
-              const { data, error } = await createFeature({
-                id: contentId,
-                description: typeSpecificData.description,
-              });
-              if (error || !data) {
-                setStatus({
-                  isLoading: false,
-                  error:
-                    'Could not add feature to the database. Please try again.',
-                  success: null,
-                });
-                return;
-              }
-            }
-            break;
-          case 'interview':
-            if (typeSpecificData.type === 'interview') {
-              const { data, error } = await createInterview({
-                id: contentId,
-                interviewee_name: typeSpecificData.intervieweName ?? '',
-                interviewee_bio: typeSpecificData.intervieweeBio,
-                transcript: typeSpecificData.transcript,
-              });
-              if (error || !data) {
-                setStatus({
-                  isLoading: false,
-                  error:
-                    'Could not add article to the database. Please try again.',
-                  success: null,
-                });
-                return;
-              }
-            }
-            break;
-          case 'digi_media':
-            break;
-          default:
-            break;
-        }
       } else {
         setStatus({ isLoading: false, error: error, success: null });
       }

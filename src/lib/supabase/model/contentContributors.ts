@@ -1,3 +1,5 @@
+'use server';
+
 import { revalidatePath } from 'next/cache';
 import type {
   Tables,
@@ -35,7 +37,7 @@ interface QueryContentContributorsResult {
 }
 
 export async function createContentContributor(
-  data: TablesInsert<'content_contributors'>
+  data: TablesInsert<'content_contributors'>[]
 ): Promise<Result> {
   try {
     const supabase = await createServiceClient();

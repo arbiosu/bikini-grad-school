@@ -1,24 +1,38 @@
+'use client';
+
+import dynamic from 'next/dynamic';
+
 import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
+
+interface ArticleFormData {
+  body: string;
+  featuredImage: string | null;
+}
 
 interface ArticleFormProps {
-  data: Record<string, any>;
+  data: ArticleFormData;
   onChange: (field: string, value: any) => void;
   isLoading: boolean;
 }
+
+const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
 
 export function ArticleForm({ data, onChange, isLoading }: ArticleFormProps) {
   return (
     <>
       <div>
         <Label htmlFor='body'>Body*</Label>
-        <Input
+        <MDEditor
           id='body'
-          type='text'
           value={data.body || ''}
-          onChange={(e) => onChange('body', e.target.value)}
-          disabled={isLoading}
-          required
+          onChange={(value = '') => onChange('body', value)}
+          height={500}
+          preview='edit'
+          textareaProps={{
+            name: 'body',
+            id: 'body',
+            required: true,
+          }}
         />
       </div>
     </>

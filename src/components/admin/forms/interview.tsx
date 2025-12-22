@@ -1,11 +1,24 @@
+'use client';
+
+import dynamic from 'next/dynamic';
+
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 
+interface InterviewFormData {
+  intervieweeBio: string | null;
+  intervieweeName: string;
+  profile_image: string | null;
+  transcript: string;
+}
+
 interface InterviewFormProps {
-  data: Record<string, any>;
+  data: InterviewFormData;
   onChange: (field: string, value: any) => void;
   isLoading: boolean;
 }
+
+const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
 
 export function InterviewForm({
   data,
@@ -37,12 +50,17 @@ export function InterviewForm({
       </div>
       <div>
         <Label htmlFor='transcript'>Transcript*</Label>
-        <Input
+        <MDEditor
           id='transcript'
-          type='text'
           value={data.transcript || ''}
-          onChange={(e) => onChange('transcript', e.target.value)}
-          disabled={isLoading}
+          onChange={(value = '') => onChange('transcript', value)}
+          height={500}
+          preview='edit'
+          textareaProps={{
+            name: 'body',
+            id: 'body',
+            required: true,
+          }}
         />
       </div>
     </>

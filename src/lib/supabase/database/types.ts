@@ -373,6 +373,7 @@ export type Database = {
           id: number;
           issue_number: string | null;
           publication_date: string;
+          published: boolean;
           title: string;
           updated_at: string | null;
         };
@@ -382,6 +383,7 @@ export type Database = {
           id?: number;
           issue_number?: string | null;
           publication_date: string;
+          published?: boolean;
           title: string;
           updated_at?: string | null;
         };
@@ -391,6 +393,7 @@ export type Database = {
           id?: number;
           issue_number?: string | null;
           publication_date?: string;
+          published?: boolean;
           title?: string;
           updated_at?: string | null;
         };
@@ -416,7 +419,10 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      create_full_content: {
+        Args: { content_data: Json; contributors: Json; type_data: Json };
+        Returns: number;
+      };
     };
     Enums: {
       content_type: 'article' | 'feature' | 'interview' | 'digi_media';
