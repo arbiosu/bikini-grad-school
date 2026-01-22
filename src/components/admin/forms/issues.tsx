@@ -6,16 +6,9 @@ import { useState, useCallback } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import BackButton from '../back-button';
 
-import { createIssue } from '@/lib/supabase/model/issues';
-
-interface CreateIssueFormData {
-  coverImage: string;
-  issueNumber: string;
-  publicationDate: string;
-  title: string;
-}
+import { createIssue, updateIssue } from '@/lib/supabase/model/issues';
+import { Tables, TablesInsert } from '@/lib/supabase/database/types';
 
 interface FormStatus {
   isLoading: boolean;
@@ -23,11 +16,12 @@ interface FormStatus {
   success: string | null;
 }
 
-const INITIAL_FORM_DATA: CreateIssueFormData = {
+const INITIAL_FORM_DATA: TablesInsert<'issues'> = {
   title: '',
-  publicationDate: new Date().toLocaleDateString(),
-  coverImage: '',
-  issueNumber: '',
+  published: false,
+  publication_date: new Date().toISOString().split('T')[0],
+  issue_number: '',
+  cover_image: '',
 };
 
 const INITIAL_STATUS: FormStatus = {
@@ -36,88 +30,139 @@ const INITIAL_STATUS: FormStatus = {
   success: null,
 };
 
-export function CreateIssueForm() {
-  const [formData, setFormData] =
-    useState<CreateIssueFormData>(INITIAL_FORM_DATA);
-  const [status, setStatus] = useState<FormStatus>(INITIAL_STATUS);
-
-  const handleInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { name, value } = e.target;
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: value,
-      }));
-      if (status.error || status.success) {
-        setStatus(INITIAL_STATUS);
-      }
-    },
-    [status.error, status.success]
-  );
+export function IssueForm({
+  issue,
+  mode = 'create',
+}: {
+  issue?: Tables<'issues'>;
+  mode?: 'create' | 'edit';
+}) {
+  const [formStatus, setFormStatus] = useState<FormStatus>(INITIAL_STATUS);
+  const [formData, setFormData] = useState<TablesInsert<'issues'>>(() => {
+    if (mode === 'edit' && issue) {
+      return issue;
+    }
+    return INITIAL_FORM_DATA;
+  });
 
   const resetForm = useCallback(() => {
     setFormData(INITIAL_FORM_DATA);
   }, []);
 
+  const validateForm = (form: TablesInsert<'issues'>): string | null => {
+    if (!form.title.trim()) {
+      return 'Title is required';
+    }
+    if (!form.issue_number?.trim()) {
+      return 'Issue number is required';
+    }
+    return null;
+  };
+
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = e.target;
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+      if (formStatus.error || formStatus.success) {
+        setFormStatus(INITIAL_STATUS);
+      }
+    },
+    [formStatus.error, formStatus.success]
+  );
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStatus({ isLoading: true, error: null, success: null });
+    setFormStatus({ isLoading: true, error: null, success: null });
 
-    const trimmedTitle = formData.title.trim();
-    if (!trimmedTitle) {
-      setStatus({
+    const validationError = validateForm(formData);
+    if (validationError) {
+      setFormStatus({
         isLoading: false,
-        error: 'Title is required',
-        success: null,
-      });
-      return;
-    }
-    const trimmedIssueNumber = formData.issueNumber.trim();
-    if (!trimmedIssueNumber) {
-      setStatus({
-        isLoading: false,
-        error: 'Issue number is required',
+        error: validationError,
         success: null,
       });
       return;
     }
     try {
-      const issueData = {
-        title: trimmedTitle,
-        issue_number: trimmedIssueNumber,
-        publication_date: formData.publicationDate,
-      };
-      const { data, error } = await createIssue(issueData);
-      if (data) {
-        resetForm();
-        setStatus({
-          isLoading: false,
-          error: null,
-          success: `Issue number ${trimmedIssueNumber}: ${trimmedTitle} has been successfully created!`,
-        });
-      } else {
-        setStatus({ isLoading: false, error: error, success: null });
+      switch (mode) {
+        case 'create':
+          const newIssue = {
+            title: formData.title.trim(),
+            issue_number: formData.issue_number?.trim(),
+            publication_date: formData.publication_date,
+            published: formData.published,
+            cover_image: formData.cover_image,
+          };
+          const { data, error } = await createIssue(newIssue);
+          if (error || !data) {
+            setFormStatus({ isLoading: false, error: error, success: null });
+            return;
+          }
+          resetForm();
+          setFormStatus({
+            isLoading: false,
+            error: null,
+            success: `Issue number ${data.issue_number}: ${data.title} has been successfully created!`,
+          });
+          break;
+        case 'edit':
+          if (!issue?.id) {
+            setFormStatus({
+              isLoading: false,
+              error: 'issue ID is missing, but required for editing.',
+              success: null,
+            });
+            return;
+          }
+          const updatedIssue = {
+            id: issue.id,
+            title: formData.title,
+            issue_number: formData.issue_number,
+            publication_date: formData.publication_date,
+            published: formData.published,
+            cover_image: formData.cover_image,
+          };
+          const { data: updateData, error: updateError } =
+            await updateIssue(updatedIssue);
+          if (updateError || !updateData) {
+            setFormStatus({
+              isLoading: false,
+              error: updateError,
+              success: null,
+            });
+            return;
+          }
+          setFormStatus({
+            isLoading: false,
+            error: null,
+            success: `Issue number ${updateData.issue_number}: ${updateData.title} has been successfully updated!`,
+          });
+          break;
       }
     } catch (e) {
-      let errorMessage =
-        'Could not create issue. Please try again or contact an admin.';
+      let errorMessage = `Could not ${mode} issue. Please try again or contact an admin.`;
       if (e instanceof Error) {
-        errorMessage = `Failed to create issue: ${e.message}`;
+        errorMessage = `Failed to ${mode} issue: ${e.message}`;
       }
-      setStatus({ isLoading: false, error: errorMessage, success: null });
+      setFormStatus({ isLoading: false, error: errorMessage, success: null });
     }
   };
 
   const isSubmitDisabled =
-    status.isLoading || !formData.title.trim() || !formData.issueNumber.trim();
+    formStatus.isLoading || !formData.title || !formData.issue_number;
 
   return (
     <section id='form' className='mx-auto max-w-7xl px-4'>
       <div className='flex max-w-3xl flex-col pb-5'>
-        <h6 className='font-bold'>New Issue Form</h6>
+        <h6 className='font-bold'>
+          {mode === 'create' ? 'New' : 'Edit'} Issue Form
+        </h6>
         <p>Fields marked with * are required.</p>
         <p>
-          This is a multi-step form. If you need help, refer to the{' '}
+          If you need help, refer to the{' '}
           <Link href='#' className='text-blue-600 underline'>
             guide
           </Link>{' '}
@@ -127,57 +172,65 @@ export function CreateIssueForm() {
       <div className='max-w-7xl'>
         <form onSubmit={handleSubmit} className='space-y-4'>
           <div>
-            <Label htmlFor='title'>Title* - cAsE SeNsItivE</Label>
+            <Label htmlFor='title'>Title* - Case Sensitive</Label>
             <Input
               id='title'
               type='text'
               name='title'
               value={formData.title}
               onChange={handleInputChange}
-              disabled={status.isLoading}
-              required
+              disabled={formStatus.isLoading}
               placeholder='(e.g., obsession, coquette)'
             />
           </div>
           <div>
-            <Label htmlFor='issueNumber'>Issue Number*</Label>
+            <Label htmlFor='issue_number'>Issue Number*</Label>
             <Input
-              id='issueNumber'
+              id='issue_number'
               type='text'
-              name='issueNumber'
-              value={formData.issueNumber}
+              name='issue_number'
+              value={formData.issue_number ?? ''}
               onChange={handleInputChange}
-              disabled={status.isLoading}
-              required
+              disabled={formStatus.isLoading}
               placeholder='(e.g., 0.01, 0.02, 0.021)'
             />
           </div>
           <div>
             <Label htmlFor='publication_date'>
-              Publication Date* - {formData.publicationDate}
+              Publication Date* - {formData.publication_date}
             </Label>
             <Input
-              id='publicationDate'
+              id='publication_date'
               type='date'
-              name='publicationDate'
-              value={formData.publicationDate}
+              name='publication_date'
+              value={formData.publication_date}
               onChange={handleInputChange}
             />
           </div>
           <div className='mt-4 min-h-[20px]'>
             {' '}
-            {status.error && <p className='text-red-600'>{status.error}</p>}
-            {status.success && (
-              <p className='text-green-600'>{status.success}</p>
+            {formStatus.error && (
+              <p className='text-red-600' role='alert'>
+                {formStatus.error}
+              </p>
+            )}
+            {formStatus.success && (
+              <p className='text-green-600' role='alert'>
+                {formStatus.success}
+              </p>
             )}
           </div>
           <Button
             type='submit'
-            variant={'outline'}
             size='lg'
             disabled={isSubmitDisabled}
+            className='bg-violet-800 text-white'
           >
-            {status.isLoading ? 'Processing...' : 'Submit Issue'}
+            {formStatus.isLoading
+              ? 'Processing...'
+              : mode === 'create'
+                ? 'Create Issue'
+                : 'Update Issue'}
           </Button>
         </form>
       </div>

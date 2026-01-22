@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation';
 import { queryContents } from '@/lib/supabase/model/contents';
 
+import { ArticleForm } from '@/components/admin/forms/article';
+
 export default async function Page({
   params,
 }: {
@@ -15,7 +17,6 @@ export default async function Page({
   if (error || !data) {
     redirect('/admin/error');
   }
-  console.log(data);
   // todo: fix this to query single
   const content = data[0];
 
