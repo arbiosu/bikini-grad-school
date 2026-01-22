@@ -1,12 +1,8 @@
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 
-interface FeatureFormData {
-  description: string;
-}
-
 interface FeatureFormProps {
-  data: FeatureFormData;
+  data: Record<string, any>;
   onChange: (field: string, value: any) => void;
   isLoading: boolean;
 }

@@ -5,6 +5,8 @@ import { redirect } from 'next/navigation';
 import { queryContributor } from '@/lib/supabase/model/contributors';
 import { queryRoles } from '@/lib/supabase/model/roles';
 
+import BackButton from '@/components/admin/back-button';
+
 export default async function Page() {
   const { data: issueData, error } = await queryIssues();
 
@@ -24,18 +26,17 @@ export default async function Page() {
   ) {
     redirect('/admin/error');
   }
+
   return (
     <section>
-      <div className='flex flex-col items-center justify-center'>
-        <h1 className='text-4xl'>Admin Portal - Content - New</h1>
+      <div className='mx-auto max-w-7xl px-4 pb-4'>
+        <BackButton href='/admin/content' label='Back' />
       </div>
-      <div className='flex justify-center'>
-        <CreateContentForm
-          issues={issueData}
-          availableContributors={contributorData}
-          availableRoles={creativeRoleData}
-        />
-      </div>
+      <CreateContentForm
+        issues={issueData}
+        contributors={contributorData}
+        creativeRoles={creativeRoleData}
+      />
     </section>
   );
 }

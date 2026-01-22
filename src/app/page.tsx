@@ -34,7 +34,7 @@ export default function Home() {
             muted
             playsInline
             preload='auto'
-            className='border-bgs-pink rounded border-1'
+            className='border-bgs-pink rounded border'
           >
             <source src='/bgs-compressed.mp4' type='video/mp4' />
             Your browser does not support the video tag.

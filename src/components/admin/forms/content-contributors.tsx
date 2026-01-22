@@ -12,8 +12,9 @@ import {
 import { X } from 'lucide-react';
 
 interface ContentContributor {
-  contributorId: number;
-  roleId: number;
+  contentContributorId: number;
+  creativeRoleId: number;
+  contentId?: number;
 }
 
 interface ContentContributorsFormProps {
@@ -32,7 +33,7 @@ export function ContentContributorsForm({
   isLoading,
 }: ContentContributorsFormProps) {
   const addContributor = () => {
-    onChange([...contributors, { contributorId: 0, roleId: 0 }]);
+    onChange([...contributors, { contentContributorId: 0, creativeRoleId: 0 }]);
   };
 
   const removeContributor = (index: number) => {
@@ -41,7 +42,7 @@ export function ContentContributorsForm({
 
   const updateContributor = (
     index: number,
-    field: 'contributorId' | 'roleId',
+    field: 'contentContributorId' | 'creativeRoleId',
     value: number
   ) => {
     const updated = [...contributors];
@@ -71,19 +72,23 @@ export function ContentContributorsForm({
       <div>
         {contributors.map((contributor, index) => (
           <div
-            key={`${index}-${contributor.contributorId}-${contributor.roleId}`}
+            key={`${index}-${contributor.contentContributorId}-${contributor.creativeRoleId}`}
             className='flex items-end gap-2 rounded-lg border p-3'
           >
             <div className='flex-1'>
               <Label htmlFor={`contributor-${index}`}>Person</Label>
               <Select
                 value={
-                  contributor.contributorId === 0
+                  contributor.contentContributorId === 0
                     ? undefined
-                    : contributor.contributorId.toString()
+                    : contributor.contentContributorId.toString()
                 }
                 onValueChange={(val) =>
-                  updateContributor(index, 'contributorId', parseInt(val))
+                  updateContributor(
+                    index,
+                    'contentContributorId',
+                    parseInt(val)
+                  )
                 }
                 disabled={isLoading}
               >
@@ -103,12 +108,12 @@ export function ContentContributorsForm({
               <Label htmlFor={`role-${index}`}>Role</Label>
               <Select
                 value={
-                  contributor.roleId === 0
+                  contributor.creativeRoleId === 0
                     ? undefined
-                    : contributor.roleId.toString()
+                    : contributor.creativeRoleId.toString()
                 }
                 onValueChange={(val) =>
-                  updateContributor(index, 'roleId', parseInt(val))
+                  updateContributor(index, 'creativeRoleId', parseInt(val))
                 }
                 disabled={isLoading}
               >

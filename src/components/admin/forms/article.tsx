@@ -4,13 +4,8 @@ import dynamic from 'next/dynamic';
 
 import { Label } from '@/components/ui/label';
 
-interface ArticleFormData {
-  body: string;
-  featuredImage: string | null;
-}
-
 interface ArticleFormProps {
-  data: ArticleFormData;
+  data: Record<string, any>;
   onChange: (field: string, value: any) => void;
   isLoading: boolean;
 }

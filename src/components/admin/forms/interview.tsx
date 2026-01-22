@@ -5,15 +5,8 @@ import dynamic from 'next/dynamic';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 
-interface InterviewFormData {
-  intervieweeBio: string | null;
-  intervieweeName: string;
-  profile_image: string | null;
-  transcript: string;
-}
-
 interface InterviewFormProps {
-  data: InterviewFormData;
+  data: Record<string, any>;
   onChange: (field: string, value: any) => void;
   isLoading: boolean;
 }

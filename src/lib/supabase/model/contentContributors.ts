@@ -11,7 +11,7 @@ import { createClient } from '@/lib/supabase/clients/server';
 import { createServiceClient } from '@/lib/supabase/clients/service';
 
 type Result = {
-  data: Tables<'content_contributors'> | null;
+  data: Tables<'content_contributors'>[] | null;
   error: string | null;
 };
 
@@ -44,8 +44,7 @@ export async function createContentContributor(
     const { data: insertData, error } = await supabase
       .from('content_contributors')
       .insert(data)
-      .select()
-      .single();
+      .select();
     if (error || !insertData) {
       return {
         data: null,
@@ -132,8 +131,7 @@ export async function updateContentContributor(
       .from('content_contributors')
       .update({ ...data })
       .eq('id', data.id)
-      .select()
-      .single();
+      .select();
     if (error || !updateData) {
       return {
         data: null,
@@ -162,8 +160,7 @@ export async function deleteContentContributor(id: number): Promise<Result> {
       .from('content_contributors')
       .delete()
       .eq('id', id)
-      .select()
-      .single();
+      .select();
     if (deleteError || !deletedData) {
       return {
         data: null,

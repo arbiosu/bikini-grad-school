@@ -55,6 +55,12 @@ export async function createContent(
     revalidatePath('/');
     return { data: contentsInsertData, error: null };
   } catch (e) {
+    if (e instanceof Error) {
+      return {
+        data: null,
+        error: e.message,
+      };
+    }
     return {
       data: null,
       error:
@@ -184,77 +190,6 @@ export async function deleteIssue(id: number): Promise<Result> {
       data: null,
       error:
         'SERVER ERROR: An unexpected server error occurred. (deleteContent)',
-    };
-  }
-}
-
-type ContentTypes = 'article' | 'feature' | 'interview' | 'digi_media';
-
-interface ContentFormData {
-  issue_id: number;
-  published: boolean;
-  published_at: string;
-  slug: string;
-  summary: string;
-  title: string;
-  type: ContentTypes;
-}
-
-interface ArticleFormData {
-  body: string;
-  featuredImage: string | null;
-}
-
-interface FeatureFormData {
-  description: string;
-}
-
-interface InterviewFormData {
-  intervieweeBio: string | null;
-  intervieweeName: string;
-  profile_image: string | null;
-  transcript: string;
-}
-
-interface ContentContributor {
-  contributorId: number;
-  roleId: number;
-}
-
-interface DigiMediaFormData {
-  mediaUrl: string;
-}
-
-type TypeSpecificData =
-  | ({ type: 'article' } & ArticleFormData)
-  | ({ type: 'feature' } & FeatureFormData)
-  | ({ type: 'interview' } & InterviewFormData)
-  | ({ type: 'digi_media' } & DigiMediaFormData);
-
-export async function createFullContent(
-  contentData: ContentFormData,
-  contributorData: ContentContributor[],
-  typeData: TypeSpecificData
-): Promise<Result> {
-  try {
-    const supabase = await createServiceClient();
-    const { data, error } = await supabase.rpc('create_full_content', {
-      content_data: contentData,
-      contributors: contributorData,
-      type_data: typeData,
-    });
-    if (error || !data) {
-      return {
-        data: null,
-        error: `Failed to create content. Code: ${error?.code || 'UNKNOWN'}`,
-      };
-    }
-    revalidatePath('/', 'layout');
-    return { data: data, error: null };
-  } catch (err) {
-    return {
-      data: null,
-      error: 'ERROR',
     };
   }
 }
