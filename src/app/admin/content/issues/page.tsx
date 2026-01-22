@@ -1,16 +1,27 @@
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import { queryIssues } from '@/lib/supabase/model/issues';
+import IssueCard from '@/components/admin/issues';
 
-export default function Page() {
+import BackButton from '@/components/admin/back-button';
+
+export default async function Page() {
+  const { data, error } = await queryIssues({});
+
+  if (!data || error) return; //todo
+
   return (
-    <section>
-      <div className='flex flex-col items-center justify-center'>
-        <h1 className='text-4xl'>Admin Portal - Content - Manage Issues</h1>
+    <section className='mx-auto max-w-7xl px-2'>
+      <div className='flex gap-8'>
+        <BackButton href='/admin/content' label='Back' />
+        <h1 className='text-center text-lg font-bold underline sm:text-2xl'>
+          Admin Portal - Content - Manage Issues
+        </h1>
       </div>
-      <div className='flex justify-center'>
-        <Button asChild variant={'outline'}>
-          <Link href='/admin/content/issues/new'>Create a New Issue</Link>
-        </Button>
+      <div className='grid gap-4 p-10 lg:grid-cols-3'>
+        {data.map((issue, i) => (
+          <div key={`${i}-${new Date()}`}>
+            <IssueCard issue={issue} />
+          </div>
+        ))}
       </div>
     </section>
   );

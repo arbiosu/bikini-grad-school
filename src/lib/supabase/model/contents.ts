@@ -163,7 +163,7 @@ export async function updateContent(
   }
 }
 
-export async function deleteIssue(id: number): Promise<Result> {
+export async function deleteContent(id: number): Promise<Result> {
   try {
     const supabase = await createServiceClient();
     const { data: deletedData, error: deleteError } = await supabase

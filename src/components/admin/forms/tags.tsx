@@ -6,15 +6,11 @@ import { useState, useCallback } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import BackButton from '../back-button';
 
-import { createIssue } from '@/lib/supabase/model/issues';
+import { createTag } from '@/lib/supabase/model/tags';
 
-interface CreateIssueFormData {
-  coverImage: string;
-  issueNumber: string;
-  publicationDate: string;
-  title: string;
+interface CreateTagFormData {
+  name: string;
 }
 
 interface FormStatus {
@@ -23,11 +19,8 @@ interface FormStatus {
   success: string | null;
 }
 
-const INITIAL_FORM_DATA: CreateIssueFormData = {
-  title: '',
-  publicationDate: new Date().toLocaleDateString(),
-  coverImage: '',
-  issueNumber: '',
+const INITIAL_FORM_DATA: CreateTagFormData = {
+  name: '',
 };
 
 const INITIAL_STATUS: FormStatus = {
@@ -36,9 +29,9 @@ const INITIAL_STATUS: FormStatus = {
   success: null,
 };
 
-export function CreateIssueForm() {
+export function CreateTagForm() {
   const [formData, setFormData] =
-    useState<CreateIssueFormData>(INITIAL_FORM_DATA);
+    useState<CreateTagFormData>(INITIAL_FORM_DATA);
   const [status, setStatus] = useState<FormStatus>(INITIAL_STATUS);
 
   const handleInputChange = useCallback(
@@ -63,58 +56,46 @@ export function CreateIssueForm() {
     e.preventDefault();
     setStatus({ isLoading: true, error: null, success: null });
 
-    const trimmedTitle = formData.title.trim();
-    if (!trimmedTitle) {
+    const trimmedName = formData.name.trim();
+    if (!trimmedName) {
       setStatus({
         isLoading: false,
-        error: 'Title is required',
-        success: null,
-      });
-      return;
-    }
-    const trimmedIssueNumber = formData.issueNumber.trim();
-    if (!trimmedIssueNumber) {
-      setStatus({
-        isLoading: false,
-        error: 'Issue number is required',
+        error: 'Name is required',
         success: null,
       });
       return;
     }
     try {
-      const issueData = {
-        title: trimmedTitle,
-        issue_number: trimmedIssueNumber,
-        publication_date: formData.publicationDate,
+      const tagData = {
+        name: trimmedName,
       };
-      const { data, error } = await createIssue(issueData);
+      const { data, error } = await createTag(tagData);
       if (data) {
         resetForm();
         setStatus({
           isLoading: false,
           error: null,
-          success: `Issue number ${trimmedIssueNumber}: ${trimmedTitle} has been successfully created!`,
+          success: `Tag ${data.name} has been successfully created!`,
         });
       } else {
         setStatus({ isLoading: false, error: error, success: null });
       }
     } catch (e) {
       let errorMessage =
-        'Could not create issue. Please try again or contact an admin.';
+        'Could not create tag. Please try again or contact an admin.';
       if (e instanceof Error) {
-        errorMessage = `Failed to create issue: ${e.message}`;
+        errorMessage = `Failed to create tag: ${e.message}`;
       }
       setStatus({ isLoading: false, error: errorMessage, success: null });
     }
   };
 
-  const isSubmitDisabled =
-    status.isLoading || !formData.title.trim() || !formData.issueNumber.trim();
+  const isSubmitDisabled = status.isLoading || !formData.name.trim();
 
   return (
     <section id='form' className='mx-auto max-w-7xl px-4'>
       <div className='flex max-w-3xl flex-col pb-5'>
-        <h6 className='font-bold'>New Issue Form</h6>
+        <h6 className='font-bold'>New Tag Form</h6>
         <p>Fields marked with * are required.</p>
         <p>
           This is a multi-step form. If you need help, refer to the{' '}
@@ -127,41 +108,16 @@ export function CreateIssueForm() {
       <div className='max-w-7xl'>
         <form onSubmit={handleSubmit} className='space-y-4'>
           <div>
-            <Label htmlFor='title'>Title* - cAsE SeNsItivE</Label>
+            <Label htmlFor='name'>Name* - cAsE SeNsItivE</Label>
             <Input
-              id='title'
+              id='name'
               type='text'
-              name='title'
-              value={formData.title}
+              name='name'
+              value={formData.name}
               onChange={handleInputChange}
               disabled={status.isLoading}
               required
-              placeholder='(e.g., obsession, coquette)'
-            />
-          </div>
-          <div>
-            <Label htmlFor='issueNumber'>Issue Number*</Label>
-            <Input
-              id='issueNumber'
-              type='text'
-              name='issueNumber'
-              value={formData.issueNumber}
-              onChange={handleInputChange}
-              disabled={status.isLoading}
-              required
-              placeholder='(e.g., 0.01, 0.02, 0.021)'
-            />
-          </div>
-          <div>
-            <Label htmlFor='publication_date'>
-              Publication Date* - {formData.publicationDate}
-            </Label>
-            <Input
-              id='publicationDate'
-              type='date'
-              name='publicationDate'
-              value={formData.publicationDate}
-              onChange={handleInputChange}
+              placeholder='(e.g. Cool, 2020, bikini, CrAzYyyYY)'
             />
           </div>
           <div className='mt-4 min-h-[20px]'>
@@ -173,9 +129,9 @@ export function CreateIssueForm() {
           </div>
           <Button
             type='submit'
-            variant={'outline'}
             size='lg'
             disabled={isSubmitDisabled}
+            className='bg-violet-800 text-white'
           >
             {status.isLoading ? 'Processing...' : 'Submit Issue'}
           </Button>
