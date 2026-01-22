@@ -59,12 +59,11 @@ export function IssueForm({
     return null;
   };
 
-  const handleInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { name, value } = e.target;
+  const handleFieldChange = useCallback(
+    (field: keyof Tables<'issues'>, value: string | boolean | number) => {
       setFormData((prev) => ({
         ...prev,
-        [name]: value,
+        [field]: value,
       }));
       if (formStatus.error || formStatus.success) {
         setFormStatus(INITIAL_STATUS);
@@ -178,7 +177,7 @@ export function IssueForm({
               type='text'
               name='title'
               value={formData.title}
-              onChange={handleInputChange}
+              onChange={(e) => handleFieldChange('title', e.target.value)}
               disabled={formStatus.isLoading}
               placeholder='(e.g., obsession, coquette)'
             />
@@ -190,7 +189,9 @@ export function IssueForm({
               type='text'
               name='issue_number'
               value={formData.issue_number ?? ''}
-              onChange={handleInputChange}
+              onChange={(e) =>
+                handleFieldChange('issue_number', e.target.value)
+              }
               disabled={formStatus.isLoading}
               placeholder='(e.g., 0.01, 0.02, 0.021)'
             />
@@ -204,7 +205,9 @@ export function IssueForm({
               type='date'
               name='publication_date'
               value={formData.publication_date}
-              onChange={handleInputChange}
+              onChange={(e) =>
+                handleFieldChange('publication_date', e.target.value)
+              }
             />
           </div>
           <div className='mt-4 min-h-[20px]'>

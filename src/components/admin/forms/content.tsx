@@ -280,8 +280,6 @@ export function CreateContentForm({
 
     if (!validated) return;
 
-    console.log('validated', validated);
-
     try {
       const data = {
         issue_id: formData.issueId,
