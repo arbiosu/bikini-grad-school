@@ -1,7 +1,17 @@
 import { redirect } from 'next/navigation';
-import { queryContents } from '@/lib/supabase/model/contents';
+import { queryContributor } from '@/lib/supabase/model/contributors';
+import { queryRoles } from '@/lib/supabase/model/roles';
+import { queryIssues } from '@/lib/supabase/model/issues';
 
-import { ArticleForm } from '@/components/admin/forms/article';
+import {
+  contentService,
+  isArticle,
+  isFeature,
+  isInterview,
+} from '@/lib/content/services';
+
+import { ContentForm } from '@/components/admin/forms/contents/contents';
+import BackButton from '@/components/admin/back-button';
 
 export default async function Page({
   params,
@@ -9,42 +19,60 @@ export default async function Page({
   params: Promise<{ id: number }>;
 }) {
   const id = (await params).id;
-  const { data, error } = await queryContents({
-    filter: {
-      id: id,
-    },
-  });
-  if (error || !data) {
+  const res = await contentService.getContentById(id);
+
+  if (!res.success) {
     redirect('/admin/error');
   }
-  // todo: fix this to query single
-  const content = data[0];
+
+  const { data: issueData, error: issueError } = await queryIssues();
+  const { data: contributorData, error: contributorError } =
+    await queryContributor();
+  const { data: creativeRoleData, error: creativeRoleError } =
+    await queryRoles();
+
+  if (
+    issueError ||
+    contributorError ||
+    creativeRoleError ||
+    !issueData ||
+    !contributorData ||
+    !creativeRoleData
+  ) {
+    redirect('/admin/error');
+  }
+  const currentContentContributors = [];
+  for (const contributor of res.data.contributors) {
+    currentContentContributors.push({
+      contributor_id: contributor.contributor_id,
+      role_id: contributor.role_id,
+    });
+  }
 
   return (
-    <section className='container mx-auto'>
-      <div className='grid justify-center'>
-        <div className='grid'>
-          <p className='font-bold'>Title: {content.title}</p>
-        </div>
-        <div className='grid'>
-          <p>Type: {content.type}</p>
-        </div>
-        <div className='grid'>
-          <p>Summary: {content.summary}</p>
-        </div>
-        <div className='grid'>
-          <p>Status: {content.published ? 'Published' : 'Draft'}</p>
-        </div>
-        <div className='grid'>
-          <p>URL Slug: {content.slug}</p>
-        </div>
-        <div className='grid'>
-          <p>Created At: {content.created_at}</p>
-        </div>
-        <div className='grid'>
-          <p>Publication Date: {content.published_at}</p>
-        </div>
+    <section>
+      <div className='mx-auto max-w-7xl px-4 pb-4'>
+        <BackButton href='/admin/content/manage' label='Back' />
       </div>
+      <ContentForm
+        mode='edit'
+        issues={issueData}
+        availableContributors={contributorData}
+        creativeRoles={creativeRoleData}
+        editData={{
+          content: res.data.content,
+          article: isArticle(res.data.content.type, res.data.typeData)
+            ? res.data.typeData
+            : undefined,
+          feature: isFeature(res.data.content.type, res.data.typeData)
+            ? res.data.typeData
+            : undefined,
+          interview: isInterview(res.data.content.type, res.data.typeData)
+            ? res.data.typeData
+            : undefined,
+          contributors: currentContentContributors,
+        }}
+      />
     </section>
   );
 }

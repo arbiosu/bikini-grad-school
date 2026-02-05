@@ -1,6 +1,6 @@
 import { queryIssues } from '@/lib/supabase/model/issues';
-import IssueCard from '@/components/admin/issues';
 
+import IssueCard from '@/components/admin/issues';
 import BackButton from '@/components/admin/back-button';
 
 export default async function Page() {

@@ -35,7 +35,7 @@ export function IssueSelector({
           onValueChange={(value) => onChange(parseInt(value))}
           disabled={disabled}
         >
-          <SelectTrigger className='w-[180px]'>
+          <SelectTrigger className='w-45'>
             <SelectValue placeholder='Select an Issue' />
           </SelectTrigger>
           <SelectContent>

@@ -24,7 +24,7 @@ export default function ContributorSelector({
 }: ContributorSelectorProps) {
   return (
     <Select value={value} onValueChange={handleChange}>
-      <SelectTrigger className='w-[180px]'>
+      <SelectTrigger className='w-45'>
         <SelectValue placeholder='Select a contributor' />
       </SelectTrigger>
       <SelectContent>

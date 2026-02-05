@@ -1,6 +1,5 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
 import type {
   Tables,
   TablesInsert,
@@ -10,17 +9,15 @@ import type {
 import { createClient } from '@/lib/supabase/clients/server';
 import { createServiceClient } from '@/lib/supabase/clients/service';
 
-type Result = {
-  data: Tables<'contents'> | null;
-  error: string | null;
-};
-
-interface QueryContentsOptions {
+export interface ContentsQueryOptions {
   count?: Count;
   onlyCount?: boolean;
   filter?: {
     id?: number;
     published?: boolean;
+    slug?: string;
+    issueId?: number;
+    excludeId?: number;
   };
   select?: (keyof Tables<'contents'>)[];
   sort?: {
@@ -30,166 +27,109 @@ interface QueryContentsOptions {
   limit?: number;
 }
 
-interface QueryContentsResult {
-  data: Tables<'contents'>[] | null;
-  error: string | null;
-  count: number | null;
+export interface CreateFullContentParams {
+  content: Omit<TablesInsert<'contents'>, 'id'>;
+  typeData: {
+    article?: { body: string; featured_image?: string | null };
+    feature?: { description: string };
+    interview?: {
+      interviewee_name: string;
+      interviewee_bio?: string | null;
+      transcript: string;
+      profile_image?: string | null;
+    };
+  };
+  contributors: Array<{
+    contributor_id: number;
+    role_id: number;
+  }>;
 }
 
-export async function createContent(
-  data: TablesInsert<'contents'>
-): Promise<Result> {
-  try {
-    const supabase = await createServiceClient();
-    const { data: contentsInsertData, error } = await supabase
-      .from('contents')
-      .insert(data)
-      .select()
-      .single();
-    if (error || !contentsInsertData) {
-      return {
-        data: null,
-        error: `Failed to create content. Code: ${error?.code || 'UNKNOWN'}`,
-      };
-    }
-    revalidatePath('/');
-    return { data: contentsInsertData, error: null };
-  } catch (e) {
-    if (e instanceof Error) {
-      return {
-        data: null,
-        error: e.message,
-      };
-    }
-    return {
-      data: null,
-      error:
-        'SERVER ERROR: An unexpected server error occurred. (createContent)',
-    };
-  }
+export async function createContent(data: TablesInsert<'contents'>) {
+  const supabase = await createServiceClient();
+  return await supabase.from('contents').insert(data).select().single();
+}
+
+export async function createFullContent(params: CreateFullContentParams) {
+  const supabase = await createServiceClient();
+  const typeData =
+    params.content.type === 'article'
+      ? params.typeData.article
+      : params.content.type === 'feature'
+        ? params.typeData.feature
+        : params.content.type === 'interview'
+          ? params.typeData.interview
+          : null;
+  if (!typeData) return;
+  return await supabase.rpc('create_full_content', {
+    content_data: params.content,
+    contributors: params.contributors,
+    type_data: typeData,
+  });
 }
 
 export async function queryContents(
-  options: QueryContentsOptions = { sort: { order: 'desc' } }
-): Promise<QueryContentsResult> {
-  try {
-    const supabase = await createClient();
+  options: ContentsQueryOptions = { sort: { order: 'desc' } }
+) {
+  const supabase = await createClient();
 
-    const selectColumns = options.select?.length
-      ? options.select.join(', ')
-      : '*';
+  const selectColumns = options.select?.length
+    ? options.select.join(', ')
+    : '*';
 
-    let query = supabase.from('contents').select(selectColumns as '*', {
-      count: options.count,
-      head: options.onlyCount ?? false,
-    });
+  let query = supabase.from('contents').select(selectColumns as '*', {
+    count: options.count,
+    head: options.onlyCount ?? false,
+  });
 
-    if (options.filter?.id) {
-      query = query.eq('id', options.filter.id);
-    }
-
-    if (options.filter?.published !== undefined) {
-      query = query.eq('published', options.filter.published);
-    }
-
-    const sortColumn = options.sort?.column ?? 'created_at';
-    const sortOrder = options.sort?.order ?? 'desc';
-
-    query = query.order(sortColumn, { ascending: sortOrder === 'asc' });
-
-    if (options.limit) {
-      query = query.limit(options.limit);
-    }
-
-    const { data, error, count } = await query;
-    if (error) {
-      console.error('Supabase error in queryContents: ', error);
-      return {
-        data: null,
-        error: `Failed to query content. Code: ${error.code || 'UNKNOWN'}`,
-        count: null,
-      };
-    }
-
-    return {
-      data: data,
-      error: null,
-      count: count,
-    };
-  } catch (e) {
-    return {
-      data: null,
-      error: '[queryContents] An unexpected error occurred',
-      count: null,
-    };
+  if (options.filter?.id) {
+    query = query.eq('id', options.filter.id);
   }
+
+  if (options.filter?.published !== undefined) {
+    query = query.eq('published', options.filter.published);
+  }
+
+  if (options.filter?.issueId) {
+    query = query.eq('issue_id', options.filter.issueId);
+  }
+
+  if (options.filter?.slug) {
+    query = query.eq('slug', options.filter.slug);
+  }
+
+  if (options.filter?.excludeId) {
+    query = query.neq('id', options.filter.excludeId);
+  }
+
+  const sortColumn = options.sort?.column ?? 'created_at';
+  const sortOrder = options.sort?.order ?? 'desc';
+
+  query = query.order(sortColumn, { ascending: sortOrder === 'asc' });
+
+  if (options.limit) {
+    query = query.limit(options.limit);
+  }
+
+  return await query;
 }
 
-export async function updateContent(
-  data: TablesInsert<'contents'>
-): Promise<Result> {
-  try {
-    if (!data.id)
-      return {
-        data: null,
-        error: 'Cannot update this content as no ID has been provided',
-      };
-    const supabase = await createServiceClient();
-    const { data: contentsUpdateData, error } = await supabase
-      .from('contents')
-      .update({ ...data })
-      .eq('id', data.id)
-      .select()
-      .single();
-    if (error || !contentsUpdateData) {
-      return {
-        data: null,
-        error: `Failed to update content with id ${data.id}. Code: ${error?.code || 'UNKNOWN'}`,
-      };
-    }
-
-    revalidatePath('/');
-
-    return {
-      data: contentsUpdateData,
-      error: null,
-    };
-  } catch (e) {
-    return {
-      data: null,
-      error:
-        'SERVER ERROR: An unexpected server error occurred. (updateContent)',
-    };
-  }
+export async function updateContent(data: Tables<'contents'>) {
+  const supabase = await createServiceClient();
+  return await supabase
+    .from('contents')
+    .update({ ...data })
+    .eq('id', data.id)
+    .select()
+    .single();
 }
 
-export async function deleteContent(id: number): Promise<Result> {
-  try {
-    const supabase = await createServiceClient();
-    const { data: deletedData, error: deleteError } = await supabase
-      .from('contents')
-      .delete()
-      .eq('id', id)
-      .select()
-      .single();
-    if (deleteError || !deletedData) {
-      return {
-        data: null,
-        error: `Failed to delete content with id ${id} or the content does not exist. Code: ${deleteError?.code || 'UNKNOWN'}`,
-      };
-    }
-
-    revalidatePath('/');
-
-    return {
-      data: deletedData,
-      error: null,
-    };
-  } catch (err) {
-    return {
-      data: null,
-      error:
-        'SERVER ERROR: An unexpected server error occurred. (deleteContent)',
-    };
-  }
+export async function deleteContent(id: number) {
+  const supabase = await createServiceClient();
+  return await supabase
+    .from('contents')
+    .delete()
+    .eq('id', id)
+    .select()
+    .single();
 }

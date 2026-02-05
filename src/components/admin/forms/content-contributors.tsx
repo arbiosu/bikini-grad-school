@@ -10,16 +10,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { X } from 'lucide-react';
-
-interface ContentContributor {
-  contentContributorId: number;
-  creativeRoleId: number;
-  contentId?: number;
-}
+import type { FormContributor } from '@/hooks/useContentForm';
 
 interface ContentContributorsFormProps {
-  contributors: ContentContributor[];
-  onChange: (contributors: ContentContributor[]) => void;
+  contributors: FormContributor[];
+  onChange: (contributors: FormContributor[]) => void;
   availableContributors: { id: number; name: string }[];
   availableRoles: { id: number; name: string }[];
   isLoading?: boolean;
@@ -33,7 +28,7 @@ export function ContentContributorsForm({
   isLoading,
 }: ContentContributorsFormProps) {
   const addContributor = () => {
-    onChange([...contributors, { contentContributorId: 0, creativeRoleId: 0 }]);
+    onChange([...contributors, { contributor_id: 0, role_id: 0 }]);
   };
 
   const removeContributor = (index: number) => {
@@ -42,7 +37,7 @@ export function ContentContributorsForm({
 
   const updateContributor = (
     index: number,
-    field: 'contentContributorId' | 'creativeRoleId',
+    field: 'contributor_id' | 'role_id', // ← Fixed
     value: number
   ) => {
     const updated = [...contributors];
@@ -53,13 +48,14 @@ export function ContentContributorsForm({
   return (
     <>
       <div>
-        <Label>Contributors</Label>
+        <Label>Contributors*</Label>
         <Button
           type='button'
           variant='outline'
           size='sm'
           onClick={addContributor}
           disabled={isLoading}
+          className='ml-2'
         >
           + Add Contributor
         </Button>
@@ -69,26 +65,23 @@ export function ContentContributorsForm({
           No contributors added yet. Click "Add Contributor" to add one.
         </p>
       )}
-      <div>
+      <div className='space-y-2'>
         {contributors.map((contributor, index) => (
           <div
-            key={`${index}-${contributor.contentContributorId}-${contributor.creativeRoleId}`}
+            key={`${index}-${contributor.contributor_id}-${contributor.role_id}`}
             className='flex items-end gap-2 rounded-lg border p-3'
           >
             <div className='flex-1'>
               <Label htmlFor={`contributor-${index}`}>Person</Label>
               <Select
                 value={
-                  contributor.contentContributorId === 0
+                  contributor.contributor_id === 0
                     ? undefined
-                    : contributor.contentContributorId.toString()
+                    : contributor.contributor_id.toString()
                 }
-                onValueChange={(val) =>
-                  updateContributor(
-                    index,
-                    'contentContributorId',
-                    parseInt(val)
-                  )
+                onValueChange={
+                  (val) =>
+                    updateContributor(index, 'contributor_id', parseInt(val)) // ← Fixed
                 }
                 disabled={isLoading}
               >
@@ -108,12 +101,12 @@ export function ContentContributorsForm({
               <Label htmlFor={`role-${index}`}>Role</Label>
               <Select
                 value={
-                  contributor.creativeRoleId === 0
+                  contributor.role_id === 0
                     ? undefined
-                    : contributor.creativeRoleId.toString()
+                    : contributor.role_id.toString()
                 }
-                onValueChange={(val) =>
-                  updateContributor(index, 'creativeRoleId', parseInt(val))
+                onValueChange={
+                  (val) => updateContributor(index, 'role_id', parseInt(val)) // ← Fixed
                 }
                 disabled={isLoading}
               >
@@ -135,7 +128,8 @@ export function ContentContributorsForm({
               size='icon'
               onClick={() => removeContributor(index)}
               disabled={isLoading}
-              className='flex-shrink-0'
+              className='shrink-0'
+              aria-label='Remove contributor'
             >
               <X className='h-4 w-4' />
             </Button>
