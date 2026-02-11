@@ -39,6 +39,33 @@ export type Database = {
   };
   public: {
     Tables: {
+      addon_products: {
+        Row: {
+          created_at: string;
+          description: string | null;
+          id: string;
+          is_active: boolean;
+          name: string;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          is_active?: boolean;
+          name: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          is_active?: boolean;
+          name?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       articles: {
         Row: {
           body: string;
@@ -175,6 +202,7 @@ export type Database = {
       };
       contents: {
         Row: {
+          cover_image_url: string | null;
           created_at: string | null;
           id: number;
           issue_id: number;
@@ -187,6 +215,7 @@ export type Database = {
           updated_at: string | null;
         };
         Insert: {
+          cover_image_url?: string | null;
           created_at?: string | null;
           id?: number;
           issue_id: number;
@@ -199,6 +228,7 @@ export type Database = {
           updated_at?: string | null;
         };
         Update: {
+          cover_image_url?: string | null;
           created_at?: string | null;
           id?: number;
           issue_id?: number;
@@ -279,50 +309,21 @@ export type Database = {
         };
         Relationships: [];
       };
-      feature_images: {
-        Row: {
-          caption: string | null;
-          feature_id: number;
-          id: number;
-          image_url: string;
-          position: number | null;
-        };
-        Insert: {
-          caption?: string | null;
-          feature_id: number;
-          id?: number;
-          image_url: string;
-          position?: number | null;
-        };
-        Update: {
-          caption?: string | null;
-          feature_id?: number;
-          id?: number;
-          image_url?: string;
-          position?: number | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'feature_images_feature_id_fkey';
-            columns: ['feature_id'];
-            isOneToOne: false;
-            referencedRelation: 'features';
-            referencedColumns: ['id'];
-          },
-        ];
-      };
       features: {
         Row: {
           description: string | null;
           id: number;
+          image_urls: Json | null;
         };
         Insert: {
           description?: string | null;
           id: number;
+          image_urls?: Json | null;
         };
         Update: {
           description?: string | null;
           id?: number;
+          image_urls?: Json | null;
         };
         Relationships: [
           {
@@ -399,6 +400,166 @@ export type Database = {
         };
         Relationships: [];
       };
+      profiles: {
+        Row: {
+          account_claimed_at: string | null;
+          created_at: string;
+          display_name: string | null;
+          id: string;
+          stripe_customer_id: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          account_claimed_at?: string | null;
+          created_at?: string;
+          display_name?: string | null;
+          id: string;
+          stripe_customer_id?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          account_claimed_at?: string | null;
+          created_at?: string;
+          display_name?: string | null;
+          id?: string;
+          stripe_customer_id?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      subscription_addon_selections: {
+        Row: {
+          addon_product_id: string;
+          created_at: string;
+          id: string;
+          subscription_id: string;
+        };
+        Insert: {
+          addon_product_id: string;
+          created_at?: string;
+          id?: string;
+          subscription_id: string;
+        };
+        Update: {
+          addon_product_id?: string;
+          created_at?: string;
+          id?: string;
+          subscription_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'subscription_addon_selections_addon_product_id_fkey';
+            columns: ['addon_product_id'];
+            isOneToOne: false;
+            referencedRelation: 'addon_products';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'subscription_addon_selections_subscription_id_fkey';
+            columns: ['subscription_id'];
+            isOneToOne: false;
+            referencedRelation: 'subscriptions';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      subscription_tiers: {
+        Row: {
+          addon_slots: number;
+          created_at: string;
+          description: string | null;
+          id: string;
+          is_active: boolean;
+          name: string;
+          stripe_product_id: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          addon_slots?: number;
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          is_active?: boolean;
+          name: string;
+          stripe_product_id?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          addon_slots?: number;
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          is_active?: boolean;
+          name?: string;
+          stripe_product_id?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean;
+          created_at: string;
+          current_period_end: string | null;
+          current_period_start: string | null;
+          id: string;
+          status: string;
+          stripe_subscription_id: string;
+          tier_id: string;
+          tier_price_id: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          cancel_at_period_end?: boolean;
+          created_at?: string;
+          current_period_end?: string | null;
+          current_period_start?: string | null;
+          id?: string;
+          status?: string;
+          stripe_subscription_id: string;
+          tier_id: string;
+          tier_price_id: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          cancel_at_period_end?: boolean;
+          created_at?: string;
+          current_period_end?: string | null;
+          current_period_start?: string | null;
+          id?: string;
+          status?: string;
+          stripe_subscription_id?: string;
+          tier_id?: string;
+          tier_price_id?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'subscriptions_tier_id_fkey';
+            columns: ['tier_id'];
+            isOneToOne: false;
+            referencedRelation: 'subscription_tiers';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'subscriptions_tier_price_id_fkey';
+            columns: ['tier_price_id'];
+            isOneToOne: false;
+            referencedRelation: 'tier_prices';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'subscriptions_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       tags: {
         Row: {
           id: number;
@@ -414,14 +575,78 @@ export type Database = {
         };
         Relationships: [];
       };
+      tier_prices: {
+        Row: {
+          amount: number;
+          created_at: string;
+          currency: string;
+          id: string;
+          interval: string;
+          is_active: boolean;
+          stripe_price_id: string | null;
+          tier_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          amount: number;
+          created_at?: string;
+          currency?: string;
+          id?: string;
+          interval: string;
+          is_active?: boolean;
+          stripe_price_id?: string | null;
+          tier_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          amount?: number;
+          created_at?: string;
+          currency?: string;
+          id?: string;
+          interval?: string;
+          is_active?: boolean;
+          stripe_price_id?: string | null;
+          tier_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'tier_prices_tier_id_fkey';
+            columns: ['tier_id'];
+            isOneToOne: false;
+            referencedRelation: 'subscription_tiers';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
-      create_full_content: {
-        Args: { content_data: Json; contributors: Json; type_data: Json };
-        Returns: number;
+      create_full_content:
+        | {
+            Args: { content_data: Json; contributors: Json; type_data: Json };
+            Returns: number;
+          }
+        | {
+            Args: {
+              content_data: Json;
+              content_tags: Json;
+              contributors: Json;
+              type_data: Json;
+            };
+            Returns: number;
+          };
+      update_full_content: {
+        Args: {
+          content_data: Json;
+          content_tags: Json;
+          contributors: Json;
+          p_content_id: number;
+          type_data: Json;
+        };
+        Returns: undefined;
       };
     };
     Enums: {
