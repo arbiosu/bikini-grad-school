@@ -191,3 +191,90 @@ export function normalizeError(error: unknown): Error {
 
   return new Error('An unknown error occurred');
 }
+
+// Add these to your existing errors file
+
+/**
+ * Base class for service-level errors
+ * Services orchestrate between external APIs, repositories, and domain logic
+ */
+export abstract class ServiceError extends Error {
+  abstract readonly code: string;
+
+  constructor(
+    message: string,
+    public readonly cause?: unknown
+  ) {
+    super(message);
+    this.name = this.constructor.name;
+    Error.captureStackTrace(this, this.constructor);
+  }
+}
+
+/**
+ * External API errors (Stripe, etc.)
+ */
+export class ExternalServiceError extends ServiceError {
+  readonly code = 'EXTERNAL_SERVICE_ERROR';
+
+  constructor(
+    public readonly service: string,
+    message: string,
+    cause?: unknown
+  ) {
+    super(`${service}: ${message}`, cause);
+  }
+}
+
+/**
+ * When a service operation fails due to an underlying repository error
+ * Wraps the original RepositoryError with service-level context
+ */
+export class ServiceRepositoryError extends ServiceError {
+  readonly code = 'SERVICE_REPOSITORY_ERROR';
+
+  constructor(
+    public readonly operation: string,
+    public readonly repositoryError: RepositoryError
+  ) {
+    super(`${operation} failed: ${repositoryError.message}`, repositoryError);
+  }
+}
+
+/**
+ * When a multi-step service operation partially completes
+ * e.g., Stripe product created but DB insert failed
+ */
+export class PartialOperationError extends ServiceError {
+  readonly code = 'PARTIAL_OPERATION_ERROR';
+
+  constructor(
+    public readonly operation: string,
+    public readonly completedSteps: string[],
+    public readonly failedStep: string,
+    cause?: unknown
+  ) {
+    super(
+      `${operation} partially completed. Completed: [${completedSteps.join(', ')}]. Failed at: ${failedStep}`,
+      cause
+    );
+  }
+}
+
+// Type guards
+
+export function isServiceError(error: unknown): error is ServiceError {
+  return error instanceof ServiceError;
+}
+
+export function isExternalServiceError(
+  error: unknown
+): error is ExternalServiceError {
+  return error instanceof ExternalServiceError;
+}
+
+export function isPartialOperationError(
+  error: unknown
+): error is PartialOperationError {
+  return error instanceof PartialOperationError;
+}
