@@ -137,6 +137,18 @@ export class TransactionError extends RepositoryError {
   }
 }
 
+export class StorageError extends RepositoryError {
+  readonly code = 'STORAGE_ERROR';
+
+  constructor(message: string, cause?: unknown) {
+    super(message, cause);
+  }
+}
+
+export function isStorageError(error: unknown): error is StorageError {
+  return error instanceof StorageError;
+}
+
 /**
  * Type guard to check if error is a domain error
  */

@@ -2,7 +2,7 @@ import {
   ValidationResult,
   validResult,
   invalidResult,
-} from '@/lib/content/domain/types';
+} from '@/lib/common/result';
 
 /**
  * Abstract base class for content type handlers

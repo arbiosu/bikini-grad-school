@@ -1,4 +1,4 @@
-import { isValidationError, isNotFoundError } from './errors';
+import { isValidationError, isNotFoundError, isStorageError } from './errors';
 import type { ActionError } from './action-types';
 
 /**
@@ -19,6 +19,13 @@ export function serializeError(error: unknown): ActionError {
       message: error.message,
       entityType: error.entityType,
       identifier: error.identifier,
+    };
+  }
+
+  if (isStorageError(error)) {
+    return {
+      code: 'STORAGE_ERROR',
+      message: error.message,
     };
   }
 

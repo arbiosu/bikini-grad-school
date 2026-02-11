@@ -19,10 +19,15 @@ export interface SerializedConflictError extends SerializedError {
   conflictingField?: string;
 }
 
+export interface SerializedStorageError extends SerializedError {
+  code: 'STORAGE_ERROR';
+}
+
 export type ActionError =
   | SerializedValidationError
   | SerializedNotFoundError
   | SerializedConflictError
+  | SerializedStorageError
   | SerializedError;
 
 export type ActionResult<T> =

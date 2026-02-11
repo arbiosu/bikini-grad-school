@@ -5,13 +5,14 @@ import {
   ConflictError,
   RepositoryError,
 } from '@/lib/common/errors';
-import type { PostgrestError } from '@supabase/supabase-js';
+import type { PostgrestError, SupabaseClient } from '@supabase/supabase-js';
 
 /**
  * Base repository class providing common error handling patterns
  * All repositories should extend this class
  */
 export abstract class BaseRepository {
+  constructor(protected supabase: SupabaseClient) {}
   /**
    * Map Supabase PostgrestError to our domain RepositoryError
    */

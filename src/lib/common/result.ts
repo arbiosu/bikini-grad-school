@@ -1,5 +1,3 @@
-// lib/common/result.ts
-
 /**
  * Result type for type-safe error handling
  * Represents either a successful result or a failure
@@ -19,6 +17,12 @@ export type Result<T, E = Error> =
   | { success: true; data: T }
   | { success: false; error: E };
 
+/**
+ * Validation result type
+ */
+export type ValidationResult =
+  | { isValid: true; errors: [] }
+  | { isValid: false; errors: string[] };
 /**
  * Helper to create a successful result
  */
@@ -132,4 +136,18 @@ export function combineResults<T, E>(results: Result<T, E>[]): Result<T[], E> {
   }
 
   return success(data);
+}
+
+/**
+ * Helper to create a valid validation result
+ */
+export function validResult(): ValidationResult {
+  return { isValid: true, errors: [] };
+}
+
+/**
+ * Helper to create an invalid validation result
+ */
+export function invalidResult(errors: string[]): ValidationResult {
+  return { isValid: false, errors };
 }
