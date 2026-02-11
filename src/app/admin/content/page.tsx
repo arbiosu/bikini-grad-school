@@ -1,50 +1,103 @@
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import BackButton from '@/components/admin/back-button';
+import type { Metadata } from 'next';
+import { createServiceClient } from '@/lib/supabase/clients/service';
+import { createContentService } from '@/lib/container';
+import { redirect } from 'next/navigation';
 
-export default async function Page() {
-  // TODO: protect route
+import { AdminHeader } from '@/components/admin/admin-header';
+import { Stats } from '@/components/admin/stats';
+import { ContentTable } from '@/components/admin/content-table';
+import {
+  FileText,
+  CheckCircle2,
+  PenLine,
+  Newspaper,
+  Mic,
+  Star,
+} from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: 'Content Management - BGS Admin',
+  description:
+    'Manage articles, stories, and editorial pieces across all BGS issues.',
+};
+
+export default async function ContentPage() {
+  const supabase = await createServiceClient();
+  const service = createContentService(supabase);
+
+  const result = await service.listAllContent();
+
+  if (!result.success) {
+    redirect('/admin/error');
+  }
+
+  const content = result.data.data;
+  const totalCount = result.data.count || 0;
+
+  const articleCount = content.filter((c) => c.type === 'article');
+  const featureCount = content.filter((c) => c.type === 'feature');
+  const interviewCount = content.filter((c) => c.type === 'interview');
+  const publishedCount = content.filter((c) => c.published);
+
+  const stats = [
+    {
+      label: 'Total Content',
+      value: totalCount,
+      icon: FileText,
+    },
+    {
+      label: 'Published',
+      value: publishedCount.length,
+      icon: CheckCircle2,
+    },
+    {
+      label: 'Unpublished',
+      value: totalCount - publishedCount.length,
+      icon: PenLine,
+    },
+    {
+      label: 'Articles',
+      value: articleCount.length,
+      icon: Newspaper,
+    },
+    {
+      label: 'Features',
+      value: featureCount.length,
+      icon: Star,
+    },
+    {
+      label: 'Interviews',
+      value: interviewCount.length,
+      icon: Mic,
+    },
+  ];
+
   return (
-    <section className='mx-auto max-w-7xl'>
-      <div className='flex gap-8'>
-        <BackButton href='/admin' label='Back' />
-        <h1 className='text-center text-2xl font-bold underline'>
-          Admin Portal - Content
-        </h1>
-      </div>
+    <div className='bg-background min-h-screen'>
+      <AdminHeader breadcrumbs={[{ label: 'Content' }]} />
+      <main className='mx-auto max-w-7xl px-6 py-8 lg:px-8'>
+        <div className='mb-8'>
+          <h2 className='text-foreground text-2xl font-semibold tracking-tight text-balance'>
+            Content Management
+          </h2>
+          <p className='text-muted-foreground mt-1 text-sm'>
+            Create, edit, and organize articles and editorial pieces across all
+            BGS issues.
+          </p>
+        </div>
 
-      <div className='grid grid-cols-2 gap-8 p-4'>
-        <div className='grid max-w-xl gap-4'>
-          <p className='text-center text-2xl font-bold'>Create</p>
-          <Button asChild className='bg-violet-800 text-white'>
-            <Link href='/admin/content/new'>Create New Content</Link>
-          </Button>
-          <Button asChild className='bg-violet-800 text-white'>
-            <Link href='/admin/content/issues/new'>Create New Issue</Link>
-          </Button>
-          <Button asChild className='bg-violet-800 text-white'>
-            <Link href='/admin/content/tags/new'>Create New Tag</Link>
-          </Button>
-          <Button asChild className='bg-violet-800 text-white'>
-            <Link href='/admin/content/images/new'>Upload New Image</Link>
-          </Button>
+        <Stats stats={stats} />
+
+        <div className='mt-8'>
+          <ContentTable content={content} />
         </div>
-        <div className='grid max-w-xl gap-4'>
-          <p className='text-center text-2xl font-bold'>Manage</p>
-          <Button asChild className='bg-blue-800 text-white'>
-            <Link href='/admin/content/manage'>Manage Content</Link>
-          </Button>
-          <Button asChild className='bg-blue-800 text-white'>
-            <Link href='/admin/content/issues/manage'>Manage Issues</Link>
-          </Button>
-          <Button asChild className='bg-blue-800 text-white'>
-            <Link href='/admin/content/tags/manage'>Manage Tags</Link>
-          </Button>
-          <Button asChild className='bg-blue-800 text-white'>
-            <Link href='/admin/content/images/manage'>Manage Images</Link>
-          </Button>
-        </div>
-      </div>
-    </section>
+
+        <footer className='border-border mt-12 border-t pt-6 pb-8'>
+          <p className='text-muted-foreground text-xs'>
+            BGS Admin Portal &middot; Content Management System
+          </p>
+        </footer>
+      </main>
+    </div>
   );
 }

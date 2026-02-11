@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import PhotoHeader from '@/components/photo-header';
+import PhotoHeader from '@/components/layout/photo-header';
 
 interface StaffProps {
   src: string;

@@ -1,28 +1,36 @@
-import { queryIssues } from '@/lib/supabase/model/issues';
+import { redirect } from 'next/navigation';
+import { createServiceClient } from '@/lib/supabase/clients/service';
+import {
+  createIssueService,
+  createContributorService,
+  createRoleService,
+  createTagService,
+} from '@/lib/container';
 
 import { ContentForm } from '@/components/admin/forms/contents/contents';
-import { redirect } from 'next/navigation';
-import { queryContributor } from '@/lib/supabase/model/contributors';
-import { queryRoles } from '@/lib/supabase/model/roles';
-
-import BackButton from '@/components/admin/back-button';
+import BackButton from '@/components/back-button';
 
 export default async function Page() {
-  const { data: issueData, error } = await queryIssues();
+  const supabase = await createServiceClient();
+  const services = {
+    issue: createIssueService(supabase),
+    contributor: createContributorService(supabase),
+    roles: createRoleService(supabase),
+    tags: createTagService(supabase),
+  };
 
-  const { data: contributorData, error: contributorError } =
-    await queryContributor();
-
-  const { data: creativeRoleData, error: creativeRoleError } =
-    await queryRoles();
+  const [issues, contributors, roles, tags] = await Promise.all([
+    services.issue.getAllIssues(),
+    services.contributor.getAllContributors(),
+    services.roles.getAllRoles(),
+    services.tags.getAllTags(),
+  ]);
 
   if (
-    error ||
-    contributorError ||
-    creativeRoleError ||
-    !issueData ||
-    !contributorData ||
-    !creativeRoleData
+    !issues.success ||
+    !contributors.success ||
+    !roles.success ||
+    !tags.success
   ) {
     redirect('/admin/error');
   }
@@ -34,9 +42,10 @@ export default async function Page() {
       </div>
       <ContentForm
         mode='create'
-        issues={issueData}
-        availableContributors={contributorData}
-        creativeRoles={creativeRoleData}
+        issues={issues.data}
+        availableContributors={contributors.data}
+        creativeRoles={roles.data}
+        availableTags={tags.data}
       />
     </section>
   );

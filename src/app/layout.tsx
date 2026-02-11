@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { mainFont, chonkFont } from '../../public/fonts/fonts';
 import './globals.css';
-import Navbar from '@/components/nav';
-import { ThemeProvider } from '@/components/theme-provider';
+import Navbar from '@/components/layout/nav';
+import { ThemeProvider } from '@/components/layout/theme-provider';
 
 export const metadata: Metadata = {
   title: 'Bikini Grad School',
