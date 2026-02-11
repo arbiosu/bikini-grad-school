@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { X } from 'lucide-react';
-import type { FormContributor } from '@/hooks/useContentForm';
+import type { FormContributor } from '@/lib/common/form-types';
 
 interface ContentContributorsFormProps {
   contributors: FormContributor[];
@@ -37,7 +37,7 @@ export function ContentContributorsForm({
 
   const updateContributor = (
     index: number,
-    field: 'contributor_id' | 'role_id', // ← Fixed
+    field: 'contributor_id' | 'role_id',
     value: number
   ) => {
     const updated = [...contributors];
@@ -79,9 +79,8 @@ export function ContentContributorsForm({
                     ? undefined
                     : contributor.contributor_id.toString()
                 }
-                onValueChange={
-                  (val) =>
-                    updateContributor(index, 'contributor_id', parseInt(val)) // ← Fixed
+                onValueChange={(val) =>
+                  updateContributor(index, 'contributor_id', parseInt(val))
                 }
                 disabled={isLoading}
               >

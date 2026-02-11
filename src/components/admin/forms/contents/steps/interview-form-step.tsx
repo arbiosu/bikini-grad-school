@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import type { InterviewData } from '@/lib/content/domain/handlers';
+import type { InterviewData } from '@/domain/content/types';
 
 const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
 

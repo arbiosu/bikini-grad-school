@@ -8,6 +8,7 @@ interface ReviewStepProps {
   issues: Tables<'issues'>[];
   contributors: Tables<'contributors'>[];
   roles: Tables<'creative_roles'>[];
+  tags: Tables<'tags'>[];
 }
 
 export function ReviewStep({
@@ -15,6 +16,7 @@ export function ReviewStep({
   issues,
   contributors,
   roles,
+  tags,
 }: ReviewStepProps) {
   const issue = issues.find((i) => i.id === formData.issue_id);
 
@@ -54,6 +56,12 @@ export function ReviewStep({
               <dt className='w-32 font-medium text-gray-500'>Publish Date:</dt>
               <dd className='text-gray-900'>{formData.published_at}</dd>
             </div>
+            <div className='flex'>
+              <dt className='w-32 font-medium text-gray-500'>
+                Cover Image URL:
+              </dt>
+              <dd className='text-gray-900'>{formData.cover_image_url}</dd>
+            </div>
           </dl>
         </div>
 
@@ -63,7 +71,7 @@ export function ReviewStep({
             {formData.type === 'article' &&
               `Article body: ${formData.article?.body?.length || 0} characters`}
             {formData.type === 'feature' &&
-              `Description: ${formData.feature?.description?.length || 0} characters`}
+              `Images: ${formData.feature?.image_urls?.length || 0}`}
             {formData.type === 'interview' &&
               `Transcript: ${formData.interview?.transcript?.length || 0} characters`}
           </p>
@@ -80,6 +88,19 @@ export function ReviewStep({
               return (
                 <li key={i} className='text-gray-900'>
                   {contributor?.name} - {role?.name}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+        <div>
+          <h4 className='font-medium text-gray-700'>Tags:</h4>
+          <ul className='mt-2 space-y-1 text-sm'>
+            {formData.tags.map((t, i) => {
+              const tag = tags.find((con) => con.id === t.tag_id);
+              return (
+                <li key={i} className='text-gray-900'>
+                  {tag?.name}
                 </li>
               );
             })}

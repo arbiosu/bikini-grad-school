@@ -2,8 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import type { ArticleData } from '@/lib/content/domain/handlers';
+import type { ArticleData } from '@/domain/content/types';
 
 const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
 
@@ -29,19 +28,6 @@ export function ArticleFormStep({
           onChange={(value = '') => onChange({ ...data, body: value })}
           height={500}
           preview='edit'
-        />
-      </div>
-      <div>
-        <Label htmlFor='featured_image'>Featured Image URL</Label>
-        <Input
-          id='featured_image'
-          type='url'
-          value={data.featured_image || ''}
-          onChange={(e) =>
-            onChange({ ...data, featured_image: e.target.value })
-          }
-          disabled={disabled}
-          placeholder='https://example.com/image.jpg'
         />
       </div>
     </>

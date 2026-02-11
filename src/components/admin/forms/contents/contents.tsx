@@ -13,12 +13,15 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { ArrowRight, ArrowLeft, Sparkles } from 'lucide-react';
+
 import { IssueSelector } from '../../issue-selector';
 import { ContentContributorsForm } from '../content-contributors';
-import { ArrowRight, ArrowLeft, Sparkles } from 'lucide-react';
+import { ContentTagsForm } from '../content-tags';
 import { ArticleFormStep } from './steps/article-form-step';
 import { FeatureFormStep } from './steps/feature-form-step';
 import { InterviewFormStep } from './steps/interview-form-step';
+import { ImageUploader } from '../storage/image-uploader';
 import { ReviewStep } from './steps/review-step';
 import type { Tables } from '@/lib/supabase/database/types';
 
@@ -27,12 +30,14 @@ interface ContentFormProps {
   issues: Tables<'issues'>[];
   availableContributors: Tables<'contributors'>[];
   creativeRoles: Tables<'creative_roles'>[];
+  availableTags: Tables<'tags'>[];
   editData?: {
     content: Tables<'contents'>;
     article?: Tables<'articles'>;
     feature?: Tables<'features'>;
     interview?: Tables<'interviews'>;
     contributors?: Array<{ contributor_id: number; role_id: number }>;
+    tags?: Array<{ tag_id: number }>;
   };
 }
 
@@ -42,6 +47,7 @@ export function ContentForm(props: ContentFormProps) {
     issues,
     availableContributors,
     creativeRoles,
+    availableTags,
     editData,
   } = props;
 
@@ -53,6 +59,7 @@ export function ContentForm(props: ContentFormProps) {
     updateField,
     updateTypeData,
     updateContributors,
+    updateTags,
     generateSlug,
     goNext,
     goBack,
@@ -275,14 +282,35 @@ export function ContentForm(props: ContentFormProps) {
               availableRoles={creativeRoles}
             />
           )}
+          {/* Step 4: Tags */}
+
+          {currentStep >= 4 && (
+            <ContentTagsForm
+              tags={formData.tags}
+              onChange={updateTags}
+              availableTags={availableTags}
+            />
+          )}
+
+          {/* Step 5: Cover Image */}
+
+          {currentStep >= 5 && (
+            <ImageUploader
+              folder='covers'
+              value={formData.cover_image_url}
+              onChange={(url) => updateField('cover_image_url', url)}
+              label='Cover Image'
+            />
+          )}
 
           {/* Step 4: Review */}
-          {currentStep === 4 && (
+          {currentStep === 6 && (
             <ReviewStep
               formData={formData}
               issues={issues}
               contributors={availableContributors}
               roles={creativeRoles}
+              tags={availableTags}
             />
           )}
 
@@ -307,7 +335,6 @@ export function ContentForm(props: ContentFormProps) {
             )}
           </div>
 
-          {/* Submit Button (Final Step Only) */}
           {currentStep === maxSteps && (
             <Button
               type='submit'
