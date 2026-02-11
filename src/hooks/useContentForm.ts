@@ -1,40 +1,23 @@
 import { useState, useCallback, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
-import {
-  createContentAction,
-  updateContentAction,
-} from '@/app/actions/contents';
-import {
-  getHandler,
-  type ContentType,
-  type ArticleData,
-  type FeatureData,
-  type InterviewData,
-} from '@/lib/content/domain/handlers';
+import { createContentAction, updateContentAction } from '@/actions/contents';
+import { getHandler } from '@/domain/content/handlers';
+import type {
+  ContentType,
+  ArticleData,
+  FeatureData,
+  InterviewData,
+} from '@/domain/content/types';
 import { isValidationActionError } from '@/lib/common/action-types';
+import type {
+  FormStatus,
+  FormMode,
+  FormContributor,
+  FieldErrors,
+} from '@/lib/common/form-types';
 import type { Tables } from '@/lib/supabase/database/types';
 
-/**
- * Form mode: create new content or edit existing
- */
-type FormMode = 'create' | 'edit';
-
-/**
- * Form status state
- */
-type FormStatus =
-  | { type: 'idle' }
-  | { type: 'validating' }
-  | { type: 'submitting' }
-  | { type: 'success'; message: string }
-  | { type: 'error'; message: string; errors?: string[] };
-
-/**
- * Content contributor for form
- */
-export interface FormContributor {
-  contributor_id: number;
-  role_id: number;
+interface Tag {
+  tag_id: number;
 }
 
 /**
@@ -49,14 +32,20 @@ export interface ContentFormData {
   published_at: string;
   type: Exclude<ContentType, 'content'>;
   published: boolean;
+  cover_image_url: string | null;
 
   // Type-specific data
   article?: ArticleData;
   feature?: FeatureData;
   interview?: InterviewData;
+  // todo remove from content types
+  digi_media?: undefined;
 
   // Contributors
   contributors: FormContributor[];
+
+  // Content Tags
+  tags: Tag[];
 }
 
 /**
@@ -68,6 +57,7 @@ interface EditData {
   feature?: Tables<'features'>;
   interview?: Tables<'interviews'>;
   contributors?: FormContributor[];
+  tags?: Tag[];
 }
 
 /**
@@ -79,13 +69,6 @@ interface UseContentFormOptions {
   onSuccess?: (contentId: number) => void;
 }
 
-/**
- * Field validation errors for real-time feedback
- */
-interface FieldErrors {
-  [key: string]: string | undefined;
-}
-
 const INITIAL_FORM_DATA: ContentFormData = {
   title: '',
   slug: '',
@@ -95,9 +78,11 @@ const INITIAL_FORM_DATA: ContentFormData = {
   type: 'article',
   published: false,
   contributors: [],
+  tags: [],
+  cover_image_url: '',
 };
 
-const MAX_STEPS = 4;
+const MAX_STEPS = 6;
 
 /**
  * Custom hook for managing content form state and operations
@@ -105,7 +90,6 @@ const MAX_STEPS = 4;
  */
 export function useContentForm(options: UseContentFormOptions) {
   const { mode, editData, onSuccess } = options;
-  const router = useRouter();
 
   // Initialize form data
   const [formData, setFormData] = useState<ContentFormData>(() => {
@@ -118,6 +102,7 @@ export function useContentForm(options: UseContentFormOptions) {
         published_at: editData.content.published_at || '',
         type: editData.content.type,
         published: editData.content.published || false,
+        cover_image_url: editData.content.cover_image_url || '',
         article: editData.article
           ? {
               id: editData.article.id,
@@ -129,6 +114,7 @@ export function useContentForm(options: UseContentFormOptions) {
           ? {
               id: editData.feature.id,
               description: editData.feature.description || '',
+              image_urls: (editData.feature.image_urls as string[]) || [],
             }
           : undefined,
         interview: editData.interview
@@ -141,6 +127,7 @@ export function useContentForm(options: UseContentFormOptions) {
             }
           : undefined,
         contributors: editData.contributors || [],
+        tags: editData.tags || [],
       };
     }
     return INITIAL_FORM_DATA;
@@ -212,6 +199,16 @@ export function useContentForm(options: UseContentFormOptions) {
     [status.type]
   );
 
+  const updateTags = useCallback(
+    (tags: Tag[]) => {
+      setFormData((prev) => ({ ...prev, tags }));
+      if (status.type === 'error') {
+        setStatus({ type: 'idle' });
+      }
+    },
+    [status.type]
+  );
+
   /**
    * Auto-generate slug from title
    */
@@ -225,68 +222,51 @@ export function useContentForm(options: UseContentFormOptions) {
   }, [formData.title, updateField]);
 
   /**
-   * Validate current step
+   * Client-side validation
    */
   const validateStep = useCallback(
     (step: number): { isValid: boolean; errors: string[] } => {
       const errors: string[] = [];
 
       switch (step) {
-        case 1: // Basic info
-          if (!formData.title.trim()) {
-            errors.push('Title is required');
-          }
-          if (!formData.slug.trim()) {
-            errors.push('Slug is required');
-          }
-          if (formData.issue_id === 0) {
-            errors.push('Please select an issue');
-          }
-          if (!/^[a-z0-9-]+$/.test(formData.slug)) {
-            errors.push(
-              'Slug can only contain lowercase letters, numbers, and hyphens'
-            );
-          }
+        case 1:
+          if (!formData.title.trim()) errors.push('Title is required');
+          if (!formData.slug.trim()) errors.push('Slug is required');
+          if (formData.issue_id === 0) errors.push('Please select an issue');
           break;
 
-        case 2: // Type-specific data
-          const handler = getHandler(formData.type);
-          const typeData =
-            formData.type === 'article'
-              ? formData.article
-              : formData.type === 'feature'
-                ? formData.feature
-                : formData.interview;
-
-          if (!typeData) {
-            errors.push(`${formData.type} data is missing`);
-          } else {
-            const validation = handler.validate(typeData as any);
-            if (!validation.isValid) {
-              errors.push(...validation.errors);
-            }
-          }
+        case 2:
+          const typeData = formData[formData.type];
+          if (!typeData) errors.push(`${formData.type} data is missing`);
           break;
 
-        case 3: // Contributors
-          if (formData.contributors.length === 0) {
+        case 3:
+          if (formData.contributors.length === 0)
             errors.push('At least one contributor is required');
-          }
+          break;
 
-          const invalidContributors = formData.contributors.filter(
-            (c) => c.contributor_id === 0 || c.role_id === 0
-          );
-
-          if (invalidContributors.length > 0) {
-            errors.push('All contributors must have a role assigned');
+        case 4: // tags
+          if (formData.tags.length === 0) {
+            errors.push('At least one tag is required');
           }
           break;
 
-        case 4: // Review - validate everything
+        case 5: //image todo
+          break;
+
+        case 6: // Review - validate everything
           const step1 = validateStep(1);
           const step2 = validateStep(2);
           const step3 = validateStep(3);
-          errors.push(...step1.errors, ...step2.errors, ...step3.errors);
+          const step4 = validateStep(4);
+          const step5 = validateStep(5);
+          errors.push(
+            ...step1.errors,
+            ...step2.errors,
+            ...step3.errors,
+            ...step4.errors,
+            ...step5.errors
+          );
           break;
       }
 
@@ -371,9 +351,11 @@ export function useContentForm(options: UseContentFormOptions) {
             published_at: formData.published_at,
             published: false,
             type: formData.type,
+            cover_image_url: formData.cover_image_url,
           },
           typeData,
           contributors: formData.contributors,
+          tags: formData.tags,
         });
 
         if (!result.success) {
@@ -402,7 +384,7 @@ export function useContentForm(options: UseContentFormOptions) {
           onSuccess(result.data);
         } else {
           setTimeout(() => {
-            router.push(`/admin/content/${result.data}`);
+            resetForm();
           }, 1500);
         }
       } else {
@@ -418,9 +400,11 @@ export function useContentForm(options: UseContentFormOptions) {
             : formData.type === 'feature'
               ? formData.feature
               : formData.interview;
-
+        if (!typeData) {
+          setStatus({ type: 'error', message: 'No type data for editing' });
+          return;
+        }
         const result = await updateContentAction({
-          contentId: editData.content.id,
           content: {
             id: editData.content.id,
             title: formData.title,
@@ -429,9 +413,11 @@ export function useContentForm(options: UseContentFormOptions) {
             issue_id: formData.issue_id,
             published_at: formData.published_at,
             published: formData.published,
+            cover_image_url: formData.cover_image_url ?? '',
           },
-          typeData: typeData as any,
+          typeData: typeData,
           contributors: formData.contributors,
+          tags: formData.tags,
         });
 
         if (!result.success) {
@@ -468,7 +454,14 @@ export function useContentForm(options: UseContentFormOptions) {
             : 'An unexpected error occurred',
       });
     }
-  }, [formData, mode, editData, onSuccess, router, validateStep]);
+  }, [
+    formData,
+    mode,
+    editData,
+    onSuccess,
+    validateStep,
+    isValidationActionError,
+  ]);
 
   /**
    * Reset form to initial state
@@ -488,7 +481,9 @@ export function useContentForm(options: UseContentFormOptions) {
       1: 'Basic Information',
       2: 'Content Details',
       3: 'Contributors',
-      4: 'Review & Submit',
+      4: 'Tags',
+      5: 'Cover Image',
+      6: 'Review & Submit',
     };
     return labels[step as keyof typeof labels] || '';
   }, []);
@@ -505,6 +500,7 @@ export function useContentForm(options: UseContentFormOptions) {
     updateField,
     updateTypeData,
     updateContributors,
+    updateTags,
     generateSlug,
     goNext,
     goBack,
