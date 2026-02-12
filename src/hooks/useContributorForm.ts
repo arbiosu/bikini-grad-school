@@ -25,7 +25,7 @@ const INITIAL_FORM_DATA: ContributorData = {
 };
 
 export function useContributorForm(options: UseContributorFormOptions) {
-  return useEntityForm<ContributorData, EditData>({
+  return useEntityForm<ContributorData, EditData, number>({
     mode: options.mode,
     editData: options.editData,
     onSuccess: options.onSuccess,

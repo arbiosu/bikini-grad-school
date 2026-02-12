@@ -19,7 +19,7 @@ const INITIAL_FORM_DATA: TagData = {
 };
 
 export function useTagForm(options: UseTagFormOptions) {
-  return useEntityForm<TagData, EditData>({
+  return useEntityForm<TagData, EditData, number>({
     mode: options.mode,
     editData: options.editData,
     onSuccess: options.onSuccess,

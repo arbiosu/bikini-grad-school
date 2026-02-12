@@ -1,6 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
 import { createContentAction, updateContentAction } from '@/actions/contents';
-import { getHandler } from '@/domain/content/handlers';
 import type {
   ContentType,
   ArticleData,

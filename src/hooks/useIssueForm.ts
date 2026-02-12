@@ -23,7 +23,7 @@ const INITIAL_FORM_DATA: IssueData = {
 };
 
 export function useIssueForm(options: UseIssueFormOptions) {
-  return useEntityForm<IssueData, EditData>({
+  return useEntityForm<IssueData, EditData, number>({
     mode: options.mode,
     editData: options.editData,
     onSuccess: options.onSuccess,

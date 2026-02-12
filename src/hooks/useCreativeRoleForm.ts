@@ -19,7 +19,7 @@ const INITIAL_FORM_DATA: CreativeRoleData = {
 };
 
 export function useCreativeRoleForm(options: UseCreativeRoleFormOptions) {
-  return useEntityForm<CreativeRoleData, EditData>({
+  return useEntityForm<CreativeRoleData, EditData, number>({
     mode: options.mode,
     editData: options.editData,
     onSuccess: options.onSuccess,
