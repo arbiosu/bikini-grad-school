@@ -7,18 +7,18 @@ import type {
 import type { ActionResult } from '@/lib/common/action-types';
 import { isValidationActionError } from '@/lib/common/action-types';
 
-interface UseEntityFormOptions<TFormData, TEditData> {
+interface UseEntityFormOptions<TFormData, TEditData, TResult = number> {
   mode: FormMode;
   initialData: TFormData;
   editData?: TEditData;
 
   /** Maps the edit entity into the form data shape */
   mapEditToForm: (editData: TEditData) => TFormData;
-  createAction: (data: TFormData) => Promise<ActionResult<number>>;
+  createAction: (data: TFormData) => Promise<ActionResult<TResult>>;
   updateAction: (
     editData: TEditData,
     data: TFormData
-  ) => Promise<ActionResult<number>>;
+  ) => Promise<ActionResult<TResult>>;
 
   /** Callback fired after a successful create or update (after delay) */
   onSuccess?: () => void;
@@ -44,8 +44,8 @@ const DEFAULT_MESSAGES = {
   noEditId: 'No ID provided for editing',
 };
 
-export function useEntityForm<TFormData extends object, TEditData>(
-  options: UseEntityFormOptions<TFormData, TEditData>
+export function useEntityForm<TFormData extends object, TEditData, TResult>(
+  options: UseEntityFormOptions<TFormData, TEditData, TResult>
 ) {
   const {
     mode,
@@ -112,7 +112,7 @@ export function useEntityForm<TFormData extends object, TEditData>(
   );
 
   const handleError = useCallback(
-    (result: ActionResult<number>, fallbackMessage: string) => {
+    (result: ActionResult<TResult>, fallbackMessage: string) => {
       if (!result.success && result.error) {
         if (isValidationActionError(result.error)) {
           setStatus({
