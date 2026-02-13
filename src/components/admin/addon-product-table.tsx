@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useMemo } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -39,28 +40,49 @@ import {
   Eye,
   ArrowUpDown,
   FileText,
-  ImageIcon,
 } from 'lucide-react';
 
-import type { Tables } from '@/lib/supabase/database/types';
+import type { AddonProduct } from '@/domain/subscriptions/types';
 
-import { deleteTagAction } from '@/actions/tags';
+import { deactivateAddonAction } from '@/actions/subscriptions/tiers';
 
-type Tag = Tables<'tags'>;
-
-type SortField = 'name';
+type SortField = 'name' | 'created_at' | 'updated_at' | 'description';
 type SortDirection = 'asc' | 'desc';
-type FilterTab = 'all';
+type FilterTab = 'all' | 'active' | 'disabled';
 
-export function TagTable({ tags }: { tags: Tag[] }) {
-  const [items, setItems] = useState<Tag[]>(tags);
+function getActiveStatus(item: AddonProduct) {
+  if (item.is_active === true) return 'active' as const;
+  if (item.is_active === false) return 'disabled' as const;
+  return 'disabled' as const;
+}
+
+const activeStatusConfig = {
+  active: {
+    label: 'Active',
+    className:
+      'border-primary/30 bg-primary/10 text-primary hover:bg-primary/10',
+  },
+  disabled: {
+    label: 'Disabled',
+    className:
+      'border-border bg-secondary text-secondary-foreground hover:bg-secondary',
+  },
+};
+
+export function AddonProductTable({ addons }: { addons: AddonProduct[] }) {
+  const [items, setItems] = useState<AddonProduct[]>(addons);
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<boolean>(false);
-  const [deleteSuccess, setDeleteSuccess] = useState<boolean | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<Tag | null>(null);
+  const [showDeactivateConfirm, setShowDeactivateConfirm] =
+    useState<boolean>(false);
+  const [deactivateSuccess, setDeactivateSuccess] = useState<boolean | null>(
+    null
+  );
+  const [deactivateTarget, setDeactivateTarget] = useState<AddonProduct | null>(
+    null
+  );
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -71,19 +93,24 @@ export function TagTable({ tags }: { tags: Tag[] }) {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    const result = await deleteTagAction(id);
+  const handleDeactivate = async (id: string) => {
+    const result = await deactivateAddonAction(id);
     if (!result.success) {
-      setDeleteSuccess(false);
+      setDeactivateSuccess(true);
     } else {
       setItems((prev) => prev.filter((item) => item.id !== id));
-      setDeleteSuccess(true);
+      setDeactivateSuccess(true);
     }
-    setShowDeleteConfirm(false);
   };
 
-  const filteredTags = useMemo(() => {
+  const filteredAddons = useMemo(() => {
     let filtered = items;
+
+    if (activeTab === 'active') {
+      filtered = filtered.filter((item) => item.is_active === true);
+    } else if (activeTab === 'disabled') {
+      filtered = filtered.filter((item) => item.is_active === false);
+    }
 
     if (search) {
       const lowerSearch = search.toLowerCase();
@@ -100,11 +127,13 @@ export function TagTable({ tags }: { tags: Tag[] }) {
     });
 
     return filtered;
-  }, [items, search, activeTab, sortField, sortDirection]);
+  }, [[items, search, activeTab, sortField, sortDirection]]);
 
   const counts = useMemo(() => {
     return {
       all: items.length,
+      active: items.filter((i) => i.is_active === true).length,
+      disabled: items.filter((i) => i.is_active === false).length,
     };
   }, [items]);
 
@@ -114,7 +143,16 @@ export function TagTable({ tags }: { tags: Tag[] }) {
         <Tabs
           value={activeTab}
           onValueChange={(v) => setActiveTab(v as FilterTab)}
-        ></Tabs>
+        >
+          {' '}
+          <TabsList>
+            <TabsTrigger value='all'>All ({counts.all})</TabsTrigger>
+            <TabsTrigger value='active'>Active ({counts.active})</TabsTrigger>
+            <TabsTrigger value='disabled'>
+              Disabled ({counts.disabled})
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
         <div className='flex items-center gap-3'>
           <div className='relative'>
             <Search className='text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2' />
@@ -127,9 +165,9 @@ export function TagTable({ tags }: { tags: Tag[] }) {
           </div>
 
           <Button size='sm' variant={'outline'} asChild>
-            <Link href={'/admin/tags/new'}>
+            <Link href={'/admin/subscriptions/addons/new'}>
               <Plus className='h-4 w-4' />
-              <span className='hidden sm:inline'>New Tag</span>
+              <span className='hidden sm:inline'>New Subscription Add On</span>
             </Link>
           </Button>
         </div>
@@ -149,19 +187,38 @@ export function TagTable({ tags }: { tags: Tag[] }) {
                   <ArrowUpDown className='h-3 w-3' />
                 </button>
               </TableHead>
-              <TableHead>ID</TableHead>
+              <TableHead>Description</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>
+                <button
+                  type='button'
+                  onClick={() => handleSort('name')}
+                  className='hover:text-foreground flex items-center gap-1 transition-colors'
+                >
+                  Created At
+                </button>
+              </TableHead>
+              <TableHead>
+                <button
+                  type='button'
+                  onClick={() => handleSort('name')}
+                  className='hover:text-foreground flex items-center gap-1 transition-colors'
+                >
+                  Updated At
+                </button>
+              </TableHead>
               <TableHead className='w-12'>
                 <span className='sr-only'>Actions</span>
               </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredTags.length === 0 ? (
+            {filteredAddons.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={8} className='h-32 text-center'>
                   <div className='text-muted-foreground flex flex-col items-center gap-2'>
                     <FileText className='h-8 w-8' />
-                    <p className='text-sm'>No tags found</p>
+                    <p className='text-sm'>No Add Ons found</p>
                     <p className='text-xs'>
                       Try adjusting your search or filters.
                     </p>
@@ -169,7 +226,9 @@ export function TagTable({ tags }: { tags: Tag[] }) {
                 </TableCell>
               </TableRow>
             ) : (
-              filteredTags.map((item) => {
+              filteredAddons.map((item) => {
+                const status = getActiveStatus(item);
+                const statusStyle = activeStatusConfig[status];
                 return (
                   <TableRow key={item.id}>
                     <TableCell>
@@ -180,9 +239,43 @@ export function TagTable({ tags }: { tags: Tag[] }) {
                       </div>
                     </TableCell>
                     <TableCell className='hidden lg:table-cell'>
-                      <code className='text-muted-foreground bg-secondary rounded px-1.5 py-0.5 font-mono text-xs'>
-                        {item.id}
-                      </code>
+                      <div className='flex flex-col gap-0.5'>
+                        <span className='text-foreground leading-snug font-medium'>
+                          {item.description}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant='outline'
+                        className={statusStyle.className}
+                      >
+                        {statusStyle.label}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className='text-muted-foreground hidden text-sm md:table-cell'>
+                      {item.created_at
+                        ? new Date(item.created_at).toLocaleDateString(
+                            'en-US',
+                            {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                            }
+                          )
+                        : '--'}
+                    </TableCell>
+                    <TableCell className='text-muted-foreground hidden text-sm md:table-cell'>
+                      {item.updated_at
+                        ? new Date(item.updated_at).toLocaleDateString(
+                            'en-US',
+                            {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                            }
+                          )
+                        : '--'}
                     </TableCell>
                     <TableCell>
                       <DropdownMenu>
@@ -202,18 +295,20 @@ export function TagTable({ tags }: { tags: Tag[] }) {
                             View
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>
-                            <Link href={`/admin/tags/edit/${item.id}`}>
+                            <Link
+                              href={`/admin/subscriptions/addons/edit/${item.id}`}
+                            >
                               <Pencil className='h-4 w-4' />
                               Edit
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
-                            onClick={() => setDeleteTarget(item)}
+                            onClick={() => setDeactivateTarget(item)}
                             className='text-destructive focus:text-destructive'
                           >
                             <Trash2 className='h-4 w-4' />
-                            Delete
+                            Deactivate
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -223,27 +318,27 @@ export function TagTable({ tags }: { tags: Tag[] }) {
               })
             )}
             <AlertDialog
-              open={!!deleteTarget}
-              onOpenChange={(open) => !open && setDeleteTarget(null)}
+              open={!!deactivateTarget}
+              onOpenChange={(open) => !open && setDeactivateTarget(null)}
             >
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This will permanently delete the tag: {deleteTarget?.name}.
-                    This will remove ALL references to this tag. This action
-                    cannot be undone.
+                    This will deactivate the addon: {deactivateTarget?.name}.
+                    This will remove this addon from the shop list. It can be
+                    reactivated at any time.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={() =>
-                      deleteTarget && handleDelete(deleteTarget.id)
+                      deactivateTarget && handleDeactivate(deactivateTarget.id)
                     }
                     className='bg-rose-600 hover:bg-rose-700'
                   >
-                    Delete
+                    Deactivate
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -253,7 +348,7 @@ export function TagTable({ tags }: { tags: Tag[] }) {
       </div>
       <div className='text-muted-foreground flex items-center justify-between text-sm'>
         <p>
-          Showing {filteredTags.length} of {tags.length} items
+          Showing {filteredAddons.length} of {addons.length} items
         </p>
       </div>
     </div>

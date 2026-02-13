@@ -95,7 +95,8 @@ export function TierTable({ tiers }: { tiers: TierWithPrices[] }) {
   const handleDeactivate = async (id: string) => {
     const result = await deactivateTierAction(id);
     if (!result.success) {
-      setDeactivateSuccess(true);
+      console.log(result.error);
+      setDeactivateSuccess(false);
     } else {
       setItems((prev) => prev.filter((item) => item.id !== id));
       setDeactivateSuccess(true);
