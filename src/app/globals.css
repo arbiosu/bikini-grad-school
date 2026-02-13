@@ -4,9 +4,11 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --color-bgs-text: var(--bgs-pink-text);
   --color-bgs-pink: var(--bgs-pink);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --font-fraunces: var(--font-fraunces);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -46,7 +48,8 @@
 
 :root {
   --radius: 0.625rem;
-  --bgs-pink: oklch(0.8645 0.0671 350.75);
+  --bgs-pink-text: oklch(0.635 0.2576 350.75);
+  --bgs-pink: oklch(0.765 0.1315 326.31);
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -81,7 +84,6 @@
 }
 
 .dark {
-  --bgs-pink: oklch(0.5656 0.1049 2.16);
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -139,5 +141,8 @@
       -1px 1px 0 #000,
       1px 1px 0 #000,
       -6px 6px 0 #000;
+  }
+  .font-interlope {
+    font-family: var(--font-interlope);
   }
 }

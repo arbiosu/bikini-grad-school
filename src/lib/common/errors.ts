@@ -68,7 +68,7 @@ export class BusinessRuleError extends DomainError {
 }
 
 /**
- * Base class for all repository/infrastructure errors
+ * Base class for all repository errors
  */
 export abstract class RepositoryError extends Error {
   abstract readonly code: string;
@@ -260,8 +260,6 @@ export class PartialOperationError extends ServiceError {
     );
   }
 }
-
-// Type guards
 
 export function isServiceError(error: unknown): error is ServiceError {
   return error instanceof ServiceError;

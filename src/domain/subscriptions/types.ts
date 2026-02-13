@@ -1,3 +1,37 @@
+export interface Subscription {
+  id: string;
+  stripe_subscription_id: string;
+  user_id: string;
+  tier_id: string;
+  tier_price_id: string;
+  status:
+    | 'active'
+    | 'past_due'
+    | 'paused'
+    | 'unpaid'
+    | 'canceled'
+    | 'trialing'
+    | 'expired'
+    | 'incomplete'
+    | 'incomplete_expired';
+  current_period_start: string | null;
+  current_period_end: string | null;
+  cancel_at_period_end: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SubscriptionAddonSelection {
+  id: string;
+  subscription_id: string;
+  addon_product_id: string;
+  created_at: string;
+}
+
+export interface SubscriptionWithAddons extends Subscription {
+  addon_selections: SubscriptionAddonSelection[];
+}
+
 export interface SubscriptionTier {
   id: string;
   stripe_product_id: string | null;
@@ -30,6 +64,15 @@ export interface AddonProduct {
   updated_at: string;
 }
 
+export interface Profile {
+  id: string;
+  stripe_customer_id: string | null;
+  display_name: string | null;
+  account_claimed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 // --- DTOs (what the API receives) ---
 
 export interface CreateTierDTO {
@@ -57,6 +100,37 @@ export interface CreateAddonProductDTO {
 export interface UpdateAddonProductDTO {
   name?: string;
   description?: string;
+}
+
+export interface CreateCheckoutDTO {
+  tierId: string;
+  interval: 'month' | 'year';
+  addonProductIds: string[];
+  successUrl: string;
+  cancelUrl: string;
+}
+
+export interface HandleCheckoutCompletedDTO {
+  stripeSubscriptionId: string;
+  stripeCustomerId: string;
+  customerEmail: string;
+  metadata: {
+    tier_id: string;
+    tier_price_id: string;
+    addon_product_ids: string;
+  };
+}
+
+export interface ChangeTierDTO {
+  userId: string;
+  newTierId: string;
+  newInterval: 'month' | 'year';
+  addonProductIds: string[];
+}
+
+export interface SwapAddonsDTO {
+  userId: string;
+  addonProductIds: string[];
 }
 
 // --- Response Types (what the API returns) ---

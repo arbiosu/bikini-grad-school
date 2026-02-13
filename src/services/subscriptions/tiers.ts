@@ -226,20 +226,10 @@ export class TierService {
       );
     }
 
-    const priceResult = await this.repo.deactivatePriceForTier(id);
-    if (!priceResult.success) {
-      return failure(
-        new PartialOperationError(
-          'DeactivateTier',
-          ['stripe_deactivated'],
-          'db_deactivate_prices',
-          priceResult.error
-        )
-      );
-    }
-
     const deactivated = await this.repo.deactivate(id);
     if (!deactivated.success) {
+      console.log('deacrivate result failed');
+
       return failure(
         new PartialOperationError(
           'DeactivateTier',

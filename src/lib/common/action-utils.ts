@@ -1,9 +1,13 @@
-import { isValidationError, isNotFoundError, isStorageError } from './errors';
+import {
+  isValidationError,
+  isNotFoundError,
+  isStorageError,
+  isExternalServiceError,
+  isPartialOperationError,
+} from './errors';
+import { BusinessRuleError } from './errors';
 import type { ActionError } from './action-types';
 
-/**
- * Convert error class instances to serializable objects
- */
 export function serializeError(error: unknown): ActionError {
   if (isValidationError(error)) {
     return {
@@ -29,7 +33,29 @@ export function serializeError(error: unknown): ActionError {
     };
   }
 
-  // Handle ConflictError, DatabaseError, etc. as needed
+  if (error instanceof BusinessRuleError) {
+    return {
+      code: 'BUSINESS_RULE_ERROR',
+      message: error.message,
+      rule: error.rule,
+    };
+  }
+
+  if (isExternalServiceError(error)) {
+    return {
+      code: 'EXTERNAL_SERVICE_ERROR',
+      message: error.message,
+      service: error.service,
+    };
+  }
+
+  if (isPartialOperationError(error)) {
+    return {
+      code: 'PARTIAL_OPERATION_ERROR',
+      message: error.message,
+      operation: error.operation,
+    };
+  }
 
   if (error instanceof Error) {
     return {

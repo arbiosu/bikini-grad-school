@@ -6,6 +6,7 @@ import {
   RepositoryError,
 } from '@/lib/common/errors';
 import type { PostgrestError, SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '../supabase/database/types';
 
 /**
  * Base repository class providing common error handling patterns

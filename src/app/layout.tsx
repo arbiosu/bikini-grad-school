@@ -1,12 +1,17 @@
 import type { Metadata } from 'next';
-import { mainFont, chonkFont } from '../../public/fonts/fonts';
+import {
+  mainFont,
+  chonkFont,
+  interlope,
+  fraunces,
+} from '../../public/fonts/fonts';
 import './globals.css';
 import Navbar from '@/components/layout/nav';
 import { ThemeProvider } from '@/components/layout/theme-provider';
 
 export const metadata: Metadata = {
   title: 'Bikini Grad School',
-  description: 'The digital magazine for women and queer people',
+  description: 'A magazine for women and queer people',
 };
 
 export default function RootLayout({
@@ -17,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang='en' suppressHydrationWarning>
       <body
-        className={`${mainFont.variable} ${chonkFont.variable} antialiased`}
+        className={`${mainFont.variable} ${chonkFont.variable} ${interlope.variable} ${fraunces.variable} antialiased`}
       >
         <ThemeProvider
           attribute={'class'}

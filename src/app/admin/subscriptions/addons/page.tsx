@@ -1,58 +1,60 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { createServiceClient } from '@/lib/supabase/clients/service';
-import { createIssueService } from '@/lib/container';
+import { createAddonProductService } from '@/lib/container';
 
 import { AdminHeader } from '@/components/admin/admin-header';
-import { IssueTable } from '@/components/admin/issue-table';
+import { AddonProductTable } from '@/components/admin/addon-product-table';
 import { Stats } from '@/components/admin/stats';
 import { FileText, CheckCircle2, PenLine } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Issue Management - BGS Admin',
-  description: 'Manage all BGS issues.',
+  title: 'Subscription Addon Management - BGS Admin',
+  description: 'Manage all BGS shop add ons.',
 };
 
-export default async function IssuePage() {
+export default async function AddonPage() {
   const supabase = await createServiceClient();
-  const service = createIssueService(supabase);
+  const service = createAddonProductService(supabase);
 
-  const result = await service.getAllIssues();
+  const result = await service.list(false);
 
   if (!result.success) {
     redirect('/admin/error');
   }
 
-  const issues = result.data;
-  const count = issues.length;
-  const publishedCount = issues.filter((i) => i.published).length;
-  const unpublishedCount = count - publishedCount;
+  const addons = result.data;
+  const count = addons.length;
+  const activeCount = addons.filter((t) => t.is_active).length;
+  const inactiveCount = count - activeCount;
 
   const stats = [
     {
-      label: 'Total Issues',
+      label: 'Total Add Ons',
       value: count,
       icon: FileText,
     },
     {
-      label: 'Published',
-      value: publishedCount,
+      label: 'Active',
+      value: activeCount,
       icon: CheckCircle2,
     },
     {
-      label: 'Unpublished',
-      value: unpublishedCount,
+      label: 'Inactive',
+      value: inactiveCount,
       icon: PenLine,
     },
   ];
 
   return (
     <div className='bg-background min-h-screen'>
-      <AdminHeader breadcrumbs={[{ label: 'Content' }]} />
+      <AdminHeader
+        breadcrumbs={[{ label: 'Subscriptions' }, { label: 'Tiers' }]}
+      />
       <main className='mx-auto max-w-7xl px-6 py-8 lg:px-8'>
         <div className='mb-8'>
           <h2 className='text-foreground text-2xl font-semibold tracking-tight text-balance'>
-            Issue Management
+            Tier Management
           </h2>
           <p className='text-muted-foreground mt-1 text-sm'>
             Create, edit, and organize issues.
@@ -62,7 +64,7 @@ export default async function IssuePage() {
         <Stats stats={stats} />
 
         <div className='mt-8'>
-          <IssueTable issues={issues} />
+          <AddonProductTable addons={addons} />
         </div>
 
         <footer className='border-border mt-12 border-t pt-6 pb-8'>

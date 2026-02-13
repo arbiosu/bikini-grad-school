@@ -19,7 +19,7 @@ export class TierRepository extends BaseRepository {
       .order('addon_slots', { ascending: true });
 
     if (activeOnly) {
-      query = query.eq('active', true);
+      query = query.eq('is_active', true);
     }
 
     const result = await query;
@@ -70,11 +70,15 @@ export class TierRepository extends BaseRepository {
     return this.handleSingleResult(result, 'update', 'Subscription Tiers');
   }
 
-  async deactivate(id: string): Promise<Result<null, RepositoryError>> {
+  async deactivate(
+    id: string
+  ): Promise<Result<SubscriptionTier, RepositoryError>> {
     const result = await this.supabase
       .from('subscription_tiers')
       .update({ is_active: false })
-      .eq('id', id);
+      .eq('id', id)
+      .select()
+      .single();
 
     return this.handleSingleResult(result, 'update', 'Subscription Tiers');
   }
@@ -96,23 +100,15 @@ export class TierRepository extends BaseRepository {
 
   async deactivatePrice(
     priceId: string
-  ): Promise<Result<null, RepositoryError>> {
+  ): Promise<Result<TierPrice, RepositoryError>> {
     const result = await this.supabase
       .from('tier_prices')
       .update({ is_active: false })
-      .eq('id', priceId);
+      .eq('id', priceId)
+      .select()
+      .single();
 
-    return this.handleSingleResult(result, 'update', 'Tier Prices');
-  }
-
-  async deactivatePriceForTier(
-    tierId: string
-  ): Promise<Result<null, RepositoryError>> {
-    const result = await this.supabase
-      .from('tier_prices')
-      .update({ is_active: false })
-      .eq('tier_id', tierId);
-
+    console.log(result);
     return this.handleSingleResult(result, 'update', 'Tier Prices');
   }
 }
