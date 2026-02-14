@@ -229,8 +229,6 @@ export class TierService {
 
     const deactivated = await this.repo.deactivate(id);
     if (!deactivated.success) {
-      console.log('deacrivate result failed');
-
       return failure(
         new PartialOperationError(
           'DeactivateTier',

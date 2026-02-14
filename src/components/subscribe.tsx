@@ -46,8 +46,6 @@ export default function SubscribeCard() {
 
       const data = await res.json();
 
-      console.log(data);
-
       if (!res.ok) {
         if (res.status === 429) {
           setError(
@@ -61,7 +59,7 @@ export default function SubscribeCard() {
         setError(null);
       }
     } catch (error) {
-      console.log('Email error:', error);
+      console.log('Email error');
     } finally {
       setIsLoading(false);
     }

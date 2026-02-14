@@ -12,7 +12,6 @@ export default async function PricingPage() {
   ]);
 
   if (!tiersResult.success || !addonsResult.success) {
-    console.log(tiersResult, addonsResult);
     return (
       <div className='flex min-h-screen items-center justify-center'>
         <p className='text-red-500'>Failed to load pricing information.</p>
