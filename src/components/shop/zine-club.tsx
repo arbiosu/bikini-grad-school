@@ -109,10 +109,14 @@ export function ZineClub({ tiers, addons }: ZineClubProps) {
       {selectGetStarted && (
         <div className='flex flex-col gap-8'>
           <div className='font-fraunces'>
-            <p className='text-xl md:text-2xl'>Step One</p>
-            <h6 className='font-interlope text-center text-6xl md:text-7xl'>
-              Pick Your Tier
-            </h6>
+            <div>
+              <p className='pb-4 text-xl md:text-2xl'>Step One</p>
+            </div>
+            <div>
+              <h6 className='font-interlope text-center text-6xl md:text-7xl'>
+                Pick Your Tier
+              </h6>
+            </div>
           </div>
 
           {/* Interval Toggle */}
@@ -217,7 +221,7 @@ export function ZineClub({ tiers, addons }: ZineClubProps) {
                         <CardHeader
                           className={`p-0 ${isEven ? 'text-right' : 'text-left'}`}
                         >
-                          <CardTitle className='font-interlope text-bgs-text text-4xl font-normal md:text-6xl'>
+                          <CardTitle className='font-interlope text-bgs-text text-2xl font-normal md:text-4xl lg:text-6xl'>
                             {addon.name}
                           </CardTitle>
                         </CardHeader>
@@ -226,7 +230,7 @@ export function ZineClub({ tiers, addons }: ZineClubProps) {
                         >
                           <div className='flex flex-1 flex-col justify-between gap-4'>
                             <CardDescription
-                              className={`font-fraunces text-bgs-text max-w-md font-normal ${isEven ? 'ml-auto text-right' : ''}`}
+                              className={`font-fraunces text-bgs-text max-w-md text-xs font-normal md:text-lg lg:text-xl ${isEven ? 'ml-auto text-right' : ''}`}
                             >
                               {addon.description}
                             </CardDescription>
@@ -243,13 +247,13 @@ export function ZineClub({ tiers, addons }: ZineClubProps) {
                               </Button>
                             </div>
                           </div>
-                          <div className='relative aspect-square w-32 shrink-0 overflow-hidden rounded-sm md:w-64'>
+                          <div className='relative aspect-square w-20 shrink-0 overflow-hidden rounded-sm min-[375px]:w-24 sm:w-32 md:w-64'>
                             <Image
                               src={addon.image_url}
                               alt={addon.name}
                               fill
                               className='object-cover'
-                              sizes='(max-width: 768px) 192px, 256px'
+                              sizes='(max-width: 374px) 80px, (max-width: 639px) 96px, (max-width: 768px) 128px, 256px'
                             />
                           </div>
                         </div>

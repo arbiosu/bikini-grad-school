@@ -20,7 +20,7 @@ export default function VideoHero() {
           Your browser does not support the video tag.
         </video>
       </div>
-      <div className='absolute inset-0 mx-8 flex flex-col items-center justify-center'>
+      <div className='absolute inset-0 mx-8 flex flex-col items-center justify-center gap-8'>
         <h1 className='text-5xl text-white md:py-20 md:text-8xl lg:px-40'>
           <div className='mx-auto'>
             <span className='font-chonk chonk-shadow block text-center'>

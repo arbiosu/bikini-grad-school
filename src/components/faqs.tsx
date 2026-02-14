@@ -26,8 +26,8 @@ export function FAQHorizontalScroll({ faqs }: FAQProps) {
             key={faq.id}
             className='mr-4 inline-flex w-96 shrink-0 flex-col p-6 last:mr-0'
           >
-            <p className='mb-8 h-20 text-3xl font-bold'>{faq.question}</p>
-            <p className='text-xl leading-5 font-light'>{faq.answer}</p>
+            <p className='mb-8 h-20 text-xl font-bold'>{faq.question}</p>
+            <p className='text-lg leading-5 font-light'>{faq.answer}</p>
           </div>
         ))}
       </div>

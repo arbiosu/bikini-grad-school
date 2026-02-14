@@ -4,7 +4,7 @@ import { Button } from './ui/button';
 
 export default function ZineClubIntro() {
   return (
-    <section className='flex flex-col gap-8 px-2 py-10'>
+    <section className='flex flex-col gap-8 px-4 py-10'>
       <div>
         <h6 className='font-chonk chonk-shadow text-center text-5xl text-white md:text-7xl'>
           <span className='font-chonk chonk-shadow mb-4 block text-center'>
@@ -22,11 +22,11 @@ export default function ZineClubIntro() {
       <div>
         <div className='mx-auto grid grid-cols-1 items-center justify-items-center gap-2 md:grid-cols-2'>
           <div className='flex flex-col gap-8'>
-            <p className='font-main text-2xl font-bold'>
+            <p className='font-main text-center text-xl font-bold sm:text-left md:text-2xl'>
               get monthly zine mail
             </p>
             <div>
-              <p className='font-main max-w-lg text-lg'>
+              <p className='font-main max-w-lg text-base md:text-lg'>
                 BGS Zine Club is a monthly snail mail subscription service. You
                 can choose zines from a variety of girly topics to receive
                 monthly in your mailbox for less than a latte.
