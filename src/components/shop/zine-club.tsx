@@ -243,7 +243,7 @@ export function ZineClub({ tiers, addons }: ZineClubProps) {
                               </Button>
                             </div>
                           </div>
-                          <div className='relative aspect-square w-48 shrink-0 overflow-hidden rounded-xl md:w-64'>
+                          <div className='relative aspect-square w-32 shrink-0 overflow-hidden rounded-sm md:w-64'>
                             <Image
                               src={addon.image_url}
                               alt={addon.name}
