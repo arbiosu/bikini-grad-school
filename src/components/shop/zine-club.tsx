@@ -8,13 +8,7 @@ import type {
   AddonProduct,
 } from '@/domain/subscriptions/types';
 
-import {
-  Card,
-  CardTitle,
-  CardContent,
-  CardDescription,
-  CardHeader,
-} from '../ui/card';
+import { Card, CardTitle, CardDescription, CardHeader } from '../ui/card';
 import { Button } from '../ui/button';
 
 interface ZineClubProps {
@@ -161,15 +155,18 @@ export function ZineClub({ tiers, addons }: ZineClubProps) {
                   <h3 className='font-interlope text-bgs-text text-center text-4xl'>
                     {tier.name}
                   </h3>
-                  <div className='relative aspect-square w-48 shrink-0 overflow-hidden rounded-lg md:w-64'>
-                    <Image
-                      src={tier.image_url}
-                      alt='placeholder'
-                      fill
-                      className='object-cover'
-                      sizes='(max-width: 768px) 192px, 256px'
-                    />
+                  <div className='flex justify-center'>
+                    <div className='relative aspect-square w-48 shrink-0 overflow-hidden rounded-lg md:w-64'>
+                      <Image
+                        src={tier.image_url}
+                        alt='placeholder'
+                        fill
+                        className='object-cover'
+                        sizes='(max-width: 768px) 192px, 256px'
+                      />
+                    </div>
                   </div>
+
                   <p className='font-fraunces text-xl'>
                     You receive{' '}
                     {tier.addon_slots > 0 &&
@@ -246,10 +243,10 @@ export function ZineClub({ tiers, addons }: ZineClubProps) {
                               </Button>
                             </div>
                           </div>
-                          <div className='relative aspect-square w-48 shrink-0 overflow-hidden rounded-lg md:w-64'>
+                          <div className='relative aspect-square w-48 shrink-0 overflow-hidden rounded-xl md:w-64'>
                             <Image
                               src={addon.image_url}
-                              alt='placeholder'
+                              alt={addon.name}
                               fill
                               className='object-cover'
                               sizes='(max-width: 768px) 192px, 256px'

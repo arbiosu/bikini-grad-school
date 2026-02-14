@@ -25,10 +25,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div className='flex min-h-screen items-center justify-center bg-gray-50 px-4'>
-      <div className='w-full max-w-sm rounded-xl border border-gray-200 bg-white p-8'>
+    <div className='font-main flex min-h-screen items-center justify-center px-4'>
+      <div className='bg-alt-pink w-full max-w-sm rounded-xl border border-gray-200 p-4'>
         <h1 className='mb-1 text-2xl font-bold text-gray-900'>Log in</h1>
-        <p className='mb-6 text-sm text-gray-500'>
+        <p className='mb-6 text-sm text-black'>
           Access your subscription and account
         </p>
 
@@ -48,7 +48,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className='w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-gray-900 focus:outline-none'
+              className='w-full rounded-lg border border-black px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-gray-900 focus:outline-none'
             />
           </div>
           <div>
@@ -60,7 +60,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className='w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-gray-900 focus:outline-none'
+              className='w-full rounded-lg border border-black px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-gray-900 focus:outline-none'
             />
           </div>
           <button

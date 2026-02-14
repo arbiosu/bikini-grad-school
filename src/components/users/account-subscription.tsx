@@ -13,7 +13,6 @@ interface AddonDisplay {
 }
 
 interface AccountSubscriptionProps {
-  userId: string;
   subscription: SubscriptionWithAddons;
   tierName: string;
   addonSelections: AddonDisplay[];
@@ -90,11 +89,11 @@ export function AccountSubscription({
   const status = getStatusDisplay(subscription.status, cancelAtPeriodEnd);
 
   return (
-    <div className='space-y-6'>
+    <div className='font-main space-y-6'>
       {/* Subscription Details */}
-      <div className='rounded-xl border border-gray-200 bg-white p-6'>
+      <div className='rounded-xl border p-6'>
         <div className='mb-4 flex items-center justify-between'>
-          <h2 className='text-lg font-semibold text-gray-900'>Subscription</h2>
+          <h2 className='text-lg font-semibold'>Subscription</h2>
           <span
             className={`inline-block rounded-full px-2.5 py-1 text-xs font-medium ${status.className}`}
           >
@@ -104,14 +103,12 @@ export function AccountSubscription({
 
         <div className='space-y-3'>
           <div className='flex justify-between'>
-            <span className='text-sm text-gray-500'>Plan</span>
-            <span className='text-sm font-medium text-gray-900'>
-              {tierName}
-            </span>
+            <span className='text-sm'>Plan</span>
+            <span className='text-sm font-medium'>{tierName}</span>
           </div>
           <div className='flex justify-between'>
-            <span className='text-sm text-gray-500'>Current period</span>
-            <span className='text-sm text-gray-900'>
+            <span className='text-sm'>Current period</span>
+            <span className='text-sm'>
               {formatDate(subscription.current_period_start)} —{' '}
               {formatDate(subscription.current_period_end)}
             </span>
@@ -129,17 +126,12 @@ export function AccountSubscription({
 
       {/* Addon Selections */}
       {addonSelections.length > 0 && (
-        <div className='rounded-xl border border-gray-200 bg-white p-6'>
-          <h2 className='mb-4 text-lg font-semibold text-gray-900'>
-            Your add-ons
-          </h2>
+        <div className='rounded-xl border p-6'>
+          <h2 className='mb-4 text-lg font-semibold'>Your add-ons</h2>
           <div className='space-y-2'>
             {addonSelections.map((addon) => (
-              <div
-                key={addon.id}
-                className='flex items-center gap-2 text-sm text-gray-900'
-              >
-                <span className='h-1.5 w-1.5 rounded-full bg-gray-900' />
+              <div key={addon.id} className='flex items-center gap-2 text-sm'>
+                <span className='bg-primary h-1.5 w-1.5 rounded-full' />
                 {addon.name}
               </div>
             ))}
@@ -148,10 +140,8 @@ export function AccountSubscription({
       )}
 
       {/* Cancel / Reactivate */}
-      <div className='rounded-xl border border-gray-200 bg-white p-6'>
-        <h2 className='mb-2 text-lg font-semibold text-gray-900'>
-          Manage subscription
-        </h2>
+      <div className='rounded-xl border p-6'>
+        <h2 className='mb-2 text-lg font-semibold'>Manage subscription</h2>
 
         {error && (
           <div className='mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700'>
@@ -208,7 +198,7 @@ export function AccountSubscription({
             </p>
             <button
               onClick={() => setShowCancelConfirm(true)}
-              className='rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50'
+              className='rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-50'
             >
               Cancel subscription
             </button>
