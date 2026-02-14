@@ -12,6 +12,8 @@ export default function cloudflareLoader({
   let ASSET_URL = 'https://bikinigradschoolassets.com';
   if (process.env.NODE_ENV === 'development') {
     ASSET_URL = 'https://pub-2e58def0a2d64e1992d76e72a67be0ee.r2.dev';
+    console.log(`${ASSET_URL}/${normalizeSrc(src)}`);
+
     return `${ASSET_URL}/${normalizeSrc(src)}`;
   }
 

@@ -2,6 +2,7 @@ import Banner from '@/components/top-banner';
 import VideoHero from '@/components/video-hero';
 import { FAQHorizontalScroll } from '@/components/faqs';
 import ZineClubIntro from '@/components/zine-club-intro';
+import SubscribeCard from '@/components/subscribe';
 
 const faqs = [
   {
@@ -69,6 +70,9 @@ export default function Home() {
         </h6>
       </div>
       <FAQHorizontalScroll faqs={faqs} />
+      <div className='flex w-full max-w-full justify-center'>
+        <SubscribeCard />
+      </div>
     </>
   );
 }

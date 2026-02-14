@@ -13,15 +13,16 @@ const navLinks = [
 
 export default function Navbar() {
   return (
-    <nav className='font-main bg-background sticky top-0 right-0 left-0 z-50 px-2 transition-all duration-300'>
+    <nav className='font-main bg-background sticky top-0 right-0 left-0 z-50 px-2'>
       <div className='flex justify-center p-2'>
         <Link href='/'>
           <Image
-            src='/bgs-logo.png'
+            src='public/bgs-logo.png'
             alt='Bikini Grad School Logo'
             height={64}
             width={64}
-            unoptimized
+            className='h-16 w-16'
+            priority
           />
         </Link>
       </div>

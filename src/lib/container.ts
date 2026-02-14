@@ -92,3 +92,7 @@ export function createAddonProductService(supabase: SupabaseClient) {
   const repo = new AddonProductRepository(supabase);
   return new AddonProductService(repo);
 }
+
+export function createEmailService() {
+  return new EmailService(resend, process.env.FROM_EMAIL_ADDRESS!);
+}

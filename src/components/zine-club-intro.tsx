@@ -45,7 +45,7 @@ export default function ZineClubIntro() {
           <div>
             <div className='relative flex-1'>
               <Image
-                src={`/public/zine-club-zine-queen.png`}
+                src={`public/zine-club-zine-queen.png`}
                 alt='Bikini Grad School Zine Club'
                 width={400}
                 height={400}
