@@ -1,5 +1,5 @@
 import { BaseHandler } from '@/lib/common/base-handler';
-import type { ValidationResult } from '@/lib/content/domain/types';
+import type { ValidationResult } from '@/lib/common/result';
 import type { FileUpload } from '../types';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];

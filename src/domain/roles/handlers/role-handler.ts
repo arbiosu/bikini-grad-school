@@ -1,5 +1,5 @@
 import { BaseHandler } from '@/lib/common/base-handler';
-import { ValidationResult } from '@/lib/content/domain/types';
+import { ValidationResult } from '@/lib/common/result';
 import type { CreativeRoleData } from '../types';
 
 export class CreativeRoleHandler extends BaseHandler<CreativeRoleData> {

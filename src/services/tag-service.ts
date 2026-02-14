@@ -4,7 +4,7 @@ import {
   DatabaseError,
   RepositoryError,
 } from '@/lib/common/errors';
-import { TagHandler } from '@/lib/domain/tags/handlers/tag-handler';
+import { TagHandler } from '@/domain/tags/handlers/tag-handler';
 import { TagData } from '../domain/tags/types';
 import { TagRepository } from '../repositories/tag-repository';
 import type { Tables } from '@/lib/supabase/database/types';

@@ -1,5 +1,5 @@
 import { BaseHandler } from '@/lib/common/base-handler';
-import type { ValidationResult } from '@/lib/content/domain/handlers';
+import type { ValidationResult } from '@/lib/common/result';
 import { IssueData } from '../types';
 
 export class IssueHandler extends BaseHandler<IssueData> {
