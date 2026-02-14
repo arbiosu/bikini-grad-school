@@ -19,7 +19,7 @@ const R2 = new S3Client({
 });
 
 const BUCKET = 'bgs';
-const PUBLIC_URL = process.env.CLOUDFLARE_PUBLIC_URL;
+const PUBLIC_URL = process.env.NEXT_PUBLIC_CLOUDFLARE_PUBLIC_URL;
 
 export class StorageService {
   private handler = new StorageHandler();

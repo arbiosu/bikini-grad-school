@@ -4,6 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --color-alt-pink: var(--alt-pink);
   --color-bgs-text: var(--bgs-pink-text);
   --color-bgs-pink: var(--bgs-pink);
   --color-background: var(--background);
@@ -48,6 +49,7 @@
 
 :root {
   --radius: 0.625rem;
+  --alt-pink: oklch(0.9334 0.038458 353.2282);
   --bgs-pink-text: oklch(0.635 0.2576 350.75);
   --bgs-pink: oklch(0.765 0.1315 326.31);
   --background: oklch(1 0 0);

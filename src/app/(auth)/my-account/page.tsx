@@ -64,13 +64,11 @@ export default async function AccountPage() {
     : [];
 
   return (
-    <div className='min-h-screen bg-gray-50 px-4 py-16'>
+    <div className='font-main min-h-screen px-4 py-16'>
       <div className='mx-auto max-w-2xl'>
         <div className='mb-8 flex items-center justify-between'>
           <div>
-            <h1 className='mb-1 text-2xl font-bold text-gray-900'>
-              My Account
-            </h1>
+            <h1 className='mb-1 text-2xl font-bold'>My Account</h1>
             <p className='text-gray-500'>{user.email}</p>
           </div>
           <SignOutButton />

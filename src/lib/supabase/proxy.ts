@@ -73,7 +73,7 @@ export async function updateSession(request: NextRequest) {
     // Not logged in — redirect to admin login
     if (!isAuthenticated) {
       const url = request.nextUrl.clone();
-      url.pathname = ADMIN_LOGIN;
+      url.pathname = '/login';
       return NextResponse.redirect(url);
     }
 

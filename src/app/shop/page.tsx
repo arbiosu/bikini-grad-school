@@ -33,7 +33,7 @@ export default async function PricingPage() {
           </p>
           <div className='relative aspect-square w-80'>
             <Image
-              src='/zine-box.png'
+              src='/public/zine-box.png'
               alt='Zine Club Box'
               fill
               className='object-cover'

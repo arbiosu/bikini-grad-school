@@ -67,9 +67,9 @@ const navItems = [
     icon: Mail,
   },
   {
-    title: 'Products',
-    description: 'Create, edit and manage BGS products.',
-    href: '/admin/products',
+    title: 'Subscriptions',
+    description: 'Create, edit and manage BGS subscriptions.',
+    href: '/admin/subscriptions',
     icon: Mail,
   },
 ];
