@@ -39,6 +39,7 @@ export interface SubscriptionTier {
   description: string | null;
   addon_slots: number;
   is_active: boolean;
+  image_url: string;
   created_at: string;
   updated_at: string;
 }
@@ -60,6 +61,7 @@ export interface AddonProduct {
   name: string;
   description: string | null;
   is_active: boolean;
+  image_url: string;
   created_at: string;
   updated_at: string;
 }
@@ -73,8 +75,6 @@ export interface Profile {
   updated_at: string;
 }
 
-// --- DTOs (what the API receives) ---
-
 export interface CreateTierDTO {
   name: string;
   description?: string;
@@ -84,22 +84,26 @@ export interface CreateTierDTO {
     annual: number; // in cents
   };
   currency?: string;
+  image_url: string;
 }
 
 export interface UpdateTierDTO {
   name?: string;
   description?: string;
   addon_slots?: number;
+  image_url?: string;
 }
 
 export interface CreateAddonProductDTO {
   name: string;
   description?: string;
+  image_url: string;
 }
 
 export interface UpdateAddonProductDTO {
   name?: string;
   description?: string;
+  image_url?: string;
 }
 
 export interface CreateCheckoutDTO {
@@ -114,6 +118,16 @@ export interface HandleCheckoutCompletedDTO {
   stripeSubscriptionId: string;
   stripeCustomerId: string;
   customerEmail: string;
+  shippingAddress: {
+    city: string;
+    country: string;
+    line1: string;
+    line2: string;
+    postalCode: string;
+    state: string;
+  };
+  name: string;
+  promotionOptIn: boolean;
   metadata: {
     tier_id: string;
     tier_price_id: string;
