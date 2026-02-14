@@ -44,6 +44,7 @@ export type Database = {
           created_at: string;
           description: string | null;
           id: string;
+          image_url: string | null;
           is_active: boolean;
           name: string;
           updated_at: string;
@@ -52,6 +53,7 @@ export type Database = {
           created_at?: string;
           description?: string | null;
           id?: string;
+          image_url?: string | null;
           is_active?: boolean;
           name: string;
           updated_at?: string;
@@ -60,6 +62,7 @@ export type Database = {
           created_at?: string;
           description?: string | null;
           id?: string;
+          image_url?: string | null;
           is_active?: boolean;
           name?: string;
           updated_at?: string;
@@ -469,6 +472,7 @@ export type Database = {
           created_at: string;
           description: string | null;
           id: string;
+          image_url: string | null;
           is_active: boolean;
           name: string;
           stripe_product_id: string | null;
@@ -479,6 +483,7 @@ export type Database = {
           created_at?: string;
           description?: string | null;
           id?: string;
+          image_url?: string | null;
           is_active?: boolean;
           name: string;
           stripe_product_id?: string | null;
@@ -489,6 +494,7 @@ export type Database = {
           created_at?: string;
           description?: string | null;
           id?: string;
+          image_url?: string | null;
           is_active?: boolean;
           name?: string;
           stripe_product_id?: string | null;
