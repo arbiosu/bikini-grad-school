@@ -1,6 +1,6 @@
 'use client';
 
-import type { IssueData } from '@/lib/issues/domain/types';
+import type { IssueData } from '@/domain/issues/types';
 
 interface ReviewStepProps {
   formData: IssueData;

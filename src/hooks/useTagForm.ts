@@ -5,7 +5,7 @@ import type { Tables } from '@/lib/supabase/database/types';
 import type { FormMode } from '@/lib/common/form-types';
 
 interface EditData {
-  tag: Tables<'creative_roles'>;
+  tag: Tables<'tags'>;
 }
 
 interface UseTagFormOptions {
