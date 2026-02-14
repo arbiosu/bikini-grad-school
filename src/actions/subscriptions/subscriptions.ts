@@ -31,14 +31,22 @@ export async function createCheckoutAction(data: {
 }
 
 // --- Subscription Queries (authenticated) ---
-// TODO: unsecure, currently take userId as a parameter from the client. In production you'll want to get the user ID from the session server-side
 
-export async function getMySubscriptionAction(
-  userId: string
-): Promise<ActionResult<SubscriptionWithAddons>> {
+export async function getMySubscriptionAction(): Promise<
+  ActionResult<SubscriptionWithAddons>
+> {
   const supabase = await createServiceClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    return { success: false, error: serializeError('User not authenticated') };
+  }
+
   const service = createSubscriptionService(supabase);
-  const result = await service.getByUserId(userId);
+  const result = await service.getByUserId(user.id);
 
   if (!result.success) {
     return { success: false, error: serializeError(result.error) };
@@ -49,12 +57,19 @@ export async function getMySubscriptionAction(
 
 // --- Cancel / Reactivate ---
 
-export async function cancelSubscriptionAction(
-  userId: string
-): Promise<ActionResult<null>> {
+export async function cancelSubscriptionAction(): Promise<ActionResult<null>> {
   const supabase = await createServiceClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    return { success: false, error: serializeError('User not authenticated') };
+  }
+
   const service = createSubscriptionService(supabase);
-  const result = await service.cancel(userId);
+  const result = await service.cancel(user.id);
 
   if (!result.success) {
     return { success: false, error: serializeError(result.error) };
@@ -65,12 +80,21 @@ export async function cancelSubscriptionAction(
   return { success: true, data: null };
 }
 
-export async function reactivateSubscriptionAction(
-  userId: string
-): Promise<ActionResult<null>> {
+export async function reactivateSubscriptionAction(): Promise<
+  ActionResult<null>
+> {
   const supabase = await createServiceClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    return { success: false, error: serializeError('User not authenticated') };
+  }
+
   const service = createSubscriptionService(supabase);
-  const result = await service.reactivate(userId);
+  const result = await service.reactivate(user.id);
 
   if (!result.success) {
     return { success: false, error: serializeError(result.error) };
@@ -84,15 +108,22 @@ export async function reactivateSubscriptionAction(
 // --- Change Tier ---
 
 export async function changeTierAction(data: {
-  userId: string;
   newTierId: string;
   newInterval: 'month' | 'year';
   addonProductIds: string[];
 }): Promise<ActionResult<SubscriptionWithAddons>> {
   const supabase = await createServiceClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    return { success: false, error: serializeError('User not authenticated') };
+  }
   const service = createSubscriptionService(supabase);
   const result = await service.changeTier({
-    userId: data.userId,
+    userId: user.id,
     newTierId: data.newTierId,
     newInterval: data.newInterval,
     addonProductIds: data.addonProductIds,
@@ -110,12 +141,20 @@ export async function changeTierAction(data: {
 // --- Swap Addons ---
 
 export async function swapAddonsAction(data: {
-  userId: string;
   addonProductIds: string[];
 }): Promise<ActionResult<SubscriptionAddonSelection[]>> {
   const supabase = await createServiceClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    return { success: false, error: serializeError('User not authenticated') };
+  }
+
   const service = createSubscriptionService(supabase);
-  const result = await service.swapAddons(data);
+  const result = await service.swapAddons({ ...data, userId: user.id });
 
   if (!result.success) {
     return { success: false, error: serializeError(result.error) };
