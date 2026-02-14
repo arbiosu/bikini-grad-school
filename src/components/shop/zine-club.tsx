@@ -161,6 +161,15 @@ export function ZineClub({ tiers, addons }: ZineClubProps) {
                   <h3 className='font-interlope text-bgs-text text-center text-4xl'>
                     {tier.name}
                   </h3>
+                  <div className='relative aspect-square w-48 shrink-0 overflow-hidden rounded-lg md:w-64'>
+                    <Image
+                      src={tier.image_url}
+                      alt='placeholder'
+                      fill
+                      className='object-cover'
+                      sizes='(max-width: 768px) 192px, 256px'
+                    />
+                  </div>
                   <p className='font-fraunces text-xl'>
                     You receive{' '}
                     {tier.addon_slots > 0 &&
@@ -231,7 +240,7 @@ export function ZineClub({ tiers, addons }: ZineClubProps) {
                                 size='lg'
                                 onClick={() => toggleAddon(addon.id)}
                                 disabled={isDisabled}
-                                className='border-primary bg-bgs-pink font-fraunces border text-black'
+                                className={`border-primary font-fraunces border text-black hover:cursor-grab ${isSelected ? 'bg-blue-700 text-white hover:bg-blue-700' : 'bg-bgs-pink'}`}
                               >
                                 {isSelected ? 'selected!' : 'i choose you'}
                               </Button>
@@ -239,7 +248,7 @@ export function ZineClub({ tiers, addons }: ZineClubProps) {
                           </div>
                           <div className='relative aspect-square w-48 shrink-0 overflow-hidden rounded-lg md:w-64'>
                             <Image
-                              src='/bgs-logo.png'
+                              src={addon.image_url}
                               alt='placeholder'
                               fill
                               className='object-cover'
