@@ -9,7 +9,6 @@ import {
 } from 'lucide-react';
 import { AdminHeader } from '@/components/admin/admin-header';
 import { AdminNavCard } from '@/components/admin/admin-nav-card';
-import { AdminStats } from '@/components/admin/admin-stats';
 import { Stats } from '@/components/admin/stats';
 
 import { createServiceClient } from '@/lib/supabase/clients/service';

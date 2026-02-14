@@ -57,6 +57,28 @@ export async function POST(request: NextRequest) {
             tier_price_id: metadata.tier_price_id,
             addon_product_ids: metadata.addon_product_ids ?? '',
           },
+          shippingAddress: {
+            city:
+              session.collected_information?.shipping_details?.address.city ??
+              '',
+            country:
+              session.collected_information?.shipping_details?.address
+                .country ?? '',
+            line1:
+              session.collected_information?.shipping_details?.address.line1 ??
+              '',
+            line2:
+              session.collected_information?.shipping_details?.address.line2 ??
+              '',
+            postalCode:
+              session.collected_information?.shipping_details?.address
+                .postal_code ?? '',
+            state:
+              session.collected_information?.shipping_details?.address.state ??
+              '',
+          },
+          name: session.collected_information?.individual_name ?? '',
+          promotionOptIn: session.consent?.promotions === 'opt_in',
         });
 
         if (!result.success) {
