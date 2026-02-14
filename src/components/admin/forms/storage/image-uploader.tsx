@@ -73,7 +73,8 @@ export function ImageUploader({
       const publicUrl = await upload(file);
 
       if (publicUrl) {
-        onChange(publicUrl);
+        const objectKey = new URL(publicUrl).pathname.slice(1);
+        onChange(objectKey);
       } else {
         // Upload failed — revert preview
         setLocalPreview(null);
