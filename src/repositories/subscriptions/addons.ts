@@ -36,7 +36,7 @@ export class AddonProductRepository extends BaseRepository {
   }
 
   async create(
-    product: Pick<AddonProduct, 'name' | 'description'>
+    product: Pick<AddonProduct, 'name' | 'description' | 'image_url'>
   ): Promise<Result<AddonProduct, RepositoryError>> {
     const result = await this.supabase
       .from('addon_products')
@@ -49,7 +49,7 @@ export class AddonProductRepository extends BaseRepository {
 
   async update(
     id: string,
-    updates: Partial<Pick<AddonProduct, 'name' | 'description'>>
+    updates: Partial<Pick<AddonProduct, 'name' | 'description' | 'image_url'>>
   ): Promise<Result<AddonProduct, RepositoryError>> {
     const result = await this.supabase
       .from('addon_products')

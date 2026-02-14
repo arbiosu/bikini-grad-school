@@ -42,7 +42,7 @@ export class TierRepository extends BaseRepository {
   async create(
     tier: Pick<
       SubscriptionTier,
-      'name' | 'description' | 'addon_slots' | 'stripe_product_id'
+      'name' | 'description' | 'addon_slots' | 'stripe_product_id' | 'image_url'
     >
   ): Promise<Result<SubscriptionTier, RepositoryError>> {
     const result = await this.supabase
@@ -57,7 +57,10 @@ export class TierRepository extends BaseRepository {
   async update(
     id: string,
     updates: Partial<
-      Pick<SubscriptionTier, 'name' | 'description' | 'addon_slots'>
+      Pick<
+        SubscriptionTier,
+        'name' | 'description' | 'addon_slots' | 'image_url'
+      >
     >
   ): Promise<Result<SubscriptionTier, RepositoryError>> {
     const result = await this.supabase
@@ -98,17 +101,16 @@ export class TierRepository extends BaseRepository {
     return this.handleSingleResult(result, 'create', 'Tier Prices');
   }
 
-  async deactivatePrice(
+  async deletePriceByStripePriceId(
     priceId: string
   ): Promise<Result<TierPrice, RepositoryError>> {
     const result = await this.supabase
       .from('tier_prices')
-      .update({ is_active: false })
-      .eq('id', priceId)
+      .delete()
+      .eq('stripe_price_id', priceId)
       .select()
       .single();
 
-    console.log(result);
     return this.handleSingleResult(result, 'update', 'Tier Prices');
   }
 }
