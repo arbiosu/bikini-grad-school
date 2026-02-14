@@ -20,6 +20,7 @@ import type {
   SwapAddonsDTO,
   Profile,
 } from '@/domain/subscriptions/types';
+import { EmailService } from '../email-service';
 
 export class SubscriptionService {
   constructor(
@@ -27,7 +28,8 @@ export class SubscriptionService {
     private profileRepo: ProfileRepository,
     private tierRepo: TierRepository,
     private stripe: Stripe,
-    private supabaseAdmin: SupabaseClient
+    private supabaseAdmin: SupabaseClient,
+    private emailService: EmailService
   ) {}
 
   async getByUserId(
@@ -89,6 +91,19 @@ export class SubscriptionService {
           tier_price_id: tierPrice.id,
           addon_product_ids: dto.addonProductIds.join(','),
         },
+        allow_promotion_codes: true,
+        submit_type: 'subscribe',
+        subscription_data: {
+          metadata: {
+            tier_id: dto.tierId,
+            tier_price_id: tierPrice.id,
+            addon_product_ids: dto.addonProductIds.join(','),
+          },
+        },
+        shipping_address_collection: {
+          allowed_countries: ['US'],
+        },
+        billing_address_collection: 'required',
       });
 
       if (!session.url) {
@@ -102,6 +117,7 @@ export class SubscriptionService {
 
       return success({ url: session.url });
     } catch (err) {
+      console.log(err);
       return failure(
         new ExternalServiceError('Stripe', 'Failed to create checkout session')
       );
@@ -504,7 +520,7 @@ export class SubscriptionService {
     const { data: authData, error: authError } =
       await this.supabaseAdmin.auth.admin.createUser({
         email,
-        email_confirm: true, // Mark email as confirmed since they just paid with it
+        email_confirm: true,
       });
 
     if (authError) {
@@ -515,8 +531,32 @@ export class SubscriptionService {
         )
       );
     }
-    // todo retry loop
-    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    // Retry loop for db trigger
+    const maxAttempts = 5;
+    const delayMs = 500;
+    let profile: Profile | null = null;
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+
+      const profileResult = await this.profileRepo.findById(authData.user.id);
+      if (profileResult.success && profileResult.data) {
+        profile = profileResult.data;
+        break;
+      }
+    }
+
+    if (!profile) {
+      return failure(
+        new PartialOperationError(
+          'CreateUser',
+          ['auth_user_created'],
+          'profile_not_found_after_retries',
+          new Error('Profile was not created by trigger in time')
+        )
+      );
+    }
 
     // Attach Stripe customer ID to the new profile
     const updateResult = await this.profileRepo.update(authData.user.id, {
@@ -534,14 +574,30 @@ export class SubscriptionService {
       );
     }
 
-    // Send magic link / invite email for account claiming
-    const { error: inviteError } =
-      await this.supabaseAdmin.auth.admin.inviteUserByEmail(email);
+    // Send magic link for account claiming
+    const { data: linkData, error: linkError } =
+      await this.supabaseAdmin.auth.admin.generateLink({
+        type: 'magiclink',
+        email,
+        options: {
+          redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/claim-account`,
+        },
+      });
 
-    if (inviteError) {
-      // Non-fatal — user was created and subscription will work
-      // They just won't get the claim email. Log it but don't fail.
-      console.error('Failed to send invite email:', inviteError.message);
+    if (linkError || !linkData?.properties?.action_link) {
+      console.error('Failed to generate magic link:', linkError?.message);
+      // TODO send admin email
+      return updateResult;
+    }
+
+    const emailResult = await this.emailService.sendWelcomeClaimEmail(
+      email,
+      linkData.properties.action_link
+    );
+
+    if (!emailResult.success) {
+      // Non-fatal — subscription is active, they just won't get the email
+      console.error('Failed to send welcome email:', emailResult.error.message);
     }
 
     return updateResult;

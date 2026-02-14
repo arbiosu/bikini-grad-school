@@ -29,6 +29,7 @@ export class AddonProductService {
     const result = await this.repo.create({
       name: dto.name,
       description: dto.description ?? null,
+      image_url: dto.image_url,
     });
 
     if (!result.success) {
@@ -50,6 +51,7 @@ export class AddonProductService {
     const updateResult = await this.repo.update(id, {
       ...(dto.name && { name: dto.name }),
       ...(dto.description !== undefined && { description: dto.description }),
+      ...(dto.image_url && { image_url: dto.image_url }),
     });
 
     if (!updateResult.success) {

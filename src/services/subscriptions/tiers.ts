@@ -56,6 +56,7 @@ export class TierService {
       description: dto.description ?? null,
       addon_slots: dto.addon_slots,
       stripe_product_id: stripeProduct.id,
+      image_url: dto.image_url,
     });
 
     if (!tierResult.success) {
