@@ -7,6 +7,7 @@ import { StorageService } from '@/services/storage-service';
 import { SubscriptionService } from '@/services/subscriptions/subscriptions';
 import { TierService } from '@/services/subscriptions/tiers';
 import { AddonProductService } from '@/services/subscriptions/addons';
+import { EmailService } from '@/services/email-service';
 
 import { RepositoryFactory } from '@/repositories/content';
 import { TagRepository } from '@/repositories/tag-repository';
@@ -25,9 +26,13 @@ import { IssueHandler } from '@/domain/issues/handlers/issue-handler';
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
+import { Resend } from 'resend';
 
 /** Singleton instance of Stripe */
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+
+/** Singleton instance of Resend */
+export const resend = new Resend(process.env.RESEND_SECRET_KEY!);
 
 export function createContentService(supabase: SupabaseClient) {
   const repos = new RepositoryFactory(supabase);
@@ -64,12 +69,17 @@ export function createSubscriptionService(supabase: SupabaseClient) {
   const subRepo = new SubscriptionRepository(supabase);
   const tierRepo = new TierRepository(supabase);
   const profileRepo = new ProfileRepository(supabase);
+  const emailService = new EmailService(
+    resend,
+    process.env.FROM_EMAIL_ADDRESS!
+  );
   return new SubscriptionService(
     subRepo,
     profileRepo,
     tierRepo,
     stripe,
-    supabase
+    supabase,
+    emailService
   );
 }
 
