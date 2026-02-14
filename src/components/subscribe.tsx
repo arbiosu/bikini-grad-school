@@ -46,6 +46,8 @@ export default function SubscribeCard() {
 
       const data = await res.json();
 
+      console.log(data);
+
       if (!res.ok) {
         if (res.status === 429) {
           setError(
@@ -102,7 +104,11 @@ export default function SubscribeCard() {
           )}
         </CardContent>
         <CardFooter className=''>
-          <Button type='submit' disabled={isLoading}>
+          <Button
+            type='submit'
+            disabled={isLoading}
+            className='font-main bg-alt-pink border border-black font-bold text-black'
+          >
             {isLoading ? (
               <div className='flex items-center'>
                 <svg

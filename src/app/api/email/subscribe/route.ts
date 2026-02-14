@@ -2,7 +2,7 @@ import { createEmailService } from '@/lib/container';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
-const FROM_EMAIL = process.env.CONTACT_FORM_FROM_EMAIL;
+const FROM_EMAIL = process.env.FROM_EMAIL_ADDRESS;
 
 // Rate limit configuration
 const RATE_LIMIT = 3;
@@ -67,7 +67,7 @@ export async function POST(req: Request) {
 
   try {
     const safeEmail = escapeHtml(body.email);
-    if (service.verifyEmail(safeEmail)) {
+    if (!service.verifyEmail(safeEmail)) {
       return NextResponse.json({ error: 'Invalid Email' }, { status: 400 });
     }
     const result = await service.sendNewsletterWelcomeEmail(email);
