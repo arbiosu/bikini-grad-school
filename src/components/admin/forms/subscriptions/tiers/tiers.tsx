@@ -4,6 +4,7 @@ import { useTierForm } from '@/hooks/subscriptions/useTiersForm';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { ImageUploader } from '@/components/admin/forms/storage/image-uploader';
 import type { TierWithPrices } from '@/domain/subscriptions/types';
 
 interface TierFormProps {
@@ -80,9 +81,12 @@ export function TierForm(props: TierFormProps) {
             <Input
               id='monthly_price'
               type='number'
+              inputMode='decimal'
+              step='0.01'
+              min='0'
               value={formData.monthly_price / 100}
               onChange={(e) =>
-                updateField('monthly_price', e.target.valueAsNumber * 100)
+                updateField('monthly_price', Number(e.target.value) * 100)
               }
               disabled={isLoading || mode === 'edit'}
               required
@@ -93,15 +97,25 @@ export function TierForm(props: TierFormProps) {
             <Input
               id='annual_price'
               type='number'
+              inputMode='decimal'
+              step='0.01'
+              min='0'
               value={formData.annual_price / 100}
               onChange={(e) =>
-                updateField('annual_price', e.target.valueAsNumber * 100)
+                updateField('annual_price', Number(e.target.value) * 100)
               }
               disabled={isLoading || mode === 'edit'}
               required
             />
           </div>
-
+          <div>
+            <Label htmlFor='image_url'>Display Image*</Label>
+            <ImageUploader
+              folder='covers'
+              value={formData.image_url}
+              onChange={(url) => updateField('image_url', url ?? '')}
+            />
+          </div>
           {/* Status Messages */}
           <div className='min-h-5 space-y-2'>
             {isError && status.type === 'error' && (

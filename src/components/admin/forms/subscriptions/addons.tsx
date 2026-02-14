@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import type { AddonProduct } from '@/domain/subscriptions/types';
+import { ImageUploader } from '../storage/image-uploader';
 
 interface AddonProductFormProps {
   mode?: 'create' | 'edit';
@@ -59,6 +60,14 @@ export function AddonProductForm(props: AddonProductFormProps) {
               disabled={isLoading}
               required
               placeholder='You receive X amount of polaroids per month...'
+            />
+          </div>
+          <div>
+            <Label htmlFor='image_url'>Display Image*</Label>
+            <ImageUploader
+              folder='covers'
+              value={formData.image_url}
+              onChange={(url) => updateField('image_url', url ?? '')}
             />
           </div>
 
