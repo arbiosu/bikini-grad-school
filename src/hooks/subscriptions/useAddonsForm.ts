@@ -13,11 +13,13 @@ import type { FormMode } from '@/lib/common/form-types';
 interface AddonFormData {
   name: string;
   description: string;
+  image_url: string;
 }
 
 const INITIAL_FORM_DATA: AddonFormData = {
   name: '',
   description: '',
+  image_url: '',
 };
 
 interface UseAddonFormOptions {
@@ -36,6 +38,7 @@ export function useAddonForm(options: UseAddonFormOptions) {
     mapEditToForm: (editData) => ({
       name: editData.name,
       description: editData.description ?? '',
+      image_url: editData.image_url,
     }),
 
     createAction: (data) => createAddonAction(data),

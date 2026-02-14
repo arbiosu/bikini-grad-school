@@ -17,6 +17,7 @@ interface TierFormData {
   monthly_price: number; // in cents
   annual_price: number; // in cents
   currency: string;
+  image_url: string;
 }
 
 const INITIAL_FORM_DATA: TierFormData = {
@@ -26,6 +27,7 @@ const INITIAL_FORM_DATA: TierFormData = {
   monthly_price: 0,
   annual_price: 0,
   currency: 'usd',
+  image_url: '',
 };
 
 function mapEditToForm(tier: TierWithPrices): TierFormData {
@@ -43,6 +45,7 @@ function mapEditToForm(tier: TierWithPrices): TierFormData {
     monthly_price: monthlyPrice?.amount ?? 0,
     annual_price: annualPrice?.amount ?? 0,
     currency: monthlyPrice?.currency ?? 'usd',
+    image_url: tier.image_url,
   };
 }
 
@@ -56,6 +59,7 @@ function toCreateDTO(data: TierFormData): CreateTierDTO {
       annual: data.annual_price,
     },
     currency: data.currency,
+    image_url: data.image_url,
   };
 }
 
@@ -64,6 +68,7 @@ function toUpdateDTO(data: TierFormData): UpdateTierDTO {
     name: data.name,
     description: data.description || undefined,
     addon_slots: data.addon_slots,
+    image_url: data.image_url,
   };
 }
 
