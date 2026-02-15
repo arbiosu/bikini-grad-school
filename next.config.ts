@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'pub-2e58def0a2d64e1992d76e72a67be0ee.r2.dev',
+        hostname: 'bikinigradschoolassets.com',
         port: '',
       },
       // legacy storage for old content
