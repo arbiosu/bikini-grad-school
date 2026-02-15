@@ -130,9 +130,15 @@ export async function POST(request: NextRequest) {
 
       case 'invoice.payment_failed': {
         const invoice = event.data.object as Stripe.Invoice;
-        const subscriptionId = invoice.parent?.subscription_details as
-          | string
-          | null;
+        const subscriptionId =
+          invoice.parent?.subscription_details?.subscription;
+
+        if (typeof subscriptionId !== 'string') {
+          console.error(
+            'INVOICE_PAYMENT_FAILED: subscription id is not a string'
+          );
+          break;
+        }
 
         if (subscriptionId) {
           const result = await service.handleSubscriptionUpdated(
