@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createBrowserClient } from '@supabase/ssr';
+import { createClient } from '@/lib/supabase/clients/client';
 
 type PageState = 'loading' | 'set-password' | 'success' | 'error';
 
@@ -12,20 +12,19 @@ export default function ClaimAccountPage() {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  const supabase = createClient();
 
   useEffect(() => {
     async function handleTokenExchange() {
-      // Supabase redirects here with tokens in the hash fragment:
+      // Supabase redirects here with tokens in the hash fragment
       // #access_token=xxx&refresh_token=xxx&type=magiclink
       const hash = window.location.hash.substring(1);
       const params = new URLSearchParams(hash);
 
       const accessToken = params.get('access_token');
       const refreshToken = params.get('refresh_token');
+      // Clean tokens out of the URL
+      window.history.replaceState(null, '', '/claim-account');
 
       if (!accessToken || !refreshToken) {
         setState('error');
@@ -40,7 +39,6 @@ export default function ClaimAccountPage() {
       });
 
       if (sessionError) {
-        console.error('Failed to set session:', sessionError.message);
         setState('error');
         setError('Invalid or expired link. Please request a new one.');
         return;
@@ -54,12 +52,11 @@ export default function ClaimAccountPage() {
 
       if (userError || !user) {
         setState('error');
-        setError('Could not verify your identity. Please request a new link.');
+        setError(
+          'Could not verify your identity. Please request a new link by emailing us.'
+        );
         return;
       }
-
-      // Clean tokens out of the URL
-      window.history.replaceState(null, '', '/claim-account');
 
       setState('set-password');
     }
@@ -90,17 +87,6 @@ export default function ClaimAccountPage() {
       setError(updateError.message);
       setIsSubmitting(false);
       return;
-    }
-
-    // Mark account as claimed
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) {
-      await supabase
-        .from('profiles')
-        .update({ account_claimed_at: new Date().toISOString() })
-        .eq('id', user.id);
     }
 
     setState('success');

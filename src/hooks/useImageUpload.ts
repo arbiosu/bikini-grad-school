@@ -34,14 +34,12 @@ export function useImageUpload(folder: FileUpload['folder']) {
       });
 
       if (!response.ok) {
-        if (!response.ok) {
-          const text = await response.text();
-          console.error('Upload failed:', response.status, text);
-          setError(`Upload failed: ${response.status}`);
-          return null;
-        }
+        const text = await response.text();
+        console.log('Upload failed:', response.status, text);
+        setError(`Upload failed: ${response.status}`);
         return null;
       }
+
       return result.data.publicUrl;
     } catch (err) {
       setError('Upload failed');
