@@ -10,3 +10,8 @@ export interface PresignedUpload {
   publicUrl: string; // Final public URL to store in database
   key: string; // Object key in R2
 }
+
+export interface ListObjectsResult {
+  key: string;
+  size: number;
+}
