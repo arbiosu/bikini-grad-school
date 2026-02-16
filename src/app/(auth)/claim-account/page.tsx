@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/clients/client';
 
@@ -84,12 +85,15 @@ export default function ClaimAccountPage() {
     });
 
     if (updateError) {
-      setError(updateError.message);
+      setError(
+        'Failed to update your password. Please reach out to us for next steps.'
+      );
       setIsSubmitting(false);
       return;
     }
 
     setState('success');
+    setIsSubmitting(false);
   }
 
   return (
@@ -162,12 +166,12 @@ export default function ClaimAccountPage() {
             <p className='mb-6 text-gray-600'>
               Your account is ready. You can now log in anytime.
             </p>
-            <a
+            <Link
               href='/'
               className='inline-block rounded-lg bg-gray-900 px-6 py-2.5 font-medium text-white transition-colors hover:bg-gray-800'
             >
               Go to homepage
-            </a>
+            </Link>
           </div>
         )}
 
@@ -178,12 +182,12 @@ export default function ClaimAccountPage() {
               Something went wrong
             </h1>
             <p className='mb-6 text-gray-600'>{error}</p>
-            <a
+            <Link
               href='/'
               className='inline-block rounded-lg bg-gray-900 px-6 py-2.5 font-medium text-white transition-colors hover:bg-gray-800'
             >
               Go to homepage
-            </a>
+            </Link>
           </div>
         )}
       </div>
