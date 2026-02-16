@@ -2,7 +2,7 @@ export interface FileUpload {
   filename: string;
   contentType: string;
   size: number;
-  folder: 'covers' | 'avatars' | 'features' | 'articles';
+  folder: 'covers' | 'avatars' | 'features' | 'articles' | 'public';
 }
 
 export interface PresignedUpload {

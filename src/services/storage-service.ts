@@ -59,7 +59,7 @@ export class StorageService {
     }
   }
   // todo: add continuation/delimiter for large folders
-  async getFilesInFolder(
+  async getObjectsInFolder(
     folder: string
   ): Promise<Result<ListObjectsResult[], StorageError>> {
     try {
@@ -88,8 +88,7 @@ export class StorageService {
     }
   }
 
-  async delete(url: string): Promise<Result<void, StorageError>> {
-    const key = url.replace(`${PUBLIC_URL}/`, '');
+  async delete(key: string): Promise<Result<void, StorageError>> {
     try {
       await R2.send(
         new DeleteObjectCommand({
