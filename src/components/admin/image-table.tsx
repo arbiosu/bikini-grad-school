@@ -34,12 +34,10 @@ import {
   Search,
   Plus,
   MoreHorizontal,
-  Pencil,
   Trash2,
   Eye,
   ArrowUpDown,
   FileText,
-  ImageIcon,
 } from 'lucide-react';
 
 import type { ListObjectsResult } from '@/domain/storage/types';
@@ -218,6 +216,8 @@ export function ImageTable({ images }: { images: ListObjectsResult[] }) {
                           <DropdownMenuItem asChild>
                             <Link
                               href={`${process.env.NEXT_PUBLIC_CLOUDFLARE_PUBLIC_URL}/${item.key}`}
+                              prefetch={false}
+                              target='_blank'
                             >
                               <Eye className='h-4 w-4' />
                               View
@@ -229,7 +229,7 @@ export function ImageTable({ images }: { images: ListObjectsResult[] }) {
                             className='text-destructive focus:text-destructive'
                           >
                             <Trash2 className='h-4 w-4' />
-                            Deactivate
+                            Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -247,7 +247,8 @@ export function ImageTable({ images }: { images: ListObjectsResult[] }) {
                   <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                   <AlertDialogDescription>
                     This will delete the image: {deleteTarget?.key}. This will
-                    remove this image from Storage.
+                    remove this image from Storage. This action cannot be
+                    undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
