@@ -1,5 +1,6 @@
 import {
   S3Client,
+  ListObjectsV2Command,
   PutObjectCommand,
   DeleteObjectCommand,
 } from '@aws-sdk/client-s3';
@@ -7,7 +8,11 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { StorageHandler } from '../domain/storage/handlers/storage-handler';
 import { Result, success, failure } from '@/lib/common/result';
 import { ValidationError, StorageError } from '@/lib/common/errors';
-import type { FileUpload, PresignedUpload } from '../domain/storage/types';
+import type {
+  FileUpload,
+  PresignedUpload,
+  ListObjectsResult,
+} from '../domain/storage/types';
 
 const R2 = new S3Client({
   region: 'auto',
@@ -53,9 +58,37 @@ export class StorageService {
       return failure(new StorageError('Failed to generate upload URL'));
     }
   }
+  // todo: add continuation/delimiter for large folders
+  async getObjectsInFolder(
+    folder: string
+  ): Promise<Result<ListObjectsResult[], StorageError>> {
+    try {
+      const command = new ListObjectsV2Command({
+        Bucket: BUCKET,
+        Prefix: folder,
+      });
+      const response = await R2.send(command);
 
-  async delete(url: string): Promise<Result<void, StorageError>> {
-    const key = url.replace(`${PUBLIC_URL}/`, '');
+      if (!response.Contents || response.Contents.length === 0) {
+        return success([]);
+      }
+
+      const keys = response.Contents.map((result) => ({
+        key: result.Key ?? 'Undefined Key',
+        size: result.Size ?? 0,
+      }));
+
+      return success(keys);
+    } catch (error) {
+      return failure(
+        new StorageError(
+          `Failed to get files in folder ${folder}: ${error instanceof Error ? error.message : 'Unknown error'}`
+        )
+      );
+    }
+  }
+
+  async delete(key: string): Promise<Result<void, StorageError>> {
     try {
       await R2.send(
         new DeleteObjectCommand({

@@ -32,6 +32,10 @@ export interface SubscriptionWithAddons extends Subscription {
   addon_selections: SubscriptionAddonSelection[];
 }
 
+export interface FullSubscription extends SubscriptionWithAddons {
+  profiles: Profile;
+}
+
 export interface SubscriptionTier {
   id: string;
   stripe_product_id: string | null;

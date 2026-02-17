@@ -19,6 +19,7 @@ import type {
   ChangeTierDTO,
   SwapAddonsDTO,
   Profile,
+  FullSubscription,
 } from '@/domain/subscriptions/types';
 import { EmailService } from '../email-service';
 
@@ -40,6 +41,16 @@ export class SubscriptionService {
       return failure(
         new ServiceRepositoryError('GetSubscription', result.error)
       );
+    }
+    return result;
+  }
+
+  async getByStripeId(
+    id: string
+  ): Promise<Result<FullSubscription, ServiceError>> {
+    const result = await this.subscriptionRepo.findByStripeSubscriptionId(id);
+    if (!result.success) {
+      return failure(new ServiceRepositoryError('getByStripeId', result.error));
     }
     return result;
   }
@@ -601,5 +612,14 @@ export class SubscriptionService {
     }
 
     return updateResult;
+  }
+
+  async list(): Promise<Result<SubscriptionWithAddons[], ServiceError>> {
+    const result = await this.subscriptionRepo.findAll();
+    if (!result.success) {
+      return result;
+    }
+
+    return success(result.data.data);
   }
 }

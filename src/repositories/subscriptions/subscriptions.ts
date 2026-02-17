@@ -5,6 +5,7 @@ import type {
   Subscription,
   SubscriptionAddonSelection,
   SubscriptionWithAddons,
+  FullSubscription,
 } from '@/domain/subscriptions/types';
 
 export class SubscriptionRepository extends BaseRepository {
@@ -33,14 +34,31 @@ export class SubscriptionRepository extends BaseRepository {
     return this.handleSingleResult(result, 'read', 'Subscription');
   }
 
-  async findByStripeSubscriptionId(
-    stripeSubscriptionId: string
-  ): Promise<Result<SubscriptionWithAddons, RepositoryError>> {
+  async findAll(): Promise<
+    Result<
+      { data: SubscriptionWithAddons[]; count: number | null },
+      RepositoryError
+    >
+  > {
     const result = await this.supabase
       .from('subscriptions')
-      .select('*, addon_selections:subscription_addon_selections(*)')
+      .select('*, addon_selections:subscription_addon_selections(*)');
+
+    return this.handleQueryResult(result, 'SubscriptionWithAddons');
+  }
+
+  async findByStripeSubscriptionId(
+    stripeSubscriptionId: string
+  ): Promise<Result<FullSubscription, RepositoryError>> {
+    const result = await this.supabase
+      .from('subscriptions')
+      .select(
+        '*, addon_selections:subscription_addon_selections(*), profiles(*)'
+      )
       .eq('stripe_subscription_id', stripeSubscriptionId)
       .single();
+
+    console.log(result);
 
     return this.handleSingleResult(result, 'read', 'Subscription');
   }

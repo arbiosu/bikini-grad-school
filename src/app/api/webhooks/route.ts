@@ -18,7 +18,6 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // 1. Verify webhook signature
   let event: Stripe.Event;
   try {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
@@ -29,7 +28,6 @@ export async function POST(request: NextRequest) {
   const supabase = await createServiceClient();
   const service = createSubscriptionService(supabase);
 
-  // 2. Handle events
   try {
     switch (event.type) {
       case 'checkout.session.completed': {
