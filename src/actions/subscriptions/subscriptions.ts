@@ -8,6 +8,7 @@ import type { ActionResult } from '@/lib/common/action-types';
 import type {
   SubscriptionWithAddons,
   SubscriptionAddonSelection,
+  FullSubscription,
 } from '@/domain/subscriptions/types';
 
 // --- Checkout (unauthenticated) ---
@@ -161,6 +162,36 @@ export async function swapAddonsAction(data: {
   }
 
   revalidatePath('/', 'layout');
+
+  return { success: true, data: result.data };
+}
+
+// --- Admin ---
+export async function getAllSubscriptions(): Promise<
+  ActionResult<SubscriptionWithAddons[]>
+> {
+  const supabase = await createServiceClient();
+
+  const service = createSubscriptionService(supabase);
+  const result = await service.list();
+
+  if (!result.success) {
+    return { success: false, error: serializeError(result.error) };
+  }
+
+  return { success: true, data: result.data };
+}
+
+export async function getSubscriptionByStripeId(
+  id: string
+): Promise<ActionResult<FullSubscription>> {
+  const supabase = await createServiceClient();
+  const service = createSubscriptionService(supabase);
+  const result = await service.getByStripeId(id);
+
+  if (!result.success) {
+    return { success: false, error: serializeError(result.error) };
+  }
 
   return { success: true, data: result.data };
 }
