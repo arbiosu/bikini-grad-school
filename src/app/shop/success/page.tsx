@@ -19,7 +19,8 @@ export default function CheckoutSuccessPage() {
         <h1 className='mb-2 text-2xl font-bold'>Welcome to Zine Club!</h1>
         <p className='mb-4'>
           Your subscription is active. Check your email for a link to set up
-          your account. The link is active for 1 hour.
+          your account.{' '}
+          <span className='font-bold'>The link is active for 1 hour.</span>
         </p>
         <Button
           asChild
