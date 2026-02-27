@@ -4,6 +4,7 @@ import { useState } from 'react';
 import {
   cancelSubscriptionAction,
   reactivateSubscriptionAction,
+  swapAddonsAction,
 } from '@/actions/subscriptions/subscriptions';
 import type { SubscriptionWithAddons } from '@/domain/subscriptions/types';
 
@@ -12,22 +13,44 @@ interface AddonDisplay {
   name: string;
 }
 
+interface AddonProduct {
+  id: string;
+  name: string;
+  description?: string | null;
+}
+
 interface AccountSubscriptionProps {
   subscription: SubscriptionWithAddons;
   tierName: string;
   addonSelections: AddonDisplay[];
+  availableAddons: AddonProduct[];
+  addonSlots: number;
 }
 
 export function AccountSubscription({
   subscription,
   tierName,
   addonSelections,
+  availableAddons,
+  addonSlots,
 }: AccountSubscriptionProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [cancelAtPeriodEnd, setCancelAtPeriodEnd] = useState(
     subscription.cancel_at_period_end
+  );
+
+  // Addon swap state
+  const [isSwapping, setIsSwapping] = useState(false);
+  const [swapLoading, setSwapLoading] = useState(false);
+  const [swapError, setSwapError] = useState<string | null>(null);
+  const [selectedAddonIds, setSelectedAddonIds] = useState<string[]>(
+    addonSelections.map((a) => a.id)
+  );
+  // Track current confirmed selections for display
+  const [currentAddonIds, setCurrentAddonIds] = useState<string[]>(
+    addonSelections.map((a) => a.id)
   );
 
   function formatDate(dateStr: string | null): string {
@@ -86,7 +109,55 @@ export function AccountSubscription({
     setIsLoading(false);
   }
 
+  function handleAddonToggle(addonId: string) {
+    setSelectedAddonIds((prev) => {
+      if (prev.includes(addonId)) {
+        return prev.filter((id) => id !== addonId);
+      }
+      if (prev.length >= addonSlots) {
+        // Replace the last selected if at limit
+        return [...prev.slice(0, addonSlots - 1), addonId];
+      }
+      return [...prev, addonId];
+    });
+  }
+
+  function handleCancelSwap() {
+    setIsSwapping(false);
+    setSelectedAddonIds(currentAddonIds);
+    setSwapError(null);
+  }
+
+  async function handleSaveSwap() {
+    if (selectedAddonIds.length !== addonSlots) {
+      setSwapError(
+        `Please select exactly ${addonSlots} add-on${addonSlots !== 1 ? 's' : ''}.`
+      );
+      return;
+    }
+
+    setSwapLoading(true);
+    setSwapError(null);
+
+    const result = await swapAddonsAction({
+      addonProductIds: selectedAddonIds,
+    });
+
+    if (!result.success) {
+      console.log(result.error);
+      setSwapError(result.error.message);
+    } else {
+      setCurrentAddonIds(selectedAddonIds);
+      setIsSwapping(false);
+    }
+
+    setSwapLoading(false);
+  }
+
   const status = getStatusDisplay(subscription.status, cancelAtPeriodEnd);
+  const currentAddons = availableAddons.filter((a) =>
+    currentAddonIds.includes(a.id)
+  );
 
   return (
     <div className='font-main space-y-6'>
@@ -125,17 +196,144 @@ export function AccountSubscription({
       </div>
 
       {/* Addon Selections */}
-      {addonSelections.length > 0 && (
+      {addonSlots > 0 && (
         <div className='rounded-xl border p-6'>
-          <h2 className='mb-4 text-lg font-semibold'>Your add-ons</h2>
-          <div className='space-y-2'>
-            {addonSelections.map((addon) => (
-              <div key={addon.id} className='flex items-center gap-2 text-sm'>
-                <span className='bg-primary h-1.5 w-1.5 rounded-full' />
-                {addon.name}
-              </div>
-            ))}
+          <div className='mb-4 flex items-center justify-between'>
+            <div>
+              <h2 className='text-lg font-semibold'>Your add-ons</h2>
+              <p className='mt-0.5 text-xs text-gray-500'>
+                {addonSlots} slot{addonSlots !== 1 ? 's' : ''} included with
+                your plan
+              </p>
+            </div>
+            {!isSwapping && (
+              <button
+                onClick={() => setIsSwapping(true)}
+                className='rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50'
+              >
+                Change add-ons
+              </button>
+            )}
           </div>
+
+          {isSwapping ? (
+            <div className='space-y-4'>
+              <p className='text-sm text-gray-600'>
+                Select {addonSlots} add-on{addonSlots !== 1 ? 's' : ''} from the
+                options below.
+              </p>
+
+              <div className='space-y-2'>
+                {availableAddons.map((addon) => {
+                  const isSelected = selectedAddonIds.includes(addon.id);
+                  const isDisabled =
+                    !isSelected && selectedAddonIds.length >= addonSlots;
+
+                  return (
+                    <button
+                      key={addon.id}
+                      onClick={() => handleAddonToggle(addon.id)}
+                      disabled={isDisabled}
+                      className={`flex w-full items-start gap-3 rounded-lg border p-3 text-left transition-colors ${
+                        isSelected
+                          ? 'border-gray-900 bg-gray-50'
+                          : isDisabled
+                            ? 'cursor-not-allowed border-gray-100 opacity-40'
+                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      {/* Checkbox */}
+                      <div
+                        className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors ${
+                          isSelected
+                            ? 'border-gray-900 bg-gray-900'
+                            : 'border-gray-300 bg-white'
+                        }`}
+                      >
+                        {isSelected && (
+                          <svg
+                            className='h-2.5 w-2.5 text-white'
+                            viewBox='0 0 10 8'
+                            fill='none'
+                          >
+                            <path
+                              d='M1 4l3 3 5-6'
+                              stroke='currentColor'
+                              strokeWidth='1.5'
+                              strokeLinecap='round'
+                              strokeLinejoin='round'
+                            />
+                          </svg>
+                        )}
+                      </div>
+
+                      <div>
+                        <p className='text-sm font-medium'>{addon.name}</p>
+                        {addon.description && (
+                          <p className='mt-0.5 text-xs text-gray-500'>
+                            {addon.description}
+                          </p>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Selection count indicator */}
+              <div className='flex items-center gap-1.5'>
+                {Array.from({ length: addonSlots }).map((_, i) => (
+                  <div
+                    key={i}
+                    className={`h-1.5 w-6 rounded-full transition-colors ${
+                      i < selectedAddonIds.length
+                        ? 'bg-gray-900'
+                        : 'bg-gray-200'
+                    }`}
+                  />
+                ))}
+                <span className='ml-1 text-xs text-gray-500'>
+                  {selectedAddonIds.length}/{addonSlots} selected
+                </span>
+              </div>
+
+              {swapError && (
+                <div className='rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700'>
+                  {swapError}
+                </div>
+              )}
+
+              <div className='flex gap-2'>
+                <button
+                  onClick={handleSaveSwap}
+                  disabled={
+                    swapLoading || selectedAddonIds.length !== addonSlots
+                  }
+                  className='rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-800 disabled:opacity-50'
+                >
+                  {swapLoading ? 'Saving...' : 'Save changes'}
+                </button>
+                <button
+                  onClick={handleCancelSwap}
+                  disabled={swapLoading}
+                  className='rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50'
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : currentAddons.length > 0 ? (
+            <div className='space-y-2'>
+              {currentAddons.map((addon) => (
+                <div key={addon.id} className='flex items-center gap-2 text-sm'>
+                  <span className='bg-primary h-1.5 w-1.5 rounded-full' />
+                  {addon.name}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className='text-sm text-gray-500'>No add-ons selected.</p>
+          )}
         </div>
       )}
 

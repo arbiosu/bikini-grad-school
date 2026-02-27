@@ -622,4 +622,60 @@ export class SubscriptionService {
 
     return success(result.data.data);
   }
+
+  async resendClaimLink(email: string): Promise<Result<null, ServiceError>> {
+    // TODO: rate limit
+    const existing = await this.profileRepo.findByEmail(email);
+    if (!existing.success) {
+      return failure(
+        new ServiceRepositoryError('FindProfileByEmail', existing.error)
+      );
+    }
+
+    if (!existing.data) {
+      return failure(
+        new BusinessRuleError(
+          'user_not_found',
+          'No account found for this email'
+        )
+      );
+    }
+
+    if (existing.data.account_claimed_at) {
+      return failure(
+        new BusinessRuleError(
+          'already_claimed',
+          'Account has already been claimed'
+        )
+      );
+    }
+
+    const { data: linkData, error: linkError } =
+      await this.supabaseAdmin.auth.admin.generateLink({
+        type: 'magiclink',
+        email,
+        options: {
+          redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/claim-account`,
+        },
+      });
+
+    if (linkError || !linkData?.properties?.action_link) {
+      return failure(
+        new ExternalServiceError('Supabase', 'Failed to generate magic link')
+      );
+    }
+
+    const emailResult = await this.emailService.sendWelcomeClaimEmail(
+      email,
+      linkData.properties.action_link
+    );
+
+    if (!emailResult.success) {
+      return failure(
+        new ExternalServiceError('Email', 'Failed to send claim email')
+      );
+    }
+
+    return success(null);
+  }
 }
