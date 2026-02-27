@@ -2,6 +2,8 @@
 
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/clients/server';
+import { createServiceClient } from '@/lib/supabase/clients/service';
+import { createSubscriptionService } from '@/lib/container';
 import type { ActionResult } from '@/lib/common/action-types';
 
 export async function signOutAction() {
@@ -35,4 +37,23 @@ export async function loginAction(
   }
 
   redirect('/my-account');
+}
+
+export async function generateNewMagicLinkAction(
+  email: string
+): Promise<ActionResult<null>> {
+  const supabase = await createServiceClient();
+  const service = createSubscriptionService(supabase);
+
+  const result = await service.resendClaimLink(email);
+  if (!result.success) {
+    return {
+      success: false,
+      error: {
+        code: 'AUTH_ERROR',
+        message: result.error.message,
+      },
+    };
+  }
+  return { success: true, data: null };
 }

@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { createClient } from '@/lib/supabase/clients/server';
 import { createServiceClient } from '@/lib/supabase/clients/service';
 import { createSubscriptionService } from '@/lib/container';
 import { serializeError } from '@/lib/common/action-utils';
@@ -144,20 +145,24 @@ export async function changeTierAction(data: {
 export async function swapAddonsAction(data: {
   addonProductIds: string[];
 }): Promise<ActionResult<SubscriptionAddonSelection[]>> {
-  const supabase = await createServiceClient();
+  const supabase = await createClient();
   const {
     data: { user },
     error,
   } = await supabase.auth.getUser();
 
   if (error || !user) {
+    console.log(error);
     return { success: false, error: serializeError('User not authenticated') };
   }
+  // todo configure rls for delete
+  const supabaseAdmin = await createServiceClient();
 
-  const service = createSubscriptionService(supabase);
+  const service = createSubscriptionService(supabaseAdmin);
   const result = await service.swapAddons({ ...data, userId: user.id });
 
   if (!result.success) {
+    console.log(result.error);
     return { success: false, error: serializeError(result.error) };
   }
 

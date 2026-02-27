@@ -6,6 +6,11 @@ import {
   createTierService,
   createAddonProductService,
 } from '@/lib/container';
+import { getMySubscriptionAction } from '@/actions/subscriptions/subscriptions';
+import {
+  listActiveTiersAction,
+  listActiveAddonsAction,
+} from '@/actions/subscriptions/tiers';
 import { AccountSubscription } from '@/components/users/account-subscription';
 import { SignOutButton } from '@/components/users/sign-out-button';
 
@@ -31,7 +36,7 @@ export default async function AccountPage() {
       </section>
     );
   }
-
+  // todo refactor
   const serviceClient = await createServiceClient();
   const subscriptionService = createSubscriptionService(serviceClient);
   const tierService = createTierService(serviceClient);
@@ -41,7 +46,11 @@ export default async function AccountPage() {
   const tiersResult = await tierService.list(true);
   const addonsResult = await addonService.list(true);
 
-  if (!subscriptionResult.success || !tiersResult.success) {
+  if (
+    !subscriptionResult.success ||
+    !tiersResult.success ||
+    !addonsResult.success
+  ) {
     redirect('/error');
   }
 
@@ -51,17 +60,13 @@ export default async function AccountPage() {
   );
 
   // Map addon IDs to names
-  const addonSelections = subscriptionResult.success
-    ? subscriptionResult.data.addon_selections.map((s) => {
-        const addon = addonsResult.success
-          ? addonsResult.data.find((a) => a.id === s.addon_product_id)
-          : null;
-        return {
-          id: s.addon_product_id,
-          name: addon?.name ?? 'Unknown add-on',
-        };
-      })
-    : [];
+  const userAddons = subscriptionResult.data.addon_selections.map((s) => {
+    const addon = addonsResult.data.find((a) => a.id === s.addon_product_id);
+    return {
+      id: s.addon_product_id,
+      name: addon?.name ?? 'Unknown add-on',
+    };
+  });
 
   return (
     <div className='font-main min-h-screen px-4 py-16'>
@@ -78,7 +83,9 @@ export default async function AccountPage() {
           <AccountSubscription
             subscription={subscriptionResult.data}
             tierName={currentTier?.name ?? 'Unknown tier'}
-            addonSelections={addonSelections}
+            addonSelections={userAddons}
+            availableAddons={addonsResult.data}
+            addonSlots={currentTier?.addon_slots ?? 0}
           />
         ) : (
           <div className='rounded-xl border border-gray-200 p-6'>
