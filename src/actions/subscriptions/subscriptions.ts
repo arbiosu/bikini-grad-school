@@ -37,7 +37,7 @@ export async function createCheckoutAction(data: {
 export async function getMySubscriptionAction(): Promise<
   ActionResult<SubscriptionWithAddons>
 > {
-  const supabase = await createServiceClient();
+  const supabase = await createClient();
   const {
     data: { user },
     error,
@@ -46,8 +46,9 @@ export async function getMySubscriptionAction(): Promise<
   if (error || !user) {
     return { success: false, error: serializeError('User not authenticated') };
   }
+  const supabaseAdmin = await createServiceClient();
 
-  const service = createSubscriptionService(supabase);
+  const service = createSubscriptionService(supabaseAdmin);
   const result = await service.getByUserId(user.id);
 
   if (!result.success) {
@@ -60,7 +61,7 @@ export async function getMySubscriptionAction(): Promise<
 // --- Cancel / Reactivate ---
 
 export async function cancelSubscriptionAction(): Promise<ActionResult<null>> {
-  const supabase = await createServiceClient();
+  const supabase = await createClient();
   const {
     data: { user },
     error,
@@ -69,8 +70,9 @@ export async function cancelSubscriptionAction(): Promise<ActionResult<null>> {
   if (error || !user) {
     return { success: false, error: serializeError('User not authenticated') };
   }
+  const supabaseAdmin = await createServiceClient();
 
-  const service = createSubscriptionService(supabase);
+  const service = createSubscriptionService(supabaseAdmin);
   const result = await service.cancel(user.id);
 
   if (!result.success) {
@@ -85,7 +87,7 @@ export async function cancelSubscriptionAction(): Promise<ActionResult<null>> {
 export async function reactivateSubscriptionAction(): Promise<
   ActionResult<null>
 > {
-  const supabase = await createServiceClient();
+  const supabase = await createClient();
   const {
     data: { user },
     error,
@@ -94,8 +96,9 @@ export async function reactivateSubscriptionAction(): Promise<
   if (error || !user) {
     return { success: false, error: serializeError('User not authenticated') };
   }
+  const supabaseAdmin = await createServiceClient();
 
-  const service = createSubscriptionService(supabase);
+  const service = createSubscriptionService(supabaseAdmin);
   const result = await service.reactivate(user.id);
 
   if (!result.success) {
